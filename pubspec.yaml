@@ -1,7 +1,6 @@
-name: vector_map
+name: route_map
 description: "A new Flutter project."
 version: 0.0.1
-homepage:
 
 environment:
   sdk: ^3.7.2
@@ -10,14 +9,23 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  maplibre_gl: ^0.22.0
   flutter_svg: ^2.1.0
   freezed_annotation: ^2.4.4
+  collection: ^1.19.1
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      path: maplibre_gl
+      ref: release-0.23.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  tapped_lints:
+    git:
+      url: https://github.com/tappeddev/tapped_lints.git
+      ref: master
   build_runner: ^2.4.14
   freezed: ^2.5.8
 
@@ -25,7 +33,7 @@ dev_dependencies:
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
-flutter:
+#flutter:
 
   # To add assets to your package, add an assets section, like this:
   # assets:

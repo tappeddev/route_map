@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'vector_map_icon.dart';
+part of 'route_map_icon.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -16,59 +16,62 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$VectorMapIcon {
+mixin _$RouteMapIcon {
   Size get size => throw _privateConstructorUsedError;
   LatLng get latLng => throw _privateConstructorUsedError;
   String get identifier => throw _privateConstructorUsedError;
-  VectorMapIconTheme get theme => throw _privateConstructorUsedError;
+  RouteMapIconTheme get theme => throw _privateConstructorUsedError;
+  RouteMapIconTheme? get darkTheme => throw _privateConstructorUsedError;
   String? get svgIcon => throw _privateConstructorUsedError;
   String? get text => throw _privateConstructorUsedError;
-  dynamic Function(Size) get drawPath => throw _privateConstructorUsedError;
+  Path Function(Size) get drawPath => throw _privateConstructorUsedError;
   String? get label => throw _privateConstructorUsedError;
   bool get draggable => throw _privateConstructorUsedError;
-  VectorMapIconAnchor get anchor => throw _privateConstructorUsedError;
+  RouteMapIconAnchor get anchor => throw _privateConstructorUsedError;
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $VectorMapIconCopyWith<VectorMapIcon> get copyWith =>
+  $RouteMapIconCopyWith<RouteMapIcon> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $VectorMapIconCopyWith<$Res> {
-  factory $VectorMapIconCopyWith(
-    VectorMapIcon value,
-    $Res Function(VectorMapIcon) then,
-  ) = _$VectorMapIconCopyWithImpl<$Res, VectorMapIcon>;
+abstract class $RouteMapIconCopyWith<$Res> {
+  factory $RouteMapIconCopyWith(
+    RouteMapIcon value,
+    $Res Function(RouteMapIcon) then,
+  ) = _$RouteMapIconCopyWithImpl<$Res, RouteMapIcon>;
   @useResult
   $Res call({
     Size size,
     LatLng latLng,
     String identifier,
-    VectorMapIconTheme theme,
+    RouteMapIconTheme theme,
+    RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    dynamic Function(Size) drawPath,
+    Path Function(Size) drawPath,
     String? label,
     bool draggable,
-    VectorMapIconAnchor anchor,
+    RouteMapIconAnchor anchor,
   });
 
-  $VectorMapIconThemeCopyWith<$Res> get theme;
+  $RouteMapIconThemeCopyWith<$Res> get theme;
+  $RouteMapIconThemeCopyWith<$Res>? get darkTheme;
 }
 
 /// @nodoc
-class _$VectorMapIconCopyWithImpl<$Res, $Val extends VectorMapIcon>
-    implements $VectorMapIconCopyWith<$Res> {
-  _$VectorMapIconCopyWithImpl(this._value, this._then);
+class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
+    implements $RouteMapIconCopyWith<$Res> {
+  _$RouteMapIconCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -77,6 +80,7 @@ class _$VectorMapIconCopyWithImpl<$Res, $Val extends VectorMapIcon>
     Object? latLng = null,
     Object? identifier = null,
     Object? theme = null,
+    Object? darkTheme = freezed,
     Object? svgIcon = freezed,
     Object? text = freezed,
     Object? drawPath = null,
@@ -105,7 +109,12 @@ class _$VectorMapIconCopyWithImpl<$Res, $Val extends VectorMapIcon>
                 null == theme
                     ? _value.theme
                     : theme // ignore: cast_nullable_to_non_nullable
-                        as VectorMapIconTheme,
+                        as RouteMapIconTheme,
+            darkTheme:
+                freezed == darkTheme
+                    ? _value.darkTheme
+                    : darkTheme // ignore: cast_nullable_to_non_nullable
+                        as RouteMapIconTheme?,
             svgIcon:
                 freezed == svgIcon
                     ? _value.svgIcon
@@ -120,7 +129,7 @@ class _$VectorMapIconCopyWithImpl<$Res, $Val extends VectorMapIcon>
                 null == drawPath
                     ? _value.drawPath
                     : drawPath // ignore: cast_nullable_to_non_nullable
-                        as dynamic Function(Size),
+                        as Path Function(Size),
             label:
                 freezed == label
                     ? _value.label
@@ -135,59 +144,76 @@ class _$VectorMapIconCopyWithImpl<$Res, $Val extends VectorMapIcon>
                 null == anchor
                     ? _value.anchor
                     : anchor // ignore: cast_nullable_to_non_nullable
-                        as VectorMapIconAnchor,
+                        as RouteMapIconAnchor,
           )
           as $Val,
     );
   }
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $VectorMapIconThemeCopyWith<$Res> get theme {
-    return $VectorMapIconThemeCopyWith<$Res>(_value.theme, (value) {
+  $RouteMapIconThemeCopyWith<$Res> get theme {
+    return $RouteMapIconThemeCopyWith<$Res>(_value.theme, (value) {
       return _then(_value.copyWith(theme: value) as $Val);
+    });
+  }
+
+  /// Create a copy of RouteMapIcon
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $RouteMapIconThemeCopyWith<$Res>? get darkTheme {
+    if (_value.darkTheme == null) {
+      return null;
+    }
+
+    return $RouteMapIconThemeCopyWith<$Res>(_value.darkTheme!, (value) {
+      return _then(_value.copyWith(darkTheme: value) as $Val);
     });
   }
 }
 
 /// @nodoc
-abstract class _$$VectorMapIconImplCopyWith<$Res>
-    implements $VectorMapIconCopyWith<$Res> {
-  factory _$$VectorMapIconImplCopyWith(
-    _$VectorMapIconImpl value,
-    $Res Function(_$VectorMapIconImpl) then,
-  ) = __$$VectorMapIconImplCopyWithImpl<$Res>;
+abstract class _$$RouteMapIconImplCopyWith<$Res>
+    implements $RouteMapIconCopyWith<$Res> {
+  factory _$$RouteMapIconImplCopyWith(
+    _$RouteMapIconImpl value,
+    $Res Function(_$RouteMapIconImpl) then,
+  ) = __$$RouteMapIconImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
     Size size,
     LatLng latLng,
     String identifier,
-    VectorMapIconTheme theme,
+    RouteMapIconTheme theme,
+    RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    dynamic Function(Size) drawPath,
+    Path Function(Size) drawPath,
     String? label,
     bool draggable,
-    VectorMapIconAnchor anchor,
+    RouteMapIconAnchor anchor,
   });
 
   @override
-  $VectorMapIconThemeCopyWith<$Res> get theme;
+  $RouteMapIconThemeCopyWith<$Res> get theme;
+  @override
+  $RouteMapIconThemeCopyWith<$Res>? get darkTheme;
 }
 
 /// @nodoc
-class __$$VectorMapIconImplCopyWithImpl<$Res>
-    extends _$VectorMapIconCopyWithImpl<$Res, _$VectorMapIconImpl>
-    implements _$$VectorMapIconImplCopyWith<$Res> {
-  __$$VectorMapIconImplCopyWithImpl(
-    _$VectorMapIconImpl _value,
-    $Res Function(_$VectorMapIconImpl) _then,
+class __$$RouteMapIconImplCopyWithImpl<$Res>
+    extends _$RouteMapIconCopyWithImpl<$Res, _$RouteMapIconImpl>
+    implements _$$RouteMapIconImplCopyWith<$Res> {
+  __$$RouteMapIconImplCopyWithImpl(
+    _$RouteMapIconImpl _value,
+    $Res Function(_$RouteMapIconImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -196,6 +222,7 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
     Object? latLng = null,
     Object? identifier = null,
     Object? theme = null,
+    Object? darkTheme = freezed,
     Object? svgIcon = freezed,
     Object? text = freezed,
     Object? drawPath = null,
@@ -204,7 +231,7 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
     Object? anchor = null,
   }) {
     return _then(
-      _$VectorMapIconImpl(
+      _$RouteMapIconImpl(
         size:
             null == size
                 ? _value.size
@@ -224,7 +251,12 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
             null == theme
                 ? _value.theme
                 : theme // ignore: cast_nullable_to_non_nullable
-                    as VectorMapIconTheme,
+                    as RouteMapIconTheme,
+        darkTheme:
+            freezed == darkTheme
+                ? _value.darkTheme
+                : darkTheme // ignore: cast_nullable_to_non_nullable
+                    as RouteMapIconTheme?,
         svgIcon:
             freezed == svgIcon
                 ? _value.svgIcon
@@ -239,7 +271,7 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
             null == drawPath
                 ? _value.drawPath
                 : drawPath // ignore: cast_nullable_to_non_nullable
-                    as dynamic Function(Size),
+                    as Path Function(Size),
         label:
             freezed == label
                 ? _value.label
@@ -254,7 +286,7 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
             null == anchor
                 ? _value.anchor
                 : anchor // ignore: cast_nullable_to_non_nullable
-                    as VectorMapIconAnchor,
+                    as RouteMapIconAnchor,
       ),
     );
   }
@@ -262,23 +294,23 @@ class __$$VectorMapIconImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$VectorMapIconImpl extends _VectorMapIcon {
-  const _$VectorMapIconImpl({
+class _$RouteMapIconImpl implements _RouteMapIcon {
+  const _$RouteMapIconImpl({
     required this.size,
     required this.latLng,
     required this.identifier,
     required this.theme,
+    this.darkTheme,
     this.svgIcon,
     this.text,
     required this.drawPath,
     this.label,
     this.draggable = false,
-    this.anchor = VectorMapIconAnchor.bottom,
+    this.anchor = RouteMapIconAnchor.bottom,
   }) : assert(
          svgIcon == null || text == null,
          'Either svgIcon or text must be provided, not both.',
-       ),
-       super._();
+       );
 
   @override
   final Size size;
@@ -287,13 +319,15 @@ class _$VectorMapIconImpl extends _VectorMapIcon {
   @override
   final String identifier;
   @override
-  final VectorMapIconTheme theme;
+  final RouteMapIconTheme theme;
+  @override
+  final RouteMapIconTheme? darkTheme;
   @override
   final String? svgIcon;
   @override
   final String? text;
   @override
-  final dynamic Function(Size) drawPath;
+  final Path Function(Size) drawPath;
   @override
   final String? label;
   @override
@@ -301,23 +335,25 @@ class _$VectorMapIconImpl extends _VectorMapIcon {
   final bool draggable;
   @override
   @JsonKey()
-  final VectorMapIconAnchor anchor;
+  final RouteMapIconAnchor anchor;
 
   @override
   String toString() {
-    return 'VectorMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, svgIcon: $svgIcon, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
+    return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$VectorMapIconImpl &&
+            other is _$RouteMapIconImpl &&
             (identical(other.size, size) || other.size == size) &&
             (identical(other.latLng, latLng) || other.latLng == latLng) &&
             (identical(other.identifier, identifier) ||
                 other.identifier == identifier) &&
             (identical(other.theme, theme) || other.theme == theme) &&
+            (identical(other.darkTheme, darkTheme) ||
+                other.darkTheme == darkTheme) &&
             (identical(other.svgIcon, svgIcon) || other.svgIcon == svgIcon) &&
             (identical(other.text, text) || other.text == text) &&
             (identical(other.drawPath, drawPath) ||
@@ -335,6 +371,7 @@ class _$VectorMapIconImpl extends _VectorMapIcon {
     latLng,
     identifier,
     theme,
+    darkTheme,
     svgIcon,
     text,
     drawPath,
@@ -343,29 +380,29 @@ class _$VectorMapIconImpl extends _VectorMapIcon {
     anchor,
   );
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$VectorMapIconImplCopyWith<_$VectorMapIconImpl> get copyWith =>
-      __$$VectorMapIconImplCopyWithImpl<_$VectorMapIconImpl>(this, _$identity);
+  _$$RouteMapIconImplCopyWith<_$RouteMapIconImpl> get copyWith =>
+      __$$RouteMapIconImplCopyWithImpl<_$RouteMapIconImpl>(this, _$identity);
 }
 
-abstract class _VectorMapIcon extends VectorMapIcon {
-  const factory _VectorMapIcon({
+abstract class _RouteMapIcon implements RouteMapIcon {
+  const factory _RouteMapIcon({
     required final Size size,
     required final LatLng latLng,
     required final String identifier,
-    required final VectorMapIconTheme theme,
+    required final RouteMapIconTheme theme,
+    final RouteMapIconTheme? darkTheme,
     final String? svgIcon,
     final String? text,
-    required final dynamic Function(Size) drawPath,
+    required final Path Function(Size) drawPath,
     final String? label,
     final bool draggable,
-    final VectorMapIconAnchor anchor,
-  }) = _$VectorMapIconImpl;
-  const _VectorMapIcon._() : super._();
+    final RouteMapIconAnchor anchor,
+  }) = _$RouteMapIconImpl;
 
   @override
   Size get size;
@@ -374,49 +411,51 @@ abstract class _VectorMapIcon extends VectorMapIcon {
   @override
   String get identifier;
   @override
-  VectorMapIconTheme get theme;
+  RouteMapIconTheme get theme;
+  @override
+  RouteMapIconTheme? get darkTheme;
   @override
   String? get svgIcon;
   @override
   String? get text;
   @override
-  dynamic Function(Size) get drawPath;
+  Path Function(Size) get drawPath;
   @override
   String? get label;
   @override
   bool get draggable;
   @override
-  VectorMapIconAnchor get anchor;
+  RouteMapIconAnchor get anchor;
 
-  /// Create a copy of VectorMapIcon
+  /// Create a copy of RouteMapIcon
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$VectorMapIconImplCopyWith<_$VectorMapIconImpl> get copyWith =>
+  _$$RouteMapIconImplCopyWith<_$RouteMapIconImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-mixin _$VectorMapIconTheme {
+mixin _$RouteMapIconTheme {
   Color get background => throw _privateConstructorUsedError;
   Color get foreground => throw _privateConstructorUsedError;
   bool get drawCircleAroundIcon => throw _privateConstructorUsedError;
   double get strokeWidth => throw _privateConstructorUsedError;
   double get padding => throw _privateConstructorUsedError;
 
-  /// Create a copy of VectorMapIconTheme
+  /// Create a copy of RouteMapIconTheme
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $VectorMapIconThemeCopyWith<VectorMapIconTheme> get copyWith =>
+  $RouteMapIconThemeCopyWith<RouteMapIconTheme> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $VectorMapIconThemeCopyWith<$Res> {
-  factory $VectorMapIconThemeCopyWith(
-    VectorMapIconTheme value,
-    $Res Function(VectorMapIconTheme) then,
-  ) = _$VectorMapIconThemeCopyWithImpl<$Res, VectorMapIconTheme>;
+abstract class $RouteMapIconThemeCopyWith<$Res> {
+  factory $RouteMapIconThemeCopyWith(
+    RouteMapIconTheme value,
+    $Res Function(RouteMapIconTheme) then,
+  ) = _$RouteMapIconThemeCopyWithImpl<$Res, RouteMapIconTheme>;
   @useResult
   $Res call({
     Color background,
@@ -428,16 +467,16 @@ abstract class $VectorMapIconThemeCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$VectorMapIconThemeCopyWithImpl<$Res, $Val extends VectorMapIconTheme>
-    implements $VectorMapIconThemeCopyWith<$Res> {
-  _$VectorMapIconThemeCopyWithImpl(this._value, this._then);
+class _$RouteMapIconThemeCopyWithImpl<$Res, $Val extends RouteMapIconTheme>
+    implements $RouteMapIconThemeCopyWith<$Res> {
+  _$RouteMapIconThemeCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of VectorMapIconTheme
+  /// Create a copy of RouteMapIconTheme
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -482,12 +521,12 @@ class _$VectorMapIconThemeCopyWithImpl<$Res, $Val extends VectorMapIconTheme>
 }
 
 /// @nodoc
-abstract class _$$VectorMapIconThemeImplCopyWith<$Res>
-    implements $VectorMapIconThemeCopyWith<$Res> {
-  factory _$$VectorMapIconThemeImplCopyWith(
-    _$VectorMapIconThemeImpl value,
-    $Res Function(_$VectorMapIconThemeImpl) then,
-  ) = __$$VectorMapIconThemeImplCopyWithImpl<$Res>;
+abstract class _$$RouteMapIconThemeImplCopyWith<$Res>
+    implements $RouteMapIconThemeCopyWith<$Res> {
+  factory _$$RouteMapIconThemeImplCopyWith(
+    _$RouteMapIconThemeImpl value,
+    $Res Function(_$RouteMapIconThemeImpl) then,
+  ) = __$$RouteMapIconThemeImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
@@ -500,15 +539,15 @@ abstract class _$$VectorMapIconThemeImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$VectorMapIconThemeImplCopyWithImpl<$Res>
-    extends _$VectorMapIconThemeCopyWithImpl<$Res, _$VectorMapIconThemeImpl>
-    implements _$$VectorMapIconThemeImplCopyWith<$Res> {
-  __$$VectorMapIconThemeImplCopyWithImpl(
-    _$VectorMapIconThemeImpl _value,
-    $Res Function(_$VectorMapIconThemeImpl) _then,
+class __$$RouteMapIconThemeImplCopyWithImpl<$Res>
+    extends _$RouteMapIconThemeCopyWithImpl<$Res, _$RouteMapIconThemeImpl>
+    implements _$$RouteMapIconThemeImplCopyWith<$Res> {
+  __$$RouteMapIconThemeImplCopyWithImpl(
+    _$RouteMapIconThemeImpl _value,
+    $Res Function(_$RouteMapIconThemeImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of VectorMapIconTheme
+  /// Create a copy of RouteMapIconTheme
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -520,7 +559,7 @@ class __$$VectorMapIconThemeImplCopyWithImpl<$Res>
     Object? padding = null,
   }) {
     return _then(
-      _$VectorMapIconThemeImpl(
+      _$RouteMapIconThemeImpl(
         background:
             null == background
                 ? _value.background
@@ -553,14 +592,14 @@ class __$$VectorMapIconThemeImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$VectorMapIconThemeImpl extends _VectorMapIconTheme {
-  const _$VectorMapIconThemeImpl({
+class _$RouteMapIconThemeImpl implements _RouteMapIconTheme {
+  const _$RouteMapIconThemeImpl({
     required this.background,
     required this.foreground,
     this.drawCircleAroundIcon = false,
     this.strokeWidth = 0,
     this.padding = 10,
-  }) : super._();
+  });
 
   @override
   final Color background;
@@ -578,14 +617,14 @@ class _$VectorMapIconThemeImpl extends _VectorMapIconTheme {
 
   @override
   String toString() {
-    return 'VectorMapIconTheme(background: $background, foreground: $foreground, drawCircleAroundIcon: $drawCircleAroundIcon, strokeWidth: $strokeWidth, padding: $padding)';
+    return 'RouteMapIconTheme(background: $background, foreground: $foreground, drawCircleAroundIcon: $drawCircleAroundIcon, strokeWidth: $strokeWidth, padding: $padding)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$VectorMapIconThemeImpl &&
+            other is _$RouteMapIconThemeImpl &&
             (identical(other.background, background) ||
                 other.background == background) &&
             (identical(other.foreground, foreground) ||
@@ -607,27 +646,26 @@ class _$VectorMapIconThemeImpl extends _VectorMapIconTheme {
     padding,
   );
 
-  /// Create a copy of VectorMapIconTheme
+  /// Create a copy of RouteMapIconTheme
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$VectorMapIconThemeImplCopyWith<_$VectorMapIconThemeImpl> get copyWith =>
-      __$$VectorMapIconThemeImplCopyWithImpl<_$VectorMapIconThemeImpl>(
+  _$$RouteMapIconThemeImplCopyWith<_$RouteMapIconThemeImpl> get copyWith =>
+      __$$RouteMapIconThemeImplCopyWithImpl<_$RouteMapIconThemeImpl>(
         this,
         _$identity,
       );
 }
 
-abstract class _VectorMapIconTheme extends VectorMapIconTheme {
-  const factory _VectorMapIconTheme({
+abstract class _RouteMapIconTheme implements RouteMapIconTheme {
+  const factory _RouteMapIconTheme({
     required final Color background,
     required final Color foreground,
     final bool drawCircleAroundIcon,
     final double strokeWidth,
     final double padding,
-  }) = _$VectorMapIconThemeImpl;
-  const _VectorMapIconTheme._() : super._();
+  }) = _$RouteMapIconThemeImpl;
 
   @override
   Color get background;
@@ -640,10 +678,10 @@ abstract class _VectorMapIconTheme extends VectorMapIconTheme {
   @override
   double get padding;
 
-  /// Create a copy of VectorMapIconTheme
+  /// Create a copy of RouteMapIconTheme
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$VectorMapIconThemeImplCopyWith<_$VectorMapIconThemeImpl> get copyWith =>
+  _$$RouteMapIconThemeImplCopyWith<_$RouteMapIconThemeImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

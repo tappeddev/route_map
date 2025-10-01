@@ -1,41 +1,37 @@
 import 'package:flutter/cupertino.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
-import 'package:vector_map/vector_map_icon_anchor.dart';
+import 'package:route_map/route_map.dart';
 
-part 'vector_map_icon.freezed.dart';
+part 'route_map_icon.freezed.dart';
 
 @freezed
-abstract class VectorMapIcon with _$VectorMapIcon {
-  const VectorMapIcon._();
-
+abstract class RouteMapIcon with _$RouteMapIcon {
   @Assert(
     'svgIcon == null || text == null',
     'Either svgIcon or text must be provided, not both.',
   )
-  const factory VectorMapIcon({
+  const factory RouteMapIcon({
     required Size size,
     required LatLng latLng,
     required String identifier,
-    required VectorMapIconTheme theme,
+    required RouteMapIconTheme theme,
+    RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    required Function(Size) drawPath,
+    required Path Function(Size) drawPath,
     String? label,
     @Default(false) bool draggable,
-    @Default(VectorMapIconAnchor.bottom) VectorMapIconAnchor anchor,
-  }) = _VectorMapIcon;
+    @Default(RouteMapIconAnchor.bottom) RouteMapIconAnchor anchor,
+  }) = _RouteMapIcon;
 }
 
 @freezed
-abstract class VectorMapIconTheme with _$VectorMapIconTheme {
-  const VectorMapIconTheme._();
-
-  const factory VectorMapIconTheme({
+abstract class RouteMapIconTheme with _$RouteMapIconTheme {
+  const factory RouteMapIconTheme({
     required Color background,
     required Color foreground,
     @Default(false) bool drawCircleAroundIcon,
     @Default(0) double strokeWidth,
     @Default(10) double padding,
-  }) = _VectorMapIconTheme;
+  }) = _RouteMapIconTheme;
 }

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
-extension VectorMapGeometryExtensions on MapLibreMapController {
+extension RouteMapGeometryExtensions on MapLibreMapController {
   static const _routeDefaultPadding = 40.0;
 
   Future<CameraUpdate> cameraUpdateFrom({

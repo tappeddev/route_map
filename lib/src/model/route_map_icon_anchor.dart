@@ -1,5 +1,5 @@
 /// Mapper for the native: [MGLIconAnchor]
-enum VectorMapIconAnchor {
+enum RouteMapIconAnchor {
   center("center"),
   left("left"),
   right("right"),
@@ -12,5 +12,5 @@ enum VectorMapIconAnchor {
 
   final String mglIconValue;
 
-  const VectorMapIconAnchor(this.mglIconValue);
+  const RouteMapIconAnchor(this.mglIconValue);
 }
