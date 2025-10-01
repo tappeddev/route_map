@@ -8,6 +8,7 @@ class RouteMapCircleManager {
 
   /// Tuple of (accuracyCircle, indicatorCircle)
   (Circle, Circle)? _userLocationCircles;
+  RouteMapUserLocationIndicator? _previousIndicator;
 
   RouteMapCircleManager({required this.controller});
 
@@ -15,14 +16,11 @@ class RouteMapCircleManager {
 
   Future<void> restore(Brightness brightness) async {
     _brightness = brightness;
-    final userLocationCircles = _userLocationCircles;
-    if (userLocationCircles == null) return;
+    final previousIndicator = _previousIndicator;
+    if (previousIndicator == null) return;
     await removeUserLocationIndicator();
     if (controller.isDisposed) return;
-    await _addUserLocationCircles(
-      userLocationCircles.$1.options,
-      userLocationCircles.$2.options,
-    );
+    await drawUserLocationIndicator(previousIndicator);
   }
 
   Future<void> drawUserLocationIndicator(
@@ -32,9 +30,9 @@ class RouteMapCircleManager {
         _brightness == Brightness.light
             ? indicator.theme
             : indicator.darkTheme ?? indicator.theme;
-    final indicatorRadius = 6;
-    final indicatorStrokeWidth = 2;
-    final indicatorTotalRadius = indicatorRadius + indicatorStrokeWidth;
+    const indicatorRadius = 6.0;
+    const indicatorStrokeWidth = 2.0;
+    const indicatorTotalRadius = indicatorRadius + indicatorStrokeWidth;
     final accuracyOptions = CircleOptions(
       circleRadius: indicatorTotalRadius + indicator.accuracyWidth,
       circleColor: theme.color.toHexStringRGB(),
@@ -43,41 +41,37 @@ class RouteMapCircleManager {
       circleBlur: 0.1,
     );
     final indicatorOptions = CircleOptions(
-      circleRadius: 6,
+      circleRadius: indicatorRadius,
       circleColor: theme.color.toHexStringRGB(),
       circleStrokeColor: '#FFFFFF',
-      circleStrokeWidth: 2,
+      circleStrokeWidth: indicatorStrokeWidth,
       geometry: indicator.location,
       circleBlur: 0.1,
     );
 
-    if (_userLocationCircles == null) {
-      await _addUserLocationCircles(accuracyOptions, indicatorOptions);
-    } else {
-      final accuracyCircleId = _userLocationCircles!.$1;
-      final indicatorCircleId = _userLocationCircles!.$2;
-      await controller.updateCircle(accuracyCircleId, accuracyOptions);
+    if (_previousIndicator == null) {
+      final accuracyCircle = await controller.addCircle(accuracyOptions);
       if (controller.isDisposed) return;
-      await controller.updateCircle(indicatorCircleId, indicatorOptions);
+      final indicatorCircle = await controller.addCircle(indicatorOptions);
+      _userLocationCircles = (accuracyCircle, indicatorCircle);
+    } else {
+      final accuracyCircle = _userLocationCircles!.$1;
+      final indicatorCircle = _userLocationCircles!.$2;
+      await controller.updateCircle(accuracyCircle, accuracyOptions);
+      if (controller.isDisposed) return;
+      await controller.updateCircle(indicatorCircle, indicatorOptions);
     }
-  }
 
-  Future<void> _addUserLocationCircles(
-    CircleOptions accuracy,
-    CircleOptions indicator,
-  ) async {
-    final accuracyCircle = await controller.addCircle(accuracy);
-    if (controller.isDisposed) return;
-    final indicatorCircle = await controller.addCircle(indicator);
-    _userLocationCircles = (accuracyCircle, indicatorCircle);
+    _previousIndicator = indicator;
   }
 
   Future<void> removeUserLocationIndicator() async {
-    if (_userLocationCircles == null) return;
+    if (_previousIndicator == null) return;
     await Future.wait([
       controller.removeCircle(_userLocationCircles!.$1),
       controller.removeCircle(_userLocationCircles!.$2),
     ]);
     _userLocationCircles = null;
+    _previousIndicator = null;
   }
 }
