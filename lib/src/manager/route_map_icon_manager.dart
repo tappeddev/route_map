@@ -61,6 +61,16 @@ class RouteMapIconManager {
     }
   }
 
+  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
+    final iconsToRemove = _symbolMap.values.where(test).toList();
+
+    if (iconsToRemove.isEmpty) return;
+
+    for (var icon in iconsToRemove) {
+      await removeIcon(identifier: icon.identifier);
+    }
+  }
+
   Future<void> removeIcon({required String identifier}) async {
     final searchedSymbolId =
         _symbolMap.entries

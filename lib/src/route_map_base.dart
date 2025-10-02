@@ -226,6 +226,7 @@ class _RouteMapState extends State<RouteMap> {
     final noServiceAreaLayer = widget.noServiceAreaLayer;
     if (noServiceAreaLayer == null) return;
     final controller = await _controller;
+
     if (!mounted) return;
 
     /// The no service layer needs to be below the manager layers, to show
@@ -235,11 +236,11 @@ class _RouteMapState extends State<RouteMap> {
       ...controller.symbolManager!.layerIds,
       ...controller.circleManager!.layerIds,
       ...controller.fillManager!.layerIds,
-      ...noServiceAreaLayer.insertBelowLayers,
+      noServiceAreaLayer.belowLayerId,
     ];
     final allLayerIds = await controller.getLayerIds();
 
-    final insertBelowLayer = allLayerIds
+    final insertBelowLayerId = allLayerIds
         .map((layerId) => layerId.toString())
         .firstWhere((layerId) => topLayers.contains(layerId));
 
@@ -247,6 +248,7 @@ class _RouteMapState extends State<RouteMap> {
 
     const sourceId = "no_service_area_source_id";
     await controller.addSource(sourceId, noServiceAreaLayer.source);
+
     if (!mounted) return;
 
     await controller.addLayer(
@@ -256,7 +258,7 @@ class _RouteMapState extends State<RouteMap> {
         fillColor: noServiceAreaLayer.fillColor.toHexStringRGB(),
         fillOpacity: noServiceAreaLayer.fillColor.a,
       ),
-      belowLayerId: insertBelowLayer,
+      belowLayerId: insertBelowLayerId,
       enableInteraction: false,
     );
   }
