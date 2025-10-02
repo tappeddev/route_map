@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^2.1.0
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.1.0
   collection: ^1.19.1
   maplibre_gl: ^0.23.0
 
@@ -23,4 +23,4 @@ dev_dependencies:
       url: https://github.com/tappeddev/tapped_lints.git
       ref: master
   build_runner: ^2.4.14
-  freezed: ^2.5.8
+  freezed: ^3.2.3
