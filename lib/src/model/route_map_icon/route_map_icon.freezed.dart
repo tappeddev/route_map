@@ -17,14 +17,13 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$RouteMapIcon {
-  Size get size => throw _privateConstructorUsedError;
+  Path get markerPath => throw _privateConstructorUsedError;
   LatLng get latLng => throw _privateConstructorUsedError;
   String get identifier => throw _privateConstructorUsedError;
   RouteMapIconTheme get theme => throw _privateConstructorUsedError;
   RouteMapIconTheme? get darkTheme => throw _privateConstructorUsedError;
   String? get svgIcon => throw _privateConstructorUsedError;
   String? get text => throw _privateConstructorUsedError;
-  Path Function(Size) get drawPath => throw _privateConstructorUsedError;
   String? get label => throw _privateConstructorUsedError;
   bool get draggable => throw _privateConstructorUsedError;
   RouteMapIconAnchor get anchor => throw _privateConstructorUsedError;
@@ -44,14 +43,13 @@ abstract class $RouteMapIconCopyWith<$Res> {
   ) = _$RouteMapIconCopyWithImpl<$Res, RouteMapIcon>;
   @useResult
   $Res call({
-    Size size,
+    Path markerPath,
     LatLng latLng,
     String identifier,
     RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    Path Function(Size) drawPath,
     String? label,
     bool draggable,
     RouteMapIconAnchor anchor,
@@ -76,25 +74,24 @@ class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? size = null,
+    Object? markerPath = null,
     Object? latLng = null,
     Object? identifier = null,
     Object? theme = null,
     Object? darkTheme = freezed,
     Object? svgIcon = freezed,
     Object? text = freezed,
-    Object? drawPath = null,
     Object? label = freezed,
     Object? draggable = null,
     Object? anchor = null,
   }) {
     return _then(
       _value.copyWith(
-            size:
-                null == size
-                    ? _value.size
-                    : size // ignore: cast_nullable_to_non_nullable
-                        as Size,
+            markerPath:
+                null == markerPath
+                    ? _value.markerPath
+                    : markerPath // ignore: cast_nullable_to_non_nullable
+                        as Path,
             latLng:
                 null == latLng
                     ? _value.latLng
@@ -125,11 +122,6 @@ class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
                     ? _value.text
                     : text // ignore: cast_nullable_to_non_nullable
                         as String?,
-            drawPath:
-                null == drawPath
-                    ? _value.drawPath
-                    : drawPath // ignore: cast_nullable_to_non_nullable
-                        as Path Function(Size),
             label:
                 freezed == label
                     ? _value.label
@@ -185,14 +177,13 @@ abstract class _$$RouteMapIconImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
-    Size size,
+    Path markerPath,
     LatLng latLng,
     String identifier,
     RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    Path Function(Size) drawPath,
     String? label,
     bool draggable,
     RouteMapIconAnchor anchor,
@@ -218,25 +209,24 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? size = null,
+    Object? markerPath = null,
     Object? latLng = null,
     Object? identifier = null,
     Object? theme = null,
     Object? darkTheme = freezed,
     Object? svgIcon = freezed,
     Object? text = freezed,
-    Object? drawPath = null,
     Object? label = freezed,
     Object? draggable = null,
     Object? anchor = null,
   }) {
     return _then(
       _$RouteMapIconImpl(
-        size:
-            null == size
-                ? _value.size
-                : size // ignore: cast_nullable_to_non_nullable
-                    as Size,
+        markerPath:
+            null == markerPath
+                ? _value.markerPath
+                : markerPath // ignore: cast_nullable_to_non_nullable
+                    as Path,
         latLng:
             null == latLng
                 ? _value.latLng
@@ -267,11 +257,6 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
                 ? _value.text
                 : text // ignore: cast_nullable_to_non_nullable
                     as String?,
-        drawPath:
-            null == drawPath
-                ? _value.drawPath
-                : drawPath // ignore: cast_nullable_to_non_nullable
-                    as Path Function(Size),
         label:
             freezed == label
                 ? _value.label
@@ -296,14 +281,13 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
 
 class _$RouteMapIconImpl implements _RouteMapIcon {
   const _$RouteMapIconImpl({
-    required this.size,
+    required this.markerPath,
     required this.latLng,
     required this.identifier,
     required this.theme,
     this.darkTheme,
     this.svgIcon,
     this.text,
-    required this.drawPath,
     this.label,
     this.draggable = false,
     this.anchor = RouteMapIconAnchor.bottom,
@@ -313,7 +297,7 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
        );
 
   @override
-  final Size size;
+  final Path markerPath;
   @override
   final LatLng latLng;
   @override
@@ -327,8 +311,6 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
   @override
   final String? text;
   @override
-  final Path Function(Size) drawPath;
-  @override
   final String? label;
   @override
   @JsonKey()
@@ -339,7 +321,7 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
 
   @override
   String toString() {
-    return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
+    return 'RouteMapIcon(markerPath: $markerPath, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, label: $label, draggable: $draggable, anchor: $anchor)';
   }
 
   @override
@@ -347,7 +329,8 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RouteMapIconImpl &&
-            (identical(other.size, size) || other.size == size) &&
+            (identical(other.markerPath, markerPath) ||
+                other.markerPath == markerPath) &&
             (identical(other.latLng, latLng) || other.latLng == latLng) &&
             (identical(other.identifier, identifier) ||
                 other.identifier == identifier) &&
@@ -356,8 +339,6 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
                 other.darkTheme == darkTheme) &&
             (identical(other.svgIcon, svgIcon) || other.svgIcon == svgIcon) &&
             (identical(other.text, text) || other.text == text) &&
-            (identical(other.drawPath, drawPath) ||
-                other.drawPath == drawPath) &&
             (identical(other.label, label) || other.label == label) &&
             (identical(other.draggable, draggable) ||
                 other.draggable == draggable) &&
@@ -367,14 +348,13 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
   @override
   int get hashCode => Object.hash(
     runtimeType,
-    size,
+    markerPath,
     latLng,
     identifier,
     theme,
     darkTheme,
     svgIcon,
     text,
-    drawPath,
     label,
     draggable,
     anchor,
@@ -391,21 +371,20 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
 
 abstract class _RouteMapIcon implements RouteMapIcon {
   const factory _RouteMapIcon({
-    required final Size size,
+    required final Path markerPath,
     required final LatLng latLng,
     required final String identifier,
     required final RouteMapIconTheme theme,
     final RouteMapIconTheme? darkTheme,
     final String? svgIcon,
     final String? text,
-    required final Path Function(Size) drawPath,
     final String? label,
     final bool draggable,
     final RouteMapIconAnchor anchor,
   }) = _$RouteMapIconImpl;
 
   @override
-  Size get size;
+  Path get markerPath;
   @override
   LatLng get latLng;
   @override
@@ -418,8 +397,6 @@ abstract class _RouteMapIcon implements RouteMapIcon {
   String? get svgIcon;
   @override
   String? get text;
-  @override
-  Path Function(Size) get drawPath;
   @override
   String? get label;
   @override

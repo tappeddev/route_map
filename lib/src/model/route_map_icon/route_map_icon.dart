@@ -11,14 +11,13 @@ abstract class RouteMapIcon with _$RouteMapIcon {
     'Either svgIcon or text must be provided, not both.',
   )
   const factory RouteMapIcon({
-    required Size size,
+    required Path markerPath,
     required LatLng latLng,
     required String identifier,
     required RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
     String? svgIcon,
     String? text,
-    required Path Function(Size) drawPath,
     String? label,
     @Default(false) bool draggable,
     @Default(RouteMapIconAnchor.bottom) RouteMapIconAnchor anchor,

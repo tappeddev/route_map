@@ -116,16 +116,20 @@ class RouteMapIconManager {
             ? mapIcon.theme
             : mapIcon.darkTheme ?? mapIcon.theme;
 
-    final size = mapIcon.size;
+    final markerPath = mapIcon.markerPath;
+    final sizeBeforeStroke = markerPath.getBounds().size;
+    final sizeWithStroke = Size(
+      sizeBeforeStroke.width + theme.strokeWidth,
+      sizeBeforeStroke.height + theme.strokeWidth,
+    );
     final padding = theme.padding;
-    final drawPath = mapIcon.drawPath;
     final strokeWidth = theme.strokeWidth;
     final drawCircleAroundIcon = theme.drawCircleAroundIcon;
     final svgIcon = mapIcon.svgIcon;
     final text = mapIcon.text;
 
     final colorHex = theme.foreground.toHexStringRGB();
-    final circleRadius = size.width / 2 - padding;
+    final circleRadius = sizeBeforeStroke.width / 2 - padding;
     final circleOffset = padding + circleRadius;
 
     // Create a canvas to draw on
@@ -134,16 +138,14 @@ class RouteMapIconManager {
     final paint = Paint()..style = PaintingStyle.fill;
 
     // Draw Marker
+    // Half of stroke is outer and the other half is inner, tranlsate only half of stroke width
+    canvas.translate(strokeWidth / 2, strokeWidth / 2);
     paint.color = theme.background;
-    canvas.drawPath(drawPath(size), paint);
+    canvas.drawPath(markerPath, paint);
     // Draw Stroke
     if (strokeWidth != 0) {
-      final strokeSize = Size(
-        size.width - strokeWidth,
-        size.height - strokeWidth,
-      );
       canvas.drawPath(
-        drawPath(strokeSize),
+        markerPath,
         Paint()
           ..color = const Color(0xFF7A7A7A)
           ..style = PaintingStyle.stroke
@@ -171,9 +173,13 @@ class RouteMapIconManager {
 
       // Draw the SVG icon
       final iconWidth =
-          drawCircleAroundIcon ? circleRadius * 1.2 : size.width - padding * 2;
+          drawCircleAroundIcon
+              ? circleRadius * 1.2
+              : sizeBeforeStroke.width - padding * 2;
       final iconHeight =
-          drawCircleAroundIcon ? circleRadius * 1.2 : size.height - padding * 2;
+          drawCircleAroundIcon
+              ? circleRadius * 1.2
+              : sizeBeforeStroke.height - padding * 2;
       // Compute scaling factors
       final iconScaleX = iconWidth / pictureInfo.size.width;
       final iconScaleY = iconHeight / pictureInfo.size.height;
@@ -216,7 +222,7 @@ class RouteMapIconManager {
     }
 
     // End recording and convert to image
-    return _recorderToPng(recorder, size);
+    return _recorderToPng(recorder, sizeWithStroke);
   }
 
   Future<Uint8List> _recorderToPng(
