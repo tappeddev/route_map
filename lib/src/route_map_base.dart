@@ -247,7 +247,10 @@ class _RouteMapState extends State<RouteMap> {
     if (!mounted) return;
 
     const sourceId = "no_service_area_source_id";
-    await controller.addSource(sourceId, noServiceAreaLayer.source);
+
+    final source = await noServiceAreaLayer.createSource();
+
+    await controller.addSource(sourceId, source);
 
     if (!mounted) return;
 
