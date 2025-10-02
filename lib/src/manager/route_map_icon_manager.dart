@@ -109,10 +109,10 @@ class RouteMapIconManager {
   }
 
   Future<Uint8List> _generatePngMarker({required RouteMapIcon mapIcon}) async {
-    final theme =
-        _brightness == Brightness.light
-            ? mapIcon.theme
-            : mapIcon.darkTheme ?? mapIcon.theme;
+    final theme = switch (_brightness) {
+      Brightness.dark => mapIcon.darkTheme ?? mapIcon.theme,
+      Brightness.light => mapIcon.theme,
+    };
 
     final size = mapIcon.size;
     final padding = theme.padding;

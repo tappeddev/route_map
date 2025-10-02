@@ -26,10 +26,11 @@ class RouteMapCircleManager {
   Future<void> drawUserLocationIndicator(
     RouteMapUserLocationIndicator indicator,
   ) async {
-    final theme =
-        _brightness == Brightness.light
-            ? indicator.theme
-            : indicator.darkTheme ?? indicator.theme;
+    final theme = switch (_brightness) {
+      Brightness.dark => indicator.darkTheme ?? indicator.theme,
+      Brightness.light => indicator.theme,
+    };
+
     const indicatorRadius = 6.0;
     const indicatorStrokeWidth = 2.0;
     const indicatorTotalRadius = indicatorRadius + indicatorStrokeWidth;
