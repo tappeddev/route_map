@@ -25,8 +25,6 @@ class RouteMapIconManager {
 
   RouteMapIconManager({required this.controller});
 
-  RouteMapIcon findIconBySymbol(Symbol symbol) => _symbolMap[symbol.id]!;
-
   Future<void> restore(Brightness brightness) async {
     _brightness = brightness;
     final mapIcons = _symbolMap.values.toList();

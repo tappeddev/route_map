@@ -115,14 +115,12 @@ class _RouteMapState extends State<RouteMap> {
     LatLng origin,
     LatLng current,
     LatLng delta,
-    Annotation annotation,
+    String symbolId,
+    Annotation? annotation,
     DragEventType eventType,
   ) async {
-    final iconManager = await _iconManager;
     widget.onFeatureDrag?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
+      symbolId,
       annotation is Symbol ? annotation.options.geometry! : current,
       origin,
       eventType,
@@ -132,17 +130,11 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _onFeatureHover(
     Point<double> point,
     LatLng latLng,
-    Annotation annotation,
+    String symbolId,
+    Annotation? annotation,
     HoverEventType eventType,
   ) async {
-    final iconManager = await _iconManager;
-    widget.onFeatureHover?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
-      latLng,
-      eventType,
-    );
+    widget.onFeatureHover?.call(symbolId, latLng, eventType);
   }
 
   @override

@@ -1,4 +1,3 @@
-// ignore: depend_on_referenced_packages
 export 'package:maplibre_gl/maplibre_gl.dart'
     show
         LatLng,

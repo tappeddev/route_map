@@ -1,5 +1,5 @@
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -9,461 +9,583 @@ part of 'route_map_route.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-  'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models',
-);
-
 /// @nodoc
 mixin _$RouteMapRoute {
-  List<LatLng> get points => throw _privateConstructorUsedError;
-  RouteMapRouteTheme get theme => throw _privateConstructorUsedError;
-  RouteMapRouteTheme? get darkTheme => throw _privateConstructorUsedError;
 
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $RouteMapRouteCopyWith<RouteMapRoute> get copyWith =>
-      throw _privateConstructorUsedError;
+ List<LatLng> get points; RouteMapRouteTheme get theme; RouteMapRouteTheme? get darkTheme;
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteMapRouteCopyWith<RouteMapRoute> get copyWith => _$RouteMapRouteCopyWithImpl<RouteMapRoute>(this as RouteMapRoute, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapRoute&&const DeepCollectionEquality().equals(other.points, points)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(points),theme,darkTheme);
+
+@override
+String toString() {
+  return 'RouteMapRoute(points: $points, theme: $theme, darkTheme: $darkTheme)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $RouteMapRouteCopyWith<$Res> {
-  factory $RouteMapRouteCopyWith(
-    RouteMapRoute value,
-    $Res Function(RouteMapRoute) then,
-  ) = _$RouteMapRouteCopyWithImpl<$Res, RouteMapRoute>;
-  @useResult
-  $Res call({
-    List<LatLng> points,
-    RouteMapRouteTheme theme,
-    RouteMapRouteTheme? darkTheme,
-  });
+abstract mixin class $RouteMapRouteCopyWith<$Res>  {
+  factory $RouteMapRouteCopyWith(RouteMapRoute value, $Res Function(RouteMapRoute) _then) = _$RouteMapRouteCopyWithImpl;
+@useResult
+$Res call({
+ List<LatLng> points, RouteMapRouteTheme theme, RouteMapRouteTheme? darkTheme
+});
 
-  $RouteMapRouteThemeCopyWith<$Res> get theme;
-  $RouteMapRouteThemeCopyWith<$Res>? get darkTheme;
+
+$RouteMapRouteThemeCopyWith<$Res> get theme;$RouteMapRouteThemeCopyWith<$Res>? get darkTheme;
+
 }
-
 /// @nodoc
-class _$RouteMapRouteCopyWithImpl<$Res, $Val extends RouteMapRoute>
+class _$RouteMapRouteCopyWithImpl<$Res>
     implements $RouteMapRouteCopyWith<$Res> {
-  _$RouteMapRouteCopyWithImpl(this._value, this._then);
+  _$RouteMapRouteCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final RouteMapRoute _self;
+  final $Res Function(RouteMapRoute) _then;
 
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? points = null,
-    Object? theme = null,
-    Object? darkTheme = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            points:
-                null == points
-                    ? _value.points
-                    : points // ignore: cast_nullable_to_non_nullable
-                        as List<LatLng>,
-            theme:
-                null == theme
-                    ? _value.theme
-                    : theme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapRouteTheme,
-            darkTheme:
-                freezed == darkTheme
-                    ? _value.darkTheme
-                    : darkTheme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapRouteTheme?,
-          )
-          as $Val,
-    );
-  }
-
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $RouteMapRouteThemeCopyWith<$Res> get theme {
-    return $RouteMapRouteThemeCopyWith<$Res>(_value.theme, (value) {
-      return _then(_value.copyWith(theme: value) as $Val);
-    });
-  }
-
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $RouteMapRouteThemeCopyWith<$Res>? get darkTheme {
-    if (_value.darkTheme == null) {
-      return null;
-    }
-
-    return $RouteMapRouteThemeCopyWith<$Res>(_value.darkTheme!, (value) {
-      return _then(_value.copyWith(darkTheme: value) as $Val);
-    });
-  }
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? points = null,Object? theme = null,Object? darkTheme = freezed,}) {
+  return _then(_self.copyWith(
+points: null == points ? _self.points : points // ignore: cast_nullable_to_non_nullable
+as List<LatLng>,theme: null == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
+as RouteMapRouteTheme,darkTheme: freezed == darkTheme ? _self.darkTheme : darkTheme // ignore: cast_nullable_to_non_nullable
+as RouteMapRouteTheme?,
+  ));
 }
-
-/// @nodoc
-abstract class _$$RouteMapRouteImplCopyWith<$Res>
-    implements $RouteMapRouteCopyWith<$Res> {
-  factory _$$RouteMapRouteImplCopyWith(
-    _$RouteMapRouteImpl value,
-    $Res Function(_$RouteMapRouteImpl) then,
-  ) = __$$RouteMapRouteImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    List<LatLng> points,
-    RouteMapRouteTheme theme,
-    RouteMapRouteTheme? darkTheme,
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RouteMapRouteThemeCopyWith<$Res> get theme {
+  
+  return $RouteMapRouteThemeCopyWith<$Res>(_self.theme, (value) {
+    return _then(_self.copyWith(theme: value));
   });
+}/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RouteMapRouteThemeCopyWith<$Res>? get darkTheme {
+    if (_self.darkTheme == null) {
+    return null;
+  }
 
-  @override
-  $RouteMapRouteThemeCopyWith<$Res> get theme;
-  @override
-  $RouteMapRouteThemeCopyWith<$Res>? get darkTheme;
+  return $RouteMapRouteThemeCopyWith<$Res>(_self.darkTheme!, (value) {
+    return _then(_self.copyWith(darkTheme: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [RouteMapRoute].
+extension RouteMapRoutePatterns on RouteMapRoute {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteMapRoute value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteMapRoute() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteMapRoute value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteMapRoute():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteMapRoute value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteMapRoute() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<LatLng> points,  RouteMapRouteTheme theme,  RouteMapRouteTheme? darkTheme)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteMapRoute() when $default != null:
+return $default(_that.points,_that.theme,_that.darkTheme);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<LatLng> points,  RouteMapRouteTheme theme,  RouteMapRouteTheme? darkTheme)  $default,) {final _that = this;
+switch (_that) {
+case _RouteMapRoute():
+return $default(_that.points,_that.theme,_that.darkTheme);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<LatLng> points,  RouteMapRouteTheme theme,  RouteMapRouteTheme? darkTheme)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteMapRoute() when $default != null:
+return $default(_that.points,_that.theme,_that.darkTheme);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-class __$$RouteMapRouteImplCopyWithImpl<$Res>
-    extends _$RouteMapRouteCopyWithImpl<$Res, _$RouteMapRouteImpl>
-    implements _$$RouteMapRouteImplCopyWith<$Res> {
-  __$$RouteMapRouteImplCopyWithImpl(
-    _$RouteMapRouteImpl _value,
-    $Res Function(_$RouteMapRouteImpl) _then,
-  ) : super(_value, _then);
 
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? points = null,
-    Object? theme = null,
-    Object? darkTheme = freezed,
-  }) {
-    return _then(
-      _$RouteMapRouteImpl(
-        points:
-            null == points
-                ? _value._points
-                : points // ignore: cast_nullable_to_non_nullable
-                    as List<LatLng>,
-        theme:
-            null == theme
-                ? _value.theme
-                : theme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapRouteTheme,
-        darkTheme:
-            freezed == darkTheme
-                ? _value.darkTheme
-                : darkTheme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapRouteTheme?,
-      ),
-    );
-  }
+
+class _RouteMapRoute implements RouteMapRoute {
+  const _RouteMapRoute({required final  List<LatLng> points, required this.theme, this.darkTheme}): _points = points;
+  
+
+ final  List<LatLng> _points;
+@override List<LatLng> get points {
+  if (_points is EqualUnmodifiableListView) return _points;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_points);
+}
+
+@override final  RouteMapRouteTheme theme;
+@override final  RouteMapRouteTheme? darkTheme;
+
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteMapRouteCopyWith<_RouteMapRoute> get copyWith => __$RouteMapRouteCopyWithImpl<_RouteMapRoute>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapRoute&&const DeepCollectionEquality().equals(other._points, _points)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_points),theme,darkTheme);
+
+@override
+String toString() {
+  return 'RouteMapRoute(points: $points, theme: $theme, darkTheme: $darkTheme)';
+}
+
+
 }
 
 /// @nodoc
+abstract mixin class _$RouteMapRouteCopyWith<$Res> implements $RouteMapRouteCopyWith<$Res> {
+  factory _$RouteMapRouteCopyWith(_RouteMapRoute value, $Res Function(_RouteMapRoute) _then) = __$RouteMapRouteCopyWithImpl;
+@override @useResult
+$Res call({
+ List<LatLng> points, RouteMapRouteTheme theme, RouteMapRouteTheme? darkTheme
+});
 
-class _$RouteMapRouteImpl implements _RouteMapRoute {
-  const _$RouteMapRouteImpl({
-    required final List<LatLng> points,
-    required this.theme,
-    this.darkTheme,
-  }) : _points = points;
 
-  final List<LatLng> _points;
-  @override
-  List<LatLng> get points {
-    if (_points is EqualUnmodifiableListView) return _points;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_points);
-  }
+@override $RouteMapRouteThemeCopyWith<$Res> get theme;@override $RouteMapRouteThemeCopyWith<$Res>? get darkTheme;
 
-  @override
-  final RouteMapRouteTheme theme;
-  @override
-  final RouteMapRouteTheme? darkTheme;
+}
+/// @nodoc
+class __$RouteMapRouteCopyWithImpl<$Res>
+    implements _$RouteMapRouteCopyWith<$Res> {
+  __$RouteMapRouteCopyWithImpl(this._self, this._then);
 
-  @override
-  String toString() {
-    return 'RouteMapRoute(points: $points, theme: $theme, darkTheme: $darkTheme)';
-  }
+  final _RouteMapRoute _self;
+  final $Res Function(_RouteMapRoute) _then;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RouteMapRouteImpl &&
-            const DeepCollectionEquality().equals(other._points, _points) &&
-            (identical(other.theme, theme) || other.theme == theme) &&
-            (identical(other.darkTheme, darkTheme) ||
-                other.darkTheme == darkTheme));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_points),
-    theme,
-    darkTheme,
-  );
-
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RouteMapRouteImplCopyWith<_$RouteMapRouteImpl> get copyWith =>
-      __$$RouteMapRouteImplCopyWithImpl<_$RouteMapRouteImpl>(this, _$identity);
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? points = null,Object? theme = null,Object? darkTheme = freezed,}) {
+  return _then(_RouteMapRoute(
+points: null == points ? _self._points : points // ignore: cast_nullable_to_non_nullable
+as List<LatLng>,theme: null == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
+as RouteMapRouteTheme,darkTheme: freezed == darkTheme ? _self.darkTheme : darkTheme // ignore: cast_nullable_to_non_nullable
+as RouteMapRouteTheme?,
+  ));
 }
 
-abstract class _RouteMapRoute implements RouteMapRoute {
-  const factory _RouteMapRoute({
-    required final List<LatLng> points,
-    required final RouteMapRouteTheme theme,
-    final RouteMapRouteTheme? darkTheme,
-  }) = _$RouteMapRouteImpl;
+/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RouteMapRouteThemeCopyWith<$Res> get theme {
+  
+  return $RouteMapRouteThemeCopyWith<$Res>(_self.theme, (value) {
+    return _then(_self.copyWith(theme: value));
+  });
+}/// Create a copy of RouteMapRoute
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$RouteMapRouteThemeCopyWith<$Res>? get darkTheme {
+    if (_self.darkTheme == null) {
+    return null;
+  }
 
-  @override
-  List<LatLng> get points;
-  @override
-  RouteMapRouteTheme get theme;
-  @override
-  RouteMapRouteTheme? get darkTheme;
-
-  /// Create a copy of RouteMapRoute
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RouteMapRouteImplCopyWith<_$RouteMapRouteImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  return $RouteMapRouteThemeCopyWith<$Res>(_self.darkTheme!, (value) {
+    return _then(_self.copyWith(darkTheme: value));
+  });
+}
 }
 
 /// @nodoc
 mixin _$RouteMapRouteTheme {
-  double get lineWidth => throw _privateConstructorUsedError;
-  Color get color => throw _privateConstructorUsedError;
-  double? get backLineWidth => throw _privateConstructorUsedError;
-  Color? get backLineColor => throw _privateConstructorUsedError;
 
-  /// Create a copy of RouteMapRouteTheme
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $RouteMapRouteThemeCopyWith<RouteMapRouteTheme> get copyWith =>
-      throw _privateConstructorUsedError;
+ double get lineWidth; Color get color; double? get backLineWidth; Color? get backLineColor;
+/// Create a copy of RouteMapRouteTheme
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RouteMapRouteThemeCopyWith<RouteMapRouteTheme> get copyWith => _$RouteMapRouteThemeCopyWithImpl<RouteMapRouteTheme>(this as RouteMapRouteTheme, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor);
+
+@override
+String toString() {
+  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $RouteMapRouteThemeCopyWith<$Res> {
-  factory $RouteMapRouteThemeCopyWith(
-    RouteMapRouteTheme value,
-    $Res Function(RouteMapRouteTheme) then,
-  ) = _$RouteMapRouteThemeCopyWithImpl<$Res, RouteMapRouteTheme>;
-  @useResult
-  $Res call({
-    double lineWidth,
-    Color color,
-    double? backLineWidth,
-    Color? backLineColor,
-  });
-}
+abstract mixin class $RouteMapRouteThemeCopyWith<$Res>  {
+  factory $RouteMapRouteThemeCopyWith(RouteMapRouteTheme value, $Res Function(RouteMapRouteTheme) _then) = _$RouteMapRouteThemeCopyWithImpl;
+@useResult
+$Res call({
+ double lineWidth, Color color, double? backLineWidth, Color? backLineColor
+});
 
+
+
+
+}
 /// @nodoc
-class _$RouteMapRouteThemeCopyWithImpl<$Res, $Val extends RouteMapRouteTheme>
+class _$RouteMapRouteThemeCopyWithImpl<$Res>
     implements $RouteMapRouteThemeCopyWith<$Res> {
-  _$RouteMapRouteThemeCopyWithImpl(this._value, this._then);
+  _$RouteMapRouteThemeCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final RouteMapRouteTheme _self;
+  final $Res Function(RouteMapRouteTheme) _then;
 
-  /// Create a copy of RouteMapRouteTheme
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? lineWidth = null,
-    Object? color = null,
-    Object? backLineWidth = freezed,
-    Object? backLineColor = freezed,
-  }) {
-    return _then(
-      _value.copyWith(
-            lineWidth:
-                null == lineWidth
-                    ? _value.lineWidth
-                    : lineWidth // ignore: cast_nullable_to_non_nullable
-                        as double,
-            color:
-                null == color
-                    ? _value.color
-                    : color // ignore: cast_nullable_to_non_nullable
-                        as Color,
-            backLineWidth:
-                freezed == backLineWidth
-                    ? _value.backLineWidth
-                    : backLineWidth // ignore: cast_nullable_to_non_nullable
-                        as double?,
-            backLineColor:
-                freezed == backLineColor
-                    ? _value.backLineColor
-                    : backLineColor // ignore: cast_nullable_to_non_nullable
-                        as Color?,
-          )
-          as $Val,
-    );
-  }
+/// Create a copy of RouteMapRouteTheme
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,}) {
+  return _then(_self.copyWith(
+lineWidth: null == lineWidth ? _self.lineWidth : lineWidth // ignore: cast_nullable_to_non_nullable
+as double,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as Color,backLineWidth: freezed == backLineWidth ? _self.backLineWidth : backLineWidth // ignore: cast_nullable_to_non_nullable
+as double?,backLineColor: freezed == backLineColor ? _self.backLineColor : backLineColor // ignore: cast_nullable_to_non_nullable
+as Color?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [RouteMapRouteTheme].
+extension RouteMapRouteThemePatterns on RouteMapRouteTheme {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _RouteMapRouteTheme value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _RouteMapRouteTheme value)  $default,){
+final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _RouteMapRouteTheme value)?  $default,){
+final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme() when $default != null:
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor)  $default,) {final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme():
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor)?  $default,) {final _that = this;
+switch (_that) {
+case _RouteMapRouteTheme() when $default != null:
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
-abstract class _$$RouteMapRouteThemeImplCopyWith<$Res>
-    implements $RouteMapRouteThemeCopyWith<$Res> {
-  factory _$$RouteMapRouteThemeImplCopyWith(
-    _$RouteMapRouteThemeImpl value,
-    $Res Function(_$RouteMapRouteThemeImpl) then,
-  ) = __$$RouteMapRouteThemeImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({
-    double lineWidth,
-    Color color,
-    double? backLineWidth,
-    Color? backLineColor,
-  });
+
+
+class _RouteMapRouteTheme implements RouteMapRouteTheme {
+  const _RouteMapRouteTheme({required this.lineWidth, required this.color, this.backLineWidth, this.backLineColor});
+  
+
+@override final  double lineWidth;
+@override final  Color color;
+@override final  double? backLineWidth;
+@override final  Color? backLineColor;
+
+/// Create a copy of RouteMapRouteTheme
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$RouteMapRouteThemeCopyWith<_RouteMapRouteTheme> get copyWith => __$RouteMapRouteThemeCopyWithImpl<_RouteMapRouteTheme>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor);
+
+@override
+String toString() {
+  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor)';
+}
+
+
 }
 
 /// @nodoc
-class __$$RouteMapRouteThemeImplCopyWithImpl<$Res>
-    extends _$RouteMapRouteThemeCopyWithImpl<$Res, _$RouteMapRouteThemeImpl>
-    implements _$$RouteMapRouteThemeImplCopyWith<$Res> {
-  __$$RouteMapRouteThemeImplCopyWithImpl(
-    _$RouteMapRouteThemeImpl _value,
-    $Res Function(_$RouteMapRouteThemeImpl) _then,
-  ) : super(_value, _then);
+abstract mixin class _$RouteMapRouteThemeCopyWith<$Res> implements $RouteMapRouteThemeCopyWith<$Res> {
+  factory _$RouteMapRouteThemeCopyWith(_RouteMapRouteTheme value, $Res Function(_RouteMapRouteTheme) _then) = __$RouteMapRouteThemeCopyWithImpl;
+@override @useResult
+$Res call({
+ double lineWidth, Color color, double? backLineWidth, Color? backLineColor
+});
 
-  /// Create a copy of RouteMapRouteTheme
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? lineWidth = null,
-    Object? color = null,
-    Object? backLineWidth = freezed,
-    Object? backLineColor = freezed,
-  }) {
-    return _then(
-      _$RouteMapRouteThemeImpl(
-        lineWidth:
-            null == lineWidth
-                ? _value.lineWidth
-                : lineWidth // ignore: cast_nullable_to_non_nullable
-                    as double,
-        color:
-            null == color
-                ? _value.color
-                : color // ignore: cast_nullable_to_non_nullable
-                    as Color,
-        backLineWidth:
-            freezed == backLineWidth
-                ? _value.backLineWidth
-                : backLineWidth // ignore: cast_nullable_to_non_nullable
-                    as double?,
-        backLineColor:
-            freezed == backLineColor
-                ? _value.backLineColor
-                : backLineColor // ignore: cast_nullable_to_non_nullable
-                    as Color?,
-      ),
-    );
-  }
+
+
+
 }
-
 /// @nodoc
+class __$RouteMapRouteThemeCopyWithImpl<$Res>
+    implements _$RouteMapRouteThemeCopyWith<$Res> {
+  __$RouteMapRouteThemeCopyWithImpl(this._self, this._then);
 
-class _$RouteMapRouteThemeImpl implements _RouteMapRouteTheme {
-  const _$RouteMapRouteThemeImpl({
-    required this.lineWidth,
-    required this.color,
-    this.backLineWidth,
-    this.backLineColor,
-  });
+  final _RouteMapRouteTheme _self;
+  final $Res Function(_RouteMapRouteTheme) _then;
 
-  @override
-  final double lineWidth;
-  @override
-  final Color color;
-  @override
-  final double? backLineWidth;
-  @override
-  final Color? backLineColor;
-
-  @override
-  String toString() {
-    return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$RouteMapRouteThemeImpl &&
-            (identical(other.lineWidth, lineWidth) ||
-                other.lineWidth == lineWidth) &&
-            (identical(other.color, color) || other.color == color) &&
-            (identical(other.backLineWidth, backLineWidth) ||
-                other.backLineWidth == backLineWidth) &&
-            (identical(other.backLineColor, backLineColor) ||
-                other.backLineColor == backLineColor));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, lineWidth, color, backLineWidth, backLineColor);
-
-  /// Create a copy of RouteMapRouteTheme
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$RouteMapRouteThemeImplCopyWith<_$RouteMapRouteThemeImpl> get copyWith =>
-      __$$RouteMapRouteThemeImplCopyWithImpl<_$RouteMapRouteThemeImpl>(
-        this,
-        _$identity,
-      );
+/// Create a copy of RouteMapRouteTheme
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,}) {
+  return _then(_RouteMapRouteTheme(
+lineWidth: null == lineWidth ? _self.lineWidth : lineWidth // ignore: cast_nullable_to_non_nullable
+as double,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
+as Color,backLineWidth: freezed == backLineWidth ? _self.backLineWidth : backLineWidth // ignore: cast_nullable_to_non_nullable
+as double?,backLineColor: freezed == backLineColor ? _self.backLineColor : backLineColor // ignore: cast_nullable_to_non_nullable
+as Color?,
+  ));
 }
 
-abstract class _RouteMapRouteTheme implements RouteMapRouteTheme {
-  const factory _RouteMapRouteTheme({
-    required final double lineWidth,
-    required final Color color,
-    final double? backLineWidth,
-    final Color? backLineColor,
-  }) = _$RouteMapRouteThemeImpl;
 
-  @override
-  double get lineWidth;
-  @override
-  Color get color;
-  @override
-  double? get backLineWidth;
-  @override
-  Color? get backLineColor;
-
-  /// Create a copy of RouteMapRouteTheme
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$RouteMapRouteThemeImplCopyWith<_$RouteMapRouteThemeImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
+
+// dart format on
