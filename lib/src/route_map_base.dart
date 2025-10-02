@@ -8,8 +8,6 @@ import 'package:route_map/route_map.dart';
 import 'package:route_map/src/manager/route_map_circle_manager.dart';
 import 'package:route_map/src/manager/route_map_icon_manager.dart';
 import 'package:route_map/src/manager/route_map_line_manager.dart';
-import 'package:route_map/src/model/no_service_area_layer.dart';
-import 'package:route_map/src/model/route_map_user_location_indicator/route_map_user_location_indicator.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
@@ -115,14 +113,15 @@ class _RouteMapState extends State<RouteMap> {
     LatLng origin,
     LatLng current,
     LatLng delta,
-    Annotation annotation,
+    String id,
+    Annotation? annotation,
     DragEventType eventType,
   ) async {
     final iconManager = await _iconManager;
     widget.onFeatureDrag?.call(
       annotation is Symbol
           ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
+          : id,
       annotation is Symbol ? annotation.options.geometry! : current,
       origin,
       eventType,
@@ -132,14 +131,15 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _onFeatureHover(
     Point<double> point,
     LatLng latLng,
-    Annotation annotation,
+    String id,
+    Annotation? annotation,
     HoverEventType eventType,
   ) async {
     final iconManager = await _iconManager;
     widget.onFeatureHover?.call(
       annotation is Symbol
           ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
+          : id,
       latLng,
       eventType,
     );

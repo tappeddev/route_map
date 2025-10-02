@@ -12,7 +12,7 @@ dependencies:
   flutter_svg: ^2.1.0
   freezed_annotation: ^2.4.4
   collection: ^1.19.1
-  maplibre_gl: ^0.23.0
+  maplibre_gl: ^0.24.0
 
 dev_dependencies:
   flutter_test:

@@ -184,11 +184,11 @@ class RouteMapIconManager {
       // Draw the SVG icon
       final iconWidth =
           drawCircleAroundIcon
-              ? circleRadius * 1.2
+              ? circleRadius * 1.3
               : sizeBeforeStroke.width - padding * 2;
       final iconHeight =
           drawCircleAroundIcon
-              ? circleRadius * 1.2
+              ? circleRadius * 1.3
               : sizeBeforeStroke.height - padding * 2;
       // Compute scaling factors
       final iconScaleX = iconWidth / pictureInfo.size.width;
