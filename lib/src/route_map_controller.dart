@@ -74,9 +74,7 @@ class RouteMapController {
     await circleManager.drawUserLocationIndicator(indicator);
   }
 
-  Future<void> removeUserLocationIndicator(
-    RouteMapUserLocationIndicator indicator,
-  ) async {
+  Future<void> removeUserLocationIndicator() async {
     final circleManager = await _circleManager;
     if (!_mounted) return;
     await circleManager.removeUserLocationIndicator();
