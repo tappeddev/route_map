@@ -54,6 +54,12 @@ class RouteMapController {
     await iconManager.removeIcons();
   }
 
+  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
+    final iconManager = await _iconManager;
+    if (!_mounted) return;
+    await iconManager.removeIconsWhere(test);
+  }
+
   Future<void> removeIcon(String identifier) async {
     final iconManager = await _iconManager;
     if (!_mounted) return;
