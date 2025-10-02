@@ -51,6 +51,16 @@ class RouteMapIconManager {
     _cachedImages.add(mapIcon.hashCode);
   }
 
+  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
+    final iconsToRemove = _symbolMap.values.where(test).toList();
+
+    if (iconsToRemove.isEmpty) return;
+
+    for (var icon in iconsToRemove) {
+      await removeIcon(identifier: icon.identifier);
+    }
+  }
+
   Future<void> removeIcons() async {
     final symbols = controller.symbols.toList();
 
@@ -111,10 +121,10 @@ class RouteMapIconManager {
   }
 
   Future<Uint8List> _generatePngMarker({required RouteMapIcon mapIcon}) async {
-    final theme =
-        _brightness == Brightness.light
-            ? mapIcon.theme
-            : mapIcon.darkTheme ?? mapIcon.theme;
+    final theme = switch (_brightness) {
+      Brightness.dark => mapIcon.darkTheme ?? mapIcon.theme,
+      Brightness.light => mapIcon.theme,
+    };
 
     final markerPath = mapIcon.markerPath;
     final sizeBeforeStroke = markerPath.getBounds().size;
@@ -125,7 +135,7 @@ class RouteMapIconManager {
     final padding = theme.padding;
     final strokeWidth = theme.strokeWidth;
     final drawCircleAroundIcon = theme.drawCircleAroundIcon;
-    final svgIcon = mapIcon.svgIcon;
+    final svgIconPath = mapIcon.svgIconPath;
     final text = mapIcon.text;
 
     final colorHex = theme.foreground.toHexStringRGB();
@@ -162,9 +172,9 @@ class RouteMapIconManager {
       );
     }
 
-    if (svgIcon != null) {
+    if (svgIconPath != null) {
       // Load SVG and override color
-      final rawSvg = (await rootBundle.loadString(svgIcon))
+      final rawSvg = (await rootBundle.loadString(svgIconPath))
           .replaceAll(RegExp(r'fill="[^"]*"'), 'fill="$colorHex"')
           .replaceAll(RegExp(r'stroke="[^"]*"'), 'stroke="$colorHex"');
 

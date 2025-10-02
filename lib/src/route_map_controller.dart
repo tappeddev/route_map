@@ -54,6 +54,12 @@ class RouteMapController {
     await iconManager.removeIcons();
   }
 
+  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
+    final iconManager = await _iconManager;
+    if (!_mounted) return;
+    await iconManager.removeIconsWhere(test);
+  }
+
   Future<void> removeIcon(String identifier) async {
     final iconManager = await _iconManager;
     if (!_mounted) return;
@@ -68,9 +74,7 @@ class RouteMapController {
     await circleManager.drawUserLocationIndicator(indicator);
   }
 
-  Future<void> removeUserLocationIndicator(
-    RouteMapUserLocationIndicator indicator,
-  ) async {
+  Future<void> removeUserLocationIndicator() async {
     final circleManager = await _circleManager;
     if (!_mounted) return;
     await circleManager.removeUserLocationIndicator();

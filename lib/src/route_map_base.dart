@@ -238,12 +238,14 @@ class _RouteMapState extends State<RouteMap> {
 
     /// The no service layer needs to be below the manager layers, to show
     /// all lines, icons, images above the grey layer and not below.
+    final belowLayerId = noServiceAreaLayer.belowLayerId;
+
     final topLayers = [
       ...controller.lineManager!.layerIds,
       ...controller.symbolManager!.layerIds,
       ...controller.circleManager!.layerIds,
       ...controller.fillManager!.layerIds,
-      ...noServiceAreaLayer.insertBelowLayers,
+      if (belowLayerId != null) belowLayerId,
     ];
     final allLayerIds = await controller.getLayerIds();
 
@@ -253,8 +255,12 @@ class _RouteMapState extends State<RouteMap> {
 
     if (!mounted) return;
 
+    final source = await noServiceAreaLayer.createSource();
+
+    if (!mounted) return;
+
     const sourceId = "no_service_area_source_id";
-    await controller.addSource(sourceId, noServiceAreaLayer.source);
+    await controller.addSource(sourceId, source);
     if (!mounted) return;
 
     await controller.addLayer(

@@ -31,10 +31,10 @@ class RouteMapLineManager {
 
   /// Returns a tuple (String, String?) containing the front line id and the optional back line id
   Future<(String, String?)> drawRoute(RouteMapRoute route) async {
-    final theme =
-        _brightness == Brightness.light
-            ? route.theme
-            : route.darkTheme ?? route.theme;
+    final theme = switch (_brightness) {
+      Brightness.dark => route.darkTheme ?? route.theme,
+      Brightness.light => route.theme,
+    };
 
     final routeLine = LineOptions(
       geometry: route.points,

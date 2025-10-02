@@ -22,7 +22,7 @@ mixin _$RouteMapIcon {
   String get identifier => throw _privateConstructorUsedError;
   RouteMapIconTheme get theme => throw _privateConstructorUsedError;
   RouteMapIconTheme? get darkTheme => throw _privateConstructorUsedError;
-  String? get svgIcon => throw _privateConstructorUsedError;
+  String? get svgIconPath => throw _privateConstructorUsedError;
   String? get text => throw _privateConstructorUsedError;
   String? get label => throw _privateConstructorUsedError;
   bool get draggable => throw _privateConstructorUsedError;
@@ -48,7 +48,7 @@ abstract class $RouteMapIconCopyWith<$Res> {
     String identifier,
     RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
-    String? svgIcon,
+    String? svgIconPath,
     String? text,
     String? label,
     bool draggable,
@@ -79,7 +79,7 @@ class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
     Object? identifier = null,
     Object? theme = null,
     Object? darkTheme = freezed,
-    Object? svgIcon = freezed,
+    Object? svgIconPath = freezed,
     Object? text = freezed,
     Object? label = freezed,
     Object? draggable = null,
@@ -112,10 +112,10 @@ class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
                     ? _value.darkTheme
                     : darkTheme // ignore: cast_nullable_to_non_nullable
                         as RouteMapIconTheme?,
-            svgIcon:
-                freezed == svgIcon
-                    ? _value.svgIcon
-                    : svgIcon // ignore: cast_nullable_to_non_nullable
+            svgIconPath:
+                freezed == svgIconPath
+                    ? _value.svgIconPath
+                    : svgIconPath // ignore: cast_nullable_to_non_nullable
                         as String?,
             text:
                 freezed == text
@@ -182,7 +182,7 @@ abstract class _$$RouteMapIconImplCopyWith<$Res>
     String identifier,
     RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
-    String? svgIcon,
+    String? svgIconPath,
     String? text,
     String? label,
     bool draggable,
@@ -214,7 +214,7 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
     Object? identifier = null,
     Object? theme = null,
     Object? darkTheme = freezed,
-    Object? svgIcon = freezed,
+    Object? svgIconPath = freezed,
     Object? text = freezed,
     Object? label = freezed,
     Object? draggable = null,
@@ -247,10 +247,10 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
                 ? _value.darkTheme
                 : darkTheme // ignore: cast_nullable_to_non_nullable
                     as RouteMapIconTheme?,
-        svgIcon:
-            freezed == svgIcon
-                ? _value.svgIcon
-                : svgIcon // ignore: cast_nullable_to_non_nullable
+        svgIconPath:
+            freezed == svgIconPath
+                ? _value.svgIconPath
+                : svgIconPath // ignore: cast_nullable_to_non_nullable
                     as String?,
         text:
             freezed == text
@@ -286,13 +286,13 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
     required this.identifier,
     required this.theme,
     this.darkTheme,
-    this.svgIcon,
+    this.svgIconPath,
     this.text,
     this.label,
     this.draggable = false,
     this.anchor = RouteMapIconAnchor.bottom,
   }) : assert(
-         svgIcon == null || text == null,
+         svgIconPath == null || text == null,
          'Either svgIcon or text must be provided, not both.',
        );
 
@@ -307,7 +307,7 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
   @override
   final RouteMapIconTheme? darkTheme;
   @override
-  final String? svgIcon;
+  final String? svgIconPath;
   @override
   final String? text;
   @override
@@ -321,7 +321,7 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
 
   @override
   String toString() {
-    return 'RouteMapIcon(markerPath: $markerPath, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, label: $label, draggable: $draggable, anchor: $anchor)';
+    return 'RouteMapIcon(markerPath: $markerPath, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIconPath: $svgIconPath, text: $text, label: $label, draggable: $draggable, anchor: $anchor)';
   }
 
   @override
@@ -337,7 +337,8 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
             (identical(other.theme, theme) || other.theme == theme) &&
             (identical(other.darkTheme, darkTheme) ||
                 other.darkTheme == darkTheme) &&
-            (identical(other.svgIcon, svgIcon) || other.svgIcon == svgIcon) &&
+            (identical(other.svgIconPath, svgIconPath) ||
+                other.svgIconPath == svgIconPath) &&
             (identical(other.text, text) || other.text == text) &&
             (identical(other.label, label) || other.label == label) &&
             (identical(other.draggable, draggable) ||
@@ -353,7 +354,7 @@ class _$RouteMapIconImpl implements _RouteMapIcon {
     identifier,
     theme,
     darkTheme,
-    svgIcon,
+    svgIconPath,
     text,
     label,
     draggable,
@@ -376,7 +377,7 @@ abstract class _RouteMapIcon implements RouteMapIcon {
     required final String identifier,
     required final RouteMapIconTheme theme,
     final RouteMapIconTheme? darkTheme,
-    final String? svgIcon,
+    final String? svgIconPath,
     final String? text,
     final String? label,
     final bool draggable,
@@ -394,7 +395,7 @@ abstract class _RouteMapIcon implements RouteMapIcon {
   @override
   RouteMapIconTheme? get darkTheme;
   @override
-  String? get svgIcon;
+  String? get svgIconPath;
   @override
   String? get text;
   @override
