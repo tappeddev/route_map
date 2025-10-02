@@ -7,7 +7,7 @@ part 'route_map_icon.freezed.dart';
 @freezed
 abstract class RouteMapIcon with _$RouteMapIcon {
   @Assert(
-    'svgIcon == null || text == null',
+    'svgIconPath == null || text == null',
     'Either svgIcon or text must be provided, not both.',
   )
   const factory RouteMapIcon({
@@ -16,7 +16,7 @@ abstract class RouteMapIcon with _$RouteMapIcon {
     required String identifier,
     required RouteMapIconTheme theme,
     RouteMapIconTheme? darkTheme,
-    String? svgIcon,
+    String? svgIconPath,
     String? text,
     required Path Function(Size) drawPath,
     String? label,

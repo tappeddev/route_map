@@ -129,7 +129,7 @@ class RouteMapIconManager {
     final drawPath = mapIcon.drawPath;
     final strokeWidth = theme.strokeWidth;
     final drawCircleAroundIcon = theme.drawCircleAroundIcon;
-    final svgIcon = mapIcon.svgIcon;
+    final svgIconPath = mapIcon.svgIconPath;
     final text = mapIcon.text;
 
     final colorHex = theme.foreground.toHexStringRGB();
@@ -168,9 +168,9 @@ class RouteMapIconManager {
       );
     }
 
-    if (svgIcon != null) {
+    if (svgIconPath != null) {
       // Load SVG and override color
-      final rawSvg = (await rootBundle.loadString(svgIcon))
+      final rawSvg = (await rootBundle.loadString(svgIconPath))
           .replaceAll(RegExp(r'fill="[^"]*"'), 'fill="$colorHex"')
           .replaceAll(RegExp(r'stroke="[^"]*"'), 'stroke="$colorHex"');
 

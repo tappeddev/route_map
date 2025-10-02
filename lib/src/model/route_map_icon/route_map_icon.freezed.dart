@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RouteMapIcon {
 
- Size get size; LatLng get latLng; String get identifier; RouteMapIconTheme get theme; RouteMapIconTheme? get darkTheme; String? get svgIcon; String? get text; Path Function(Size) get drawPath; String? get label; bool get draggable; RouteMapIconAnchor get anchor;
+ Size get size; LatLng get latLng; String get identifier; RouteMapIconTheme get theme; RouteMapIconTheme? get darkTheme; String? get svgIconPath; String? get text; Path Function(Size) get drawPath; String? get label; bool get draggable; RouteMapIconAnchor get anchor;
 /// Create a copy of RouteMapIcon
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $RouteMapIconCopyWith<RouteMapIcon> get copyWith => _$RouteMapIconCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapIcon&&(identical(other.size, size) || other.size == size)&&(identical(other.latLng, latLng) || other.latLng == latLng)&&(identical(other.identifier, identifier) || other.identifier == identifier)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme)&&(identical(other.svgIcon, svgIcon) || other.svgIcon == svgIcon)&&(identical(other.text, text) || other.text == text)&&(identical(other.drawPath, drawPath) || other.drawPath == drawPath)&&(identical(other.label, label) || other.label == label)&&(identical(other.draggable, draggable) || other.draggable == draggable)&&(identical(other.anchor, anchor) || other.anchor == anchor));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapIcon&&(identical(other.size, size) || other.size == size)&&(identical(other.latLng, latLng) || other.latLng == latLng)&&(identical(other.identifier, identifier) || other.identifier == identifier)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme)&&(identical(other.svgIconPath, svgIconPath) || other.svgIconPath == svgIconPath)&&(identical(other.text, text) || other.text == text)&&(identical(other.drawPath, drawPath) || other.drawPath == drawPath)&&(identical(other.label, label) || other.label == label)&&(identical(other.draggable, draggable) || other.draggable == draggable)&&(identical(other.anchor, anchor) || other.anchor == anchor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,size,latLng,identifier,theme,darkTheme,svgIcon,text,drawPath,label,draggable,anchor);
+int get hashCode => Object.hash(runtimeType,size,latLng,identifier,theme,darkTheme,svgIconPath,text,drawPath,label,draggable,anchor);
 
 @override
 String toString() {
-  return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
+  return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIconPath: $svgIconPath, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $RouteMapIconCopyWith<$Res>  {
   factory $RouteMapIconCopyWith(RouteMapIcon value, $Res Function(RouteMapIcon) _then) = _$RouteMapIconCopyWithImpl;
 @useResult
 $Res call({
- Size size, LatLng latLng, String identifier, RouteMapIconTheme theme, RouteMapIconTheme? darkTheme, String? svgIcon, String? text, Path Function(Size) drawPath, String? label, bool draggable, RouteMapIconAnchor anchor
+ Size size, LatLng latLng, String identifier, RouteMapIconTheme theme, RouteMapIconTheme? darkTheme, String? svgIconPath, String? text, Path Function(Size) drawPath, String? label, bool draggable, RouteMapIconAnchor anchor
 });
 
 
@@ -62,14 +62,14 @@ class _$RouteMapIconCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapIcon
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? size = null,Object? latLng = null,Object? identifier = null,Object? theme = null,Object? darkTheme = freezed,Object? svgIcon = freezed,Object? text = freezed,Object? drawPath = null,Object? label = freezed,Object? draggable = null,Object? anchor = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? size = null,Object? latLng = null,Object? identifier = null,Object? theme = null,Object? darkTheme = freezed,Object? svgIconPath = freezed,Object? text = freezed,Object? drawPath = null,Object? label = freezed,Object? draggable = null,Object? anchor = null,}) {
   return _then(_self.copyWith(
 size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as Size,latLng: null == latLng ? _self.latLng : latLng // ignore: cast_nullable_to_non_nullable
 as LatLng,identifier: null == identifier ? _self.identifier : identifier // ignore: cast_nullable_to_non_nullable
 as String,theme: null == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
 as RouteMapIconTheme,darkTheme: freezed == darkTheme ? _self.darkTheme : darkTheme // ignore: cast_nullable_to_non_nullable
-as RouteMapIconTheme?,svgIcon: freezed == svgIcon ? _self.svgIcon : svgIcon // ignore: cast_nullable_to_non_nullable
+as RouteMapIconTheme?,svgIconPath: freezed == svgIconPath ? _self.svgIconPath : svgIconPath // ignore: cast_nullable_to_non_nullable
 as String?,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String?,drawPath: null == drawPath ? _self.drawPath : drawPath // ignore: cast_nullable_to_non_nullable
 as Path Function(Size),label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
@@ -181,10 +181,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIcon,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIconPath,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RouteMapIcon() when $default != null:
-return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIcon,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
+return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIconPath,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
   return orElse();
 
 }
@@ -202,10 +202,10 @@ return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkT
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIcon,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIconPath,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapIcon():
-return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIcon,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
+return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIconPath,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -222,10 +222,10 @@ return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkT
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIcon,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Size size,  LatLng latLng,  String identifier,  RouteMapIconTheme theme,  RouteMapIconTheme? darkTheme,  String? svgIconPath,  String? text,  Path Function(Size) drawPath,  String? label,  bool draggable,  RouteMapIconAnchor anchor)?  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapIcon() when $default != null:
-return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIcon,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
+return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkTheme,_that.svgIconPath,_that.text,_that.drawPath,_that.label,_that.draggable,_that.anchor);case _:
   return null;
 
 }
@@ -237,7 +237,7 @@ return $default(_that.size,_that.latLng,_that.identifier,_that.theme,_that.darkT
 
 
 class _RouteMapIcon implements RouteMapIcon {
-  const _RouteMapIcon({required this.size, required this.latLng, required this.identifier, required this.theme, this.darkTheme, this.svgIcon, this.text, required this.drawPath, this.label, this.draggable = false, this.anchor = RouteMapIconAnchor.bottom}): assert(svgIcon == null || text == null, 'Either svgIcon or text must be provided, not both.');
+  const _RouteMapIcon({required this.size, required this.latLng, required this.identifier, required this.theme, this.darkTheme, this.svgIconPath, this.text, required this.drawPath, this.label, this.draggable = false, this.anchor = RouteMapIconAnchor.bottom}): assert(svgIconPath == null || text == null, 'Either svgIcon or text must be provided, not both.');
   
 
 @override final  Size size;
@@ -245,7 +245,7 @@ class _RouteMapIcon implements RouteMapIcon {
 @override final  String identifier;
 @override final  RouteMapIconTheme theme;
 @override final  RouteMapIconTheme? darkTheme;
-@override final  String? svgIcon;
+@override final  String? svgIconPath;
 @override final  String? text;
 @override final  Path Function(Size) drawPath;
 @override final  String? label;
@@ -262,16 +262,16 @@ _$RouteMapIconCopyWith<_RouteMapIcon> get copyWith => __$RouteMapIconCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapIcon&&(identical(other.size, size) || other.size == size)&&(identical(other.latLng, latLng) || other.latLng == latLng)&&(identical(other.identifier, identifier) || other.identifier == identifier)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme)&&(identical(other.svgIcon, svgIcon) || other.svgIcon == svgIcon)&&(identical(other.text, text) || other.text == text)&&(identical(other.drawPath, drawPath) || other.drawPath == drawPath)&&(identical(other.label, label) || other.label == label)&&(identical(other.draggable, draggable) || other.draggable == draggable)&&(identical(other.anchor, anchor) || other.anchor == anchor));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapIcon&&(identical(other.size, size) || other.size == size)&&(identical(other.latLng, latLng) || other.latLng == latLng)&&(identical(other.identifier, identifier) || other.identifier == identifier)&&(identical(other.theme, theme) || other.theme == theme)&&(identical(other.darkTheme, darkTheme) || other.darkTheme == darkTheme)&&(identical(other.svgIconPath, svgIconPath) || other.svgIconPath == svgIconPath)&&(identical(other.text, text) || other.text == text)&&(identical(other.drawPath, drawPath) || other.drawPath == drawPath)&&(identical(other.label, label) || other.label == label)&&(identical(other.draggable, draggable) || other.draggable == draggable)&&(identical(other.anchor, anchor) || other.anchor == anchor));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,size,latLng,identifier,theme,darkTheme,svgIcon,text,drawPath,label,draggable,anchor);
+int get hashCode => Object.hash(runtimeType,size,latLng,identifier,theme,darkTheme,svgIconPath,text,drawPath,label,draggable,anchor);
 
 @override
 String toString() {
-  return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIcon: $svgIcon, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
+  return 'RouteMapIcon(size: $size, latLng: $latLng, identifier: $identifier, theme: $theme, darkTheme: $darkTheme, svgIconPath: $svgIconPath, text: $text, drawPath: $drawPath, label: $label, draggable: $draggable, anchor: $anchor)';
 }
 
 
@@ -282,7 +282,7 @@ abstract mixin class _$RouteMapIconCopyWith<$Res> implements $RouteMapIconCopyWi
   factory _$RouteMapIconCopyWith(_RouteMapIcon value, $Res Function(_RouteMapIcon) _then) = __$RouteMapIconCopyWithImpl;
 @override @useResult
 $Res call({
- Size size, LatLng latLng, String identifier, RouteMapIconTheme theme, RouteMapIconTheme? darkTheme, String? svgIcon, String? text, Path Function(Size) drawPath, String? label, bool draggable, RouteMapIconAnchor anchor
+ Size size, LatLng latLng, String identifier, RouteMapIconTheme theme, RouteMapIconTheme? darkTheme, String? svgIconPath, String? text, Path Function(Size) drawPath, String? label, bool draggable, RouteMapIconAnchor anchor
 });
 
 
@@ -299,14 +299,14 @@ class __$RouteMapIconCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapIcon
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? size = null,Object? latLng = null,Object? identifier = null,Object? theme = null,Object? darkTheme = freezed,Object? svgIcon = freezed,Object? text = freezed,Object? drawPath = null,Object? label = freezed,Object? draggable = null,Object? anchor = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? size = null,Object? latLng = null,Object? identifier = null,Object? theme = null,Object? darkTheme = freezed,Object? svgIconPath = freezed,Object? text = freezed,Object? drawPath = null,Object? label = freezed,Object? draggable = null,Object? anchor = null,}) {
   return _then(_RouteMapIcon(
 size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
 as Size,latLng: null == latLng ? _self.latLng : latLng // ignore: cast_nullable_to_non_nullable
 as LatLng,identifier: null == identifier ? _self.identifier : identifier // ignore: cast_nullable_to_non_nullable
 as String,theme: null == theme ? _self.theme : theme // ignore: cast_nullable_to_non_nullable
 as RouteMapIconTheme,darkTheme: freezed == darkTheme ? _self.darkTheme : darkTheme // ignore: cast_nullable_to_non_nullable
-as RouteMapIconTheme?,svgIcon: freezed == svgIcon ? _self.svgIcon : svgIcon // ignore: cast_nullable_to_non_nullable
+as RouteMapIconTheme?,svgIconPath: freezed == svgIconPath ? _self.svgIconPath : svgIconPath // ignore: cast_nullable_to_non_nullable
 as String?,text: freezed == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String?,drawPath: null == drawPath ? _self.drawPath : drawPath // ignore: cast_nullable_to_non_nullable
 as Path Function(Size),label: freezed == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
