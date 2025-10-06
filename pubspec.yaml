@@ -1,0 +1,26 @@
+name: route_map
+description: "A new Flutter project."
+version: 0.0.1
+
+environment:
+  sdk: ^3.7.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_svg: ^2.1.0
+  freezed_annotation: ^2.4.4
+  collection: ^1.19.1
+  maplibre_gl: ^0.24.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  tapped_lints:
+    git:
+      url: https://github.com/tappeddev/tapped_lints.git
+      ref: master
+  build_runner: ^2.4.14
+  freezed: ^2.5.8
