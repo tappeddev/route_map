@@ -117,12 +117,12 @@ class _RouteMapState extends State<RouteMap> {
     Annotation? annotation,
     DragEventType eventType,
   ) async {
+    /// Dragging feature was only added to icons
+    if (annotation is! Symbol) return;
     final iconManager = await _iconManager;
     widget.onFeatureDrag?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : id,
-      annotation is Symbol ? annotation.options.geometry! : current,
+      iconManager.findIconBySymbol(annotation).identifier,
+      annotation.options.geometry!,
       origin,
       eventType,
     );
@@ -136,13 +136,14 @@ class _RouteMapState extends State<RouteMap> {
     HoverEventType eventType,
   ) async {
     final iconManager = await _iconManager;
-    widget.onFeatureHover?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : id,
-      latLng,
-      eventType,
-    );
+    final lineManager = await _lineManager;
+    final id = switch (annotation) {
+      final Symbol symbol => iconManager.findIconBySymbol(symbol).identifier,
+      final Line line => lineManager.findRouteByHoveredLine(line)?.identifier,
+      _ => null,
+    };
+    if (id == null) return;
+    widget.onFeatureHover?.call(id, latLng, eventType);
   }
 
   @override

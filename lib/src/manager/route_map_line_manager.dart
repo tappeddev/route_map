@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
@@ -7,19 +8,26 @@ class RouteMapLineManager {
   final MapLibreMapController controller;
   Brightness _brightness = Brightness.light;
 
-  final _routeMap = <String, RouteMapRoute>{};
+  final _routeMap = <String, _DrawnRoute>{};
 
   RouteMapLineManager({required this.controller});
 
   Future<void> restore(Brightness brightness) async {
     _brightness = brightness;
-    final routes = _routeMap.values.toList();
     await removeRoutes();
 
-    for (final route in routes) {
-      await drawRoute(route);
+    for (final drawnRoute in _routeMap.values) {
+      await drawRoute(drawnRoute.route);
     }
   }
+
+  RouteMapRoute? findRouteByHoveredLine(Line line) =>
+      _routeMap.values.firstWhereOrNull((drawnRoute) {
+        // If backline exists, ignore front line to prevent duplicate callbacks
+        return drawnRoute.backLine != null
+            ? drawnRoute.backLine!.id == line.id
+            : drawnRoute.line.id == line.id;
+      })?.route;
 
   Future<void> removeRoutes() async {
     if (controller.lines.isNotEmpty) {
@@ -30,7 +38,15 @@ class RouteMapLineManager {
   }
 
   /// Returns a tuple (String, String?) containing the front line id and the optional back line id
-  Future<(String, String?)> drawRoute(RouteMapRoute route) async {
+  Future<void> drawRoute(RouteMapRoute route) async {
+    final drawnRoute = _routeMap[route.identifier];
+    if (drawnRoute != null) {
+      await controller.removeLines([
+        drawnRoute.line,
+        if (drawnRoute.backLine != null) drawnRoute.backLine!,
+      ]);
+    }
+
     final theme = switch (_brightness) {
       Brightness.dark => route.darkTheme ?? route.theme,
       Brightness.light => route.theme,
@@ -52,13 +68,22 @@ class RouteMapLineManager {
         lineWidth: theme.backLineWidth,
       );
       backLine = await controller.addLine(backgroundLine);
-      _routeMap[backLine.id] = route;
     }
 
-    if (controller.isDisposed) ('', null);
+    if (controller.isDisposed) return;
     final line = await controller.addLine(routeLine);
-    _routeMap[line.id] = route;
-
-    return (line.id, backLine?.id);
+    _routeMap[route.identifier] = _DrawnRoute(
+      route: route,
+      line: line,
+      backLine: backLine,
+    );
   }
+}
+
+class _DrawnRoute {
+  final RouteMapRoute route;
+  final Line line;
+  final Line? backLine;
+
+  const _DrawnRoute({required this.route, required this.line, this.backLine});
 }

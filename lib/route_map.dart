@@ -4,11 +4,6 @@ export 'package:maplibre_gl/maplibre_gl.dart'
         DragEventType,
         HoverEventType,
         CameraPosition,
-        Annotation,
-        Symbol,
-        Line,
-        Circle,
-        Fill,
         GeojsonSourceProperties;
 
 export 'src/model/route_map_icon/route_map_icon.dart';

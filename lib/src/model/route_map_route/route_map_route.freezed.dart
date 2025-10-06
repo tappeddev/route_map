@@ -17,6 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$RouteMapRoute {
+  String get identifier => throw _privateConstructorUsedError;
   List<LatLng> get points => throw _privateConstructorUsedError;
   RouteMapRouteTheme get theme => throw _privateConstructorUsedError;
   RouteMapRouteTheme? get darkTheme => throw _privateConstructorUsedError;
@@ -36,6 +37,7 @@ abstract class $RouteMapRouteCopyWith<$Res> {
   ) = _$RouteMapRouteCopyWithImpl<$Res, RouteMapRoute>;
   @useResult
   $Res call({
+    String identifier,
     List<LatLng> points,
     RouteMapRouteTheme theme,
     RouteMapRouteTheme? darkTheme,
@@ -60,12 +62,18 @@ class _$RouteMapRouteCopyWithImpl<$Res, $Val extends RouteMapRoute>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? identifier = null,
     Object? points = null,
     Object? theme = null,
     Object? darkTheme = freezed,
   }) {
     return _then(
       _value.copyWith(
+            identifier:
+                null == identifier
+                    ? _value.identifier
+                    : identifier // ignore: cast_nullable_to_non_nullable
+                        as String,
             points:
                 null == points
                     ? _value.points
@@ -121,6 +129,7 @@ abstract class _$$RouteMapRouteImplCopyWith<$Res>
   @override
   @useResult
   $Res call({
+    String identifier,
     List<LatLng> points,
     RouteMapRouteTheme theme,
     RouteMapRouteTheme? darkTheme,
@@ -146,12 +155,18 @@ class __$$RouteMapRouteImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? identifier = null,
     Object? points = null,
     Object? theme = null,
     Object? darkTheme = freezed,
   }) {
     return _then(
       _$RouteMapRouteImpl(
+        identifier:
+            null == identifier
+                ? _value.identifier
+                : identifier // ignore: cast_nullable_to_non_nullable
+                    as String,
         points:
             null == points
                 ? _value._points
@@ -176,11 +191,14 @@ class __$$RouteMapRouteImplCopyWithImpl<$Res>
 
 class _$RouteMapRouteImpl implements _RouteMapRoute {
   const _$RouteMapRouteImpl({
+    required this.identifier,
     required final List<LatLng> points,
     required this.theme,
     this.darkTheme,
   }) : _points = points;
 
+  @override
+  final String identifier;
   final List<LatLng> _points;
   @override
   List<LatLng> get points {
@@ -196,7 +214,7 @@ class _$RouteMapRouteImpl implements _RouteMapRoute {
 
   @override
   String toString() {
-    return 'RouteMapRoute(points: $points, theme: $theme, darkTheme: $darkTheme)';
+    return 'RouteMapRoute(identifier: $identifier, points: $points, theme: $theme, darkTheme: $darkTheme)';
   }
 
   @override
@@ -204,6 +222,8 @@ class _$RouteMapRouteImpl implements _RouteMapRoute {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$RouteMapRouteImpl &&
+            (identical(other.identifier, identifier) ||
+                other.identifier == identifier) &&
             const DeepCollectionEquality().equals(other._points, _points) &&
             (identical(other.theme, theme) || other.theme == theme) &&
             (identical(other.darkTheme, darkTheme) ||
@@ -213,6 +233,7 @@ class _$RouteMapRouteImpl implements _RouteMapRoute {
   @override
   int get hashCode => Object.hash(
     runtimeType,
+    identifier,
     const DeepCollectionEquality().hash(_points),
     theme,
     darkTheme,
@@ -229,11 +250,14 @@ class _$RouteMapRouteImpl implements _RouteMapRoute {
 
 abstract class _RouteMapRoute implements RouteMapRoute {
   const factory _RouteMapRoute({
+    required final String identifier,
     required final List<LatLng> points,
     required final RouteMapRouteTheme theme,
     final RouteMapRouteTheme? darkTheme,
   }) = _$RouteMapRouteImpl;
 
+  @override
+  String get identifier;
   @override
   List<LatLng> get points;
   @override
