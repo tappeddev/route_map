@@ -13,23 +13,22 @@ class RouteMapController {
 
   bool get _mounted => _state.mounted;
 
-  Future<(String, String?)> drawRoute({
+  Future<void> drawRoute({
     required RouteMapRoute route,
     required bool animateCamera,
   }) async {
     final lineManager = await _lineManager;
-    if (!_mounted) return ('', null);
-    final res = await lineManager.drawRoute(route);
+    if (!_mounted) return;
+    await lineManager.drawRoute(route);
 
-    if (!_mounted) return ('', null);
+    if (!_mounted) return;
 
     if (animateCamera) {
       await animateCameraTo(points: route.points);
     }
-    return res;
   }
 
-  Future<void> removeRoute() async {
+  Future<void> removeRoutes() async {
     final lineManager = await _lineManager;
     if (!_mounted) return;
     await lineManager.removeRoutes();

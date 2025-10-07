@@ -8,8 +8,6 @@ import 'package:route_map/route_map.dart';
 import 'package:route_map/src/manager/route_map_circle_manager.dart';
 import 'package:route_map/src/manager/route_map_icon_manager.dart';
 import 'package:route_map/src/manager/route_map_line_manager.dart';
-import 'package:route_map/src/model/no_service_area_layer.dart';
-import 'package:route_map/src/model/route_map_user_location_indicator/route_map_user_location_indicator.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
@@ -115,15 +113,16 @@ class _RouteMapState extends State<RouteMap> {
     LatLng origin,
     LatLng current,
     LatLng delta,
-    Annotation annotation,
+    String id,
+    Annotation? annotation,
     DragEventType eventType,
   ) async {
+    /// Dragging feature was only added to icons
+    if (annotation is! Symbol) return;
     final iconManager = await _iconManager;
     widget.onFeatureDrag?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
-      annotation is Symbol ? annotation.options.geometry! : current,
+      iconManager.findIconBySymbol(annotation).identifier,
+      annotation.options.geometry!,
       origin,
       eventType,
     );
@@ -132,17 +131,19 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _onFeatureHover(
     Point<double> point,
     LatLng latLng,
-    Annotation annotation,
+    String id,
+    Annotation? annotation,
     HoverEventType eventType,
   ) async {
     final iconManager = await _iconManager;
-    widget.onFeatureHover?.call(
-      annotation is Symbol
-          ? iconManager.findIconBySymbol(annotation).identifier
-          : annotation.id,
-      latLng,
-      eventType,
-    );
+    final lineManager = await _lineManager;
+    final id = switch (annotation) {
+      final Symbol symbol => iconManager.findIconBySymbol(symbol).identifier,
+      final Line line => lineManager.findRouteByHoveredLine(line)?.identifier,
+      _ => null,
+    };
+    if (id == null) return;
+    widget.onFeatureHover?.call(id, latLng, eventType);
   }
 
   @override
