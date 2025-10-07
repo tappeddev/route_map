@@ -8,6 +8,7 @@ part 'route_map_route.freezed.dart';
 @freezed
 abstract class RouteMapRoute with _$RouteMapRoute {
   const factory RouteMapRoute({
+    required String identifier,
     required List<LatLng> points,
     required RouteMapRouteTheme theme,
     RouteMapRouteTheme? darkTheme,
