@@ -4,7 +4,8 @@ export 'package:maplibre_gl/maplibre_gl.dart'
         DragEventType,
         HoverEventType,
         CameraPosition,
-        GeojsonSourceProperties;
+        GeojsonSourceProperties,
+        LatLngBounds;
 
 export 'src/model/route_map_icon/route_map_icon.dart';
 export 'src/model/route_map_icon_anchor.dart';
