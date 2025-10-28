@@ -4,8 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - develop
-      - master
+      - main
 
 # Cancel previous builds by only allowing one concurrent build per ref.
 concurrency:
