@@ -220,7 +220,8 @@ class _RouteMapState extends State<RouteMap> {
   }
 
   Future<void> _scheduleGeometryRedraw() async {
-    // Use instance directly because _fullyLoadedCompleter is not completed yet
+    // Use [_lineManagerInstance] directly instead of [_lineManager]
+    // because _fullyLoadedCompleter is not completed yet
     final lineManager = _lineManagerInstance;
     final symbolManager = _iconManagerInstance;
     final circleManger = _circleManagerInstance;
