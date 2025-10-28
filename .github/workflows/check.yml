@@ -8,7 +8,7 @@ on:
 
 # Cancel previous builds by only allowing one concurrent build per ref.
 concurrency:
-  group: bieter_tool_app_check-${{ github.ref }}
+  group: route_map_check-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
