@@ -64,7 +64,7 @@ class RouteMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<RouteMap> {
-  final _fullyLoadedCompleter = Completer();
+  final _fullyLoadedCompleter = Completer<void>();
   final _controllerCompleter = Completer<MapLibreMapController>();
 
   late final RouteMapIconManager _iconManagerInstance;
@@ -226,7 +226,6 @@ class _RouteMapState extends State<RouteMap> {
     final symbolManager = _iconManagerInstance;
     final circleManger = _circleManagerInstance;
 
-    if (!mounted) return;
     final brightness = MediaQuery.platformBrightnessOf(context);
     await Future.wait([
       lineManager.restore(brightness),
