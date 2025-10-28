@@ -78,26 +78,22 @@ class _$RouteMapUserLocationIndicatorCopyWithImpl<
   }) {
     return _then(
       _value.copyWith(
-            location:
-                null == location
-                    ? _value.location
-                    : location // ignore: cast_nullable_to_non_nullable
-                        as LatLng,
-            accuracyWidth:
-                null == accuracyWidth
-                    ? _value.accuracyWidth
-                    : accuracyWidth // ignore: cast_nullable_to_non_nullable
-                        as double,
-            theme:
-                null == theme
-                    ? _value.theme
-                    : theme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapUserLocationIndicatorTheme,
-            darkTheme:
-                freezed == darkTheme
-                    ? _value.darkTheme
-                    : darkTheme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapUserLocationIndicatorTheme?,
+            location: null == location
+                ? _value.location
+                : location // ignore: cast_nullable_to_non_nullable
+                      as LatLng,
+            accuracyWidth: null == accuracyWidth
+                ? _value.accuracyWidth
+                : accuracyWidth // ignore: cast_nullable_to_non_nullable
+                      as double,
+            theme: null == theme
+                ? _value.theme
+                : theme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapUserLocationIndicatorTheme,
+            darkTheme: freezed == darkTheme
+                ? _value.darkTheme
+                : darkTheme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapUserLocationIndicatorTheme?,
           )
           as $Val,
     );
@@ -180,26 +176,22 @@ class __$$RouteMapUserLocationIndicatorImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$RouteMapUserLocationIndicatorImpl(
-        location:
-            null == location
-                ? _value.location
-                : location // ignore: cast_nullable_to_non_nullable
-                    as LatLng,
-        accuracyWidth:
-            null == accuracyWidth
-                ? _value.accuracyWidth
-                : accuracyWidth // ignore: cast_nullable_to_non_nullable
-                    as double,
-        theme:
-            null == theme
-                ? _value.theme
-                : theme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapUserLocationIndicatorTheme,
-        darkTheme:
-            freezed == darkTheme
-                ? _value.darkTheme
-                : darkTheme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapUserLocationIndicatorTheme?,
+        location: null == location
+            ? _value.location
+            : location // ignore: cast_nullable_to_non_nullable
+                  as LatLng,
+        accuracyWidth: null == accuracyWidth
+            ? _value.accuracyWidth
+            : accuracyWidth // ignore: cast_nullable_to_non_nullable
+                  as double,
+        theme: null == theme
+            ? _value.theme
+            : theme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapUserLocationIndicatorTheme,
+        darkTheme: freezed == darkTheme
+            ? _value.darkTheme
+            : darkTheme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapUserLocationIndicatorTheme?,
       ),
     );
   }
@@ -256,9 +248,10 @@ class _$RouteMapUserLocationIndicatorImpl
   _$$RouteMapUserLocationIndicatorImplCopyWith<
     _$RouteMapUserLocationIndicatorImpl
   >
-  get copyWith => __$$RouteMapUserLocationIndicatorImplCopyWithImpl<
-    _$RouteMapUserLocationIndicatorImpl
-  >(this, _$identity);
+  get copyWith =>
+      __$$RouteMapUserLocationIndicatorImplCopyWithImpl<
+        _$RouteMapUserLocationIndicatorImpl
+      >(this, _$identity);
 }
 
 abstract class _RouteMapUserLocationIndicator
@@ -336,11 +329,10 @@ class _$RouteMapUserLocationIndicatorThemeCopyWithImpl<
   $Res call({Object? color = null}) {
     return _then(
       _value.copyWith(
-            color:
-                null == color
-                    ? _value.color
-                    : color // ignore: cast_nullable_to_non_nullable
-                        as Color,
+            color: null == color
+                ? _value.color
+                : color // ignore: cast_nullable_to_non_nullable
+                      as Color,
           )
           as $Val,
     );
@@ -379,11 +371,10 @@ class __$$RouteMapUserLocationIndicatorThemeImplCopyWithImpl<$Res>
   $Res call({Object? color = null}) {
     return _then(
       _$RouteMapUserLocationIndicatorThemeImpl(
-        color:
-            null == color
-                ? _value.color
-                : color // ignore: cast_nullable_to_non_nullable
-                    as Color,
+        color: null == color
+            ? _value.color
+            : color // ignore: cast_nullable_to_non_nullable
+                  as Color,
       ),
     );
   }
@@ -422,9 +413,10 @@ class _$RouteMapUserLocationIndicatorThemeImpl
   _$$RouteMapUserLocationIndicatorThemeImplCopyWith<
     _$RouteMapUserLocationIndicatorThemeImpl
   >
-  get copyWith => __$$RouteMapUserLocationIndicatorThemeImplCopyWithImpl<
-    _$RouteMapUserLocationIndicatorThemeImpl
-  >(this, _$identity);
+  get copyWith =>
+      __$$RouteMapUserLocationIndicatorThemeImplCopyWithImpl<
+        _$RouteMapUserLocationIndicatorThemeImpl
+      >(this, _$identity);
 }
 
 abstract class _RouteMapUserLocationIndicatorTheme

@@ -64,20 +64,32 @@ class RouteMap extends StatefulWidget {
 }
 
 class _RouteMapState extends State<RouteMap> {
+  final _fullyLoadedCompleter = Completer();
   final _controllerCompleter = Completer<MapLibreMapController>();
-  final _mapCreatedCompleter = Completer<MapLibreMapController>();
-  final _iconManagerCompleter = Completer<RouteMapIconManager>();
-  final _lineManagerCompleter = Completer<RouteMapLineManager>();
-  final _circleManagerCompleter = Completer<RouteMapCircleManager>();
 
-  Future<MapLibreMapController> get _controller => _mapCreatedCompleter.future;
+  late final RouteMapIconManager _iconManagerInstance;
 
-  Future<RouteMapIconManager> get _iconManager => _iconManagerCompleter.future;
+  late final RouteMapLineManager _lineManagerInstance;
 
-  Future<RouteMapLineManager> get _lineManager => _lineManagerCompleter.future;
+  late final RouteMapCircleManager _circleManagerInstance;
 
-  Future<RouteMapCircleManager> get _circleManager =>
-      _circleManagerCompleter.future;
+  Future<MapLibreMapController> get _controller => _controllerCompleter.future;
+
+  Future<RouteMapIconManager> get _iconManager async {
+    // wait for style and restore to complete
+    await _fullyLoadedCompleter.future;
+    return _iconManagerInstance;
+  }
+
+  Future<RouteMapLineManager> get _lineManager async {
+    await _fullyLoadedCompleter.future;
+    return _lineManagerInstance;
+  }
+
+  Future<RouteMapCircleManager> get _circleManager async {
+    await _fullyLoadedCompleter.future;
+    return _circleManagerInstance;
+  }
 
   @override
   void initState() {
@@ -100,8 +112,8 @@ class _RouteMapState extends State<RouteMap> {
   }
 
   Future<void> _removeListeners() async {
-    if (!_mapCreatedCompleter.isCompleted) return;
-    final controller = await _mapCreatedCompleter.future;
+    if (!_controllerCompleter.isCompleted) return;
+    final controller = await _controllerCompleter.future;
     controller.onFeatureDrag.remove(_onFeatureDrag);
     if (kIsWeb) {
       controller.onFeatureHover.remove(_onFeatureHover);
@@ -166,17 +178,19 @@ class _RouteMapState extends State<RouteMap> {
         tiltGesturesEnabled: false,
         onMapClick: widget.onMapClicked,
         onMapCreated: (controller) {
-          _mapCreatedCompleter.complete(controller);
+          _iconManagerInstance = RouteMapIconManager(controller: controller);
+          _lineManagerInstance = RouteMapLineManager(controller: controller);
+          _circleManagerInstance = RouteMapCircleManager(
+            controller: controller,
+          );
+          _controllerCompleter.complete(controller);
+
           controller.onFeatureDrag.add(_onFeatureDrag);
           if (kIsWeb) {
             controller.onFeatureHover.add(_onFeatureHover);
           }
         },
         onStyleLoadedCallback: () async {
-          if (!_controllerCompleter.isCompleted) {
-            await _completeInit();
-          }
-
           await _addNoServiceAreaLayer();
 
           await _setMapLanguage();
@@ -184,6 +198,10 @@ class _RouteMapState extends State<RouteMap> {
           unawaited(_setOverlap());
 
           await _scheduleGeometryRedraw();
+
+          if (!_fullyLoadedCompleter.isCompleted) {
+            _fullyLoadedCompleter.complete();
+          }
         },
         annotationOrder: const [
           AnnotationType.fill,
@@ -195,17 +213,6 @@ class _RouteMapState extends State<RouteMap> {
     );
   }
 
-  Future<void> _completeInit() async {
-    final controller = await _mapCreatedCompleter.future;
-    final iconManager = RouteMapIconManager(controller: controller);
-    final lineManager = RouteMapLineManager(controller: controller);
-    final circleManager = RouteMapCircleManager(controller: controller);
-    _controllerCompleter.complete(controller);
-    _iconManagerCompleter.complete(iconManager);
-    _lineManagerCompleter.complete(lineManager);
-    _circleManagerCompleter.complete(circleManager);
-  }
-
   Future<void> _setMapLanguage() async {
     final controller = await _controller;
     if (!mounted) return;
@@ -213,9 +220,10 @@ class _RouteMapState extends State<RouteMap> {
   }
 
   Future<void> _scheduleGeometryRedraw() async {
-    final lineManager = await _lineManager;
-    final symbolManager = await _iconManager;
-    final circleManger = await _circleManager;
+    // Use instance directly because _fullyLoadedCompleter is not completed yet
+    final lineManager = _lineManagerInstance;
+    final symbolManager = _iconManagerInstance;
+    final circleManger = _circleManagerInstance;
 
     if (!mounted) return;
     final brightness = MediaQuery.platformBrightnessOf(context);
