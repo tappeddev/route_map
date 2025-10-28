@@ -69,26 +69,22 @@ class _$RouteMapRouteCopyWithImpl<$Res, $Val extends RouteMapRoute>
   }) {
     return _then(
       _value.copyWith(
-            identifier:
-                null == identifier
-                    ? _value.identifier
-                    : identifier // ignore: cast_nullable_to_non_nullable
-                        as String,
-            points:
-                null == points
-                    ? _value.points
-                    : points // ignore: cast_nullable_to_non_nullable
-                        as List<LatLng>,
-            theme:
-                null == theme
-                    ? _value.theme
-                    : theme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapRouteTheme,
-            darkTheme:
-                freezed == darkTheme
-                    ? _value.darkTheme
-                    : darkTheme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapRouteTheme?,
+            identifier: null == identifier
+                ? _value.identifier
+                : identifier // ignore: cast_nullable_to_non_nullable
+                      as String,
+            points: null == points
+                ? _value.points
+                : points // ignore: cast_nullable_to_non_nullable
+                      as List<LatLng>,
+            theme: null == theme
+                ? _value.theme
+                : theme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapRouteTheme,
+            darkTheme: freezed == darkTheme
+                ? _value.darkTheme
+                : darkTheme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapRouteTheme?,
           )
           as $Val,
     );
@@ -162,26 +158,22 @@ class __$$RouteMapRouteImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$RouteMapRouteImpl(
-        identifier:
-            null == identifier
-                ? _value.identifier
-                : identifier // ignore: cast_nullable_to_non_nullable
-                    as String,
-        points:
-            null == points
-                ? _value._points
-                : points // ignore: cast_nullable_to_non_nullable
-                    as List<LatLng>,
-        theme:
-            null == theme
-                ? _value.theme
-                : theme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapRouteTheme,
-        darkTheme:
-            freezed == darkTheme
-                ? _value.darkTheme
-                : darkTheme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapRouteTheme?,
+        identifier: null == identifier
+            ? _value.identifier
+            : identifier // ignore: cast_nullable_to_non_nullable
+                  as String,
+        points: null == points
+            ? _value._points
+            : points // ignore: cast_nullable_to_non_nullable
+                  as List<LatLng>,
+        theme: null == theme
+            ? _value.theme
+            : theme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapRouteTheme,
+        darkTheme: freezed == darkTheme
+            ? _value.darkTheme
+            : darkTheme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapRouteTheme?,
       ),
     );
   }
@@ -324,26 +316,22 @@ class _$RouteMapRouteThemeCopyWithImpl<$Res, $Val extends RouteMapRouteTheme>
   }) {
     return _then(
       _value.copyWith(
-            lineWidth:
-                null == lineWidth
-                    ? _value.lineWidth
-                    : lineWidth // ignore: cast_nullable_to_non_nullable
-                        as double,
-            color:
-                null == color
-                    ? _value.color
-                    : color // ignore: cast_nullable_to_non_nullable
-                        as Color,
-            backLineWidth:
-                freezed == backLineWidth
-                    ? _value.backLineWidth
-                    : backLineWidth // ignore: cast_nullable_to_non_nullable
-                        as double?,
-            backLineColor:
-                freezed == backLineColor
-                    ? _value.backLineColor
-                    : backLineColor // ignore: cast_nullable_to_non_nullable
-                        as Color?,
+            lineWidth: null == lineWidth
+                ? _value.lineWidth
+                : lineWidth // ignore: cast_nullable_to_non_nullable
+                      as double,
+            color: null == color
+                ? _value.color
+                : color // ignore: cast_nullable_to_non_nullable
+                      as Color,
+            backLineWidth: freezed == backLineWidth
+                ? _value.backLineWidth
+                : backLineWidth // ignore: cast_nullable_to_non_nullable
+                      as double?,
+            backLineColor: freezed == backLineColor
+                ? _value.backLineColor
+                : backLineColor // ignore: cast_nullable_to_non_nullable
+                      as Color?,
           )
           as $Val,
     );
@@ -388,26 +376,22 @@ class __$$RouteMapRouteThemeImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$RouteMapRouteThemeImpl(
-        lineWidth:
-            null == lineWidth
-                ? _value.lineWidth
-                : lineWidth // ignore: cast_nullable_to_non_nullable
-                    as double,
-        color:
-            null == color
-                ? _value.color
-                : color // ignore: cast_nullable_to_non_nullable
-                    as Color,
-        backLineWidth:
-            freezed == backLineWidth
-                ? _value.backLineWidth
-                : backLineWidth // ignore: cast_nullable_to_non_nullable
-                    as double?,
-        backLineColor:
-            freezed == backLineColor
-                ? _value.backLineColor
-                : backLineColor // ignore: cast_nullable_to_non_nullable
-                    as Color?,
+        lineWidth: null == lineWidth
+            ? _value.lineWidth
+            : lineWidth // ignore: cast_nullable_to_non_nullable
+                  as double,
+        color: null == color
+            ? _value.color
+            : color // ignore: cast_nullable_to_non_nullable
+                  as Color,
+        backLineWidth: freezed == backLineWidth
+            ? _value.backLineWidth
+            : backLineWidth // ignore: cast_nullable_to_non_nullable
+                  as double?,
+        backLineColor: freezed == backLineColor
+            ? _value.backLineColor
+            : backLineColor // ignore: cast_nullable_to_non_nullable
+                  as Color?,
       ),
     );
   }

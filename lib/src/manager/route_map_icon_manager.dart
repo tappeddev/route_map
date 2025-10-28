@@ -74,10 +74,9 @@ class RouteMapIconManager {
   }
 
   Future<void> removeIcon({required String identifier}) async {
-    final searchedSymbolId =
-        _symbolMap.entries
-            .firstWhereOrNull((entry) => entry.value.identifier == identifier)
-            ?.key;
+    final searchedSymbolId = _symbolMap.entries
+        .firstWhereOrNull((entry) => entry.value.identifier == identifier)
+        ?.key;
 
     if (searchedSymbolId == null) {
       return;
@@ -182,14 +181,12 @@ class RouteMapIconManager {
       final pictureInfo = await vg.loadPicture(loader, null);
 
       // Draw the SVG icon
-      final iconWidth =
-          drawCircleAroundIcon
-              ? circleRadius * 1.3
-              : sizeBeforeStroke.width - padding * 2;
-      final iconHeight =
-          drawCircleAroundIcon
-              ? circleRadius * 1.3
-              : sizeBeforeStroke.height - padding * 2;
+      final iconWidth = drawCircleAroundIcon
+          ? circleRadius * 1.3
+          : sizeBeforeStroke.width - padding * 2;
+      final iconHeight = drawCircleAroundIcon
+          ? circleRadius * 1.3
+          : sizeBeforeStroke.height - padding * 2;
       // Compute scaling factors
       final iconScaleX = iconWidth / pictureInfo.size.width;
       final iconScaleY = iconHeight / pictureInfo.size.height;

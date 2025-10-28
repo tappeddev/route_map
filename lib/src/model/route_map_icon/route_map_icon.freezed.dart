@@ -87,56 +87,46 @@ class _$RouteMapIconCopyWithImpl<$Res, $Val extends RouteMapIcon>
   }) {
     return _then(
       _value.copyWith(
-            markerPath:
-                null == markerPath
-                    ? _value.markerPath
-                    : markerPath // ignore: cast_nullable_to_non_nullable
-                        as Path,
-            latLng:
-                null == latLng
-                    ? _value.latLng
-                    : latLng // ignore: cast_nullable_to_non_nullable
-                        as LatLng,
-            identifier:
-                null == identifier
-                    ? _value.identifier
-                    : identifier // ignore: cast_nullable_to_non_nullable
-                        as String,
-            theme:
-                null == theme
-                    ? _value.theme
-                    : theme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapIconTheme,
-            darkTheme:
-                freezed == darkTheme
-                    ? _value.darkTheme
-                    : darkTheme // ignore: cast_nullable_to_non_nullable
-                        as RouteMapIconTheme?,
-            svgIconPath:
-                freezed == svgIconPath
-                    ? _value.svgIconPath
-                    : svgIconPath // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            text:
-                freezed == text
-                    ? _value.text
-                    : text // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            label:
-                freezed == label
-                    ? _value.label
-                    : label // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            draggable:
-                null == draggable
-                    ? _value.draggable
-                    : draggable // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            anchor:
-                null == anchor
-                    ? _value.anchor
-                    : anchor // ignore: cast_nullable_to_non_nullable
-                        as RouteMapIconAnchor,
+            markerPath: null == markerPath
+                ? _value.markerPath
+                : markerPath // ignore: cast_nullable_to_non_nullable
+                      as Path,
+            latLng: null == latLng
+                ? _value.latLng
+                : latLng // ignore: cast_nullable_to_non_nullable
+                      as LatLng,
+            identifier: null == identifier
+                ? _value.identifier
+                : identifier // ignore: cast_nullable_to_non_nullable
+                      as String,
+            theme: null == theme
+                ? _value.theme
+                : theme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapIconTheme,
+            darkTheme: freezed == darkTheme
+                ? _value.darkTheme
+                : darkTheme // ignore: cast_nullable_to_non_nullable
+                      as RouteMapIconTheme?,
+            svgIconPath: freezed == svgIconPath
+                ? _value.svgIconPath
+                : svgIconPath // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            text: freezed == text
+                ? _value.text
+                : text // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            label: freezed == label
+                ? _value.label
+                : label // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            draggable: null == draggable
+                ? _value.draggable
+                : draggable // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            anchor: null == anchor
+                ? _value.anchor
+                : anchor // ignore: cast_nullable_to_non_nullable
+                      as RouteMapIconAnchor,
           )
           as $Val,
     );
@@ -222,56 +212,46 @@ class __$$RouteMapIconImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$RouteMapIconImpl(
-        markerPath:
-            null == markerPath
-                ? _value.markerPath
-                : markerPath // ignore: cast_nullable_to_non_nullable
-                    as Path,
-        latLng:
-            null == latLng
-                ? _value.latLng
-                : latLng // ignore: cast_nullable_to_non_nullable
-                    as LatLng,
-        identifier:
-            null == identifier
-                ? _value.identifier
-                : identifier // ignore: cast_nullable_to_non_nullable
-                    as String,
-        theme:
-            null == theme
-                ? _value.theme
-                : theme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapIconTheme,
-        darkTheme:
-            freezed == darkTheme
-                ? _value.darkTheme
-                : darkTheme // ignore: cast_nullable_to_non_nullable
-                    as RouteMapIconTheme?,
-        svgIconPath:
-            freezed == svgIconPath
-                ? _value.svgIconPath
-                : svgIconPath // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        text:
-            freezed == text
-                ? _value.text
-                : text // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        label:
-            freezed == label
-                ? _value.label
-                : label // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        draggable:
-            null == draggable
-                ? _value.draggable
-                : draggable // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        anchor:
-            null == anchor
-                ? _value.anchor
-                : anchor // ignore: cast_nullable_to_non_nullable
-                    as RouteMapIconAnchor,
+        markerPath: null == markerPath
+            ? _value.markerPath
+            : markerPath // ignore: cast_nullable_to_non_nullable
+                  as Path,
+        latLng: null == latLng
+            ? _value.latLng
+            : latLng // ignore: cast_nullable_to_non_nullable
+                  as LatLng,
+        identifier: null == identifier
+            ? _value.identifier
+            : identifier // ignore: cast_nullable_to_non_nullable
+                  as String,
+        theme: null == theme
+            ? _value.theme
+            : theme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapIconTheme,
+        darkTheme: freezed == darkTheme
+            ? _value.darkTheme
+            : darkTheme // ignore: cast_nullable_to_non_nullable
+                  as RouteMapIconTheme?,
+        svgIconPath: freezed == svgIconPath
+            ? _value.svgIconPath
+            : svgIconPath // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        text: freezed == text
+            ? _value.text
+            : text // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        label: freezed == label
+            ? _value.label
+            : label // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        draggable: null == draggable
+            ? _value.draggable
+            : draggable // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        anchor: null == anchor
+            ? _value.anchor
+            : anchor // ignore: cast_nullable_to_non_nullable
+                  as RouteMapIconAnchor,
       ),
     );
   }
@@ -467,31 +447,26 @@ class _$RouteMapIconThemeCopyWithImpl<$Res, $Val extends RouteMapIconTheme>
   }) {
     return _then(
       _value.copyWith(
-            background:
-                null == background
-                    ? _value.background
-                    : background // ignore: cast_nullable_to_non_nullable
-                        as Color,
-            foreground:
-                null == foreground
-                    ? _value.foreground
-                    : foreground // ignore: cast_nullable_to_non_nullable
-                        as Color,
-            drawCircleAroundIcon:
-                null == drawCircleAroundIcon
-                    ? _value.drawCircleAroundIcon
-                    : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
-                        as bool,
-            strokeWidth:
-                null == strokeWidth
-                    ? _value.strokeWidth
-                    : strokeWidth // ignore: cast_nullable_to_non_nullable
-                        as double,
-            padding:
-                null == padding
-                    ? _value.padding
-                    : padding // ignore: cast_nullable_to_non_nullable
-                        as double,
+            background: null == background
+                ? _value.background
+                : background // ignore: cast_nullable_to_non_nullable
+                      as Color,
+            foreground: null == foreground
+                ? _value.foreground
+                : foreground // ignore: cast_nullable_to_non_nullable
+                      as Color,
+            drawCircleAroundIcon: null == drawCircleAroundIcon
+                ? _value.drawCircleAroundIcon
+                : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            strokeWidth: null == strokeWidth
+                ? _value.strokeWidth
+                : strokeWidth // ignore: cast_nullable_to_non_nullable
+                      as double,
+            padding: null == padding
+                ? _value.padding
+                : padding // ignore: cast_nullable_to_non_nullable
+                      as double,
           )
           as $Val,
     );
@@ -538,31 +513,26 @@ class __$$RouteMapIconThemeImplCopyWithImpl<$Res>
   }) {
     return _then(
       _$RouteMapIconThemeImpl(
-        background:
-            null == background
-                ? _value.background
-                : background // ignore: cast_nullable_to_non_nullable
-                    as Color,
-        foreground:
-            null == foreground
-                ? _value.foreground
-                : foreground // ignore: cast_nullable_to_non_nullable
-                    as Color,
-        drawCircleAroundIcon:
-            null == drawCircleAroundIcon
-                ? _value.drawCircleAroundIcon
-                : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
-                    as bool,
-        strokeWidth:
-            null == strokeWidth
-                ? _value.strokeWidth
-                : strokeWidth // ignore: cast_nullable_to_non_nullable
-                    as double,
-        padding:
-            null == padding
-                ? _value.padding
-                : padding // ignore: cast_nullable_to_non_nullable
-                    as double,
+        background: null == background
+            ? _value.background
+            : background // ignore: cast_nullable_to_non_nullable
+                  as Color,
+        foreground: null == foreground
+            ? _value.foreground
+            : foreground // ignore: cast_nullable_to_non_nullable
+                  as Color,
+        drawCircleAroundIcon: null == drawCircleAroundIcon
+            ? _value.drawCircleAroundIcon
+            : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        strokeWidth: null == strokeWidth
+            ? _value.strokeWidth
+            : strokeWidth // ignore: cast_nullable_to_non_nullable
+                  as double,
+        padding: null == padding
+            ? _value.padding
+            : padding // ignore: cast_nullable_to_non_nullable
+                  as double,
       ),
     );
   }
