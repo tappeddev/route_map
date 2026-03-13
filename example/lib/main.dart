@@ -47,8 +47,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> drawRoute() async {
     if (!mounted) return;
 
-    _mapController.removeRoutes();
-    _mapController.removeIcons();
+    await _mapController.removeRoutes();
+    await _mapController.removeIcons();
 
     const start = LatLng(47.7826, 9.6106);
     const destination = LatLng(48.1371, 11.5754);
