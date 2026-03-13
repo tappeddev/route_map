@@ -1,18 +1,16 @@
-name: route_map
+name: example
 description: "A new Flutter project."
-version: 0.0.1
+publish_to: 'none'
+version: 0.1.0
 
 environment:
-  sdk: ^3.8.0
-  flutter: ">=1.17.0"
+  sdk: ^3.10.7
 
 dependencies:
   flutter:
     sdk: flutter
-  flutter_svg: ^2.1.0
-  freezed_annotation: ^3.1.0
-  collection: ^1.19.1
-  maplibre_gl: ^0.24.1
+  route_map:
+    path: ../
 
 dev_dependencies:
   flutter_test:
@@ -22,5 +20,6 @@ dev_dependencies:
     git:
       url: https://github.com/tappeddev/tapped_lints.git
       ref: master
-  build_runner: ^2.4.14
-  freezed: ^3.2.3
+
+flutter:
+  uses-material-design: true

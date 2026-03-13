@@ -14,9 +14,10 @@ class RouteMapLineManager {
 
   Future<void> restore(Brightness brightness) async {
     _brightness = brightness;
+    final routes = _routeMap.values.toList();
     await removeRoutes();
-
-    for (final drawnRoute in _routeMap.values) {
+    for (final drawnRoute in routes) {
+      if (controller.isDisposed) return;
       await drawRoute(drawnRoute.route);
     }
   }

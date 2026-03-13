@@ -254,7 +254,7 @@ class _RouteMapState extends State<RouteMap> {
       ...controller.symbolManager!.layerIds,
       ...controller.circleManager!.layerIds,
       ...controller.fillManager!.layerIds,
-      if (belowLayerId != null) belowLayerId,
+      ?belowLayerId,
     ];
     final allLayerIds = await controller.getLayerIds();
 
