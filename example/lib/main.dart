@@ -12,21 +12,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Route Map Example',
-      // Standard Light Theme
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
           brightness: Brightness.light,
         ),
       ),
-      // Standard Dark Theme
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
           brightness: Brightness.dark,
         ),
       ),
-      // Automatically switch based on device settings
       themeMode: ThemeMode.system,
       home: const MyHomePage(),
     );
