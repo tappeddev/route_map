@@ -97,26 +97,45 @@ class RouteMapIconManager {
   Future<void> drawIcon(RouteMapIcon mapIcon) async {
     await addImageToCacheIfNeeded(controller, mapIcon: mapIcon);
     if (controller.isDisposed) return;
-    await removeIcon(identifier: mapIcon.identifier);
+    final existingSymbolEntry = _symbolMap.entries.firstWhereOrNull(
+      (entry) => entry.value.identifier == mapIcon.identifier,
+    );
+    final symbolOptions = _buildSymbolOptions(mapIcon);
 
+    if (existingSymbolEntry != null) {
+      final symbol = controller.symbols.firstWhereOrNull(
+        (symbol) => symbol.id == existingSymbolEntry.key,
+      );
+      if (symbol != null) {
+        await controller.updateSymbol(symbol, symbolOptions);
+        _symbolMap[symbol.id] = mapIcon;
+        return;
+      }
+      _symbolMap.remove(existingSymbolEntry.key);
+    }
+
+    if (controller.isDisposed) return;
+    final symbol = await controller.addSymbol(symbolOptions);
+    _symbolMap[symbol.id] = mapIcon;
+  }
+
+  SymbolOptions _buildSymbolOptions(RouteMapIcon mapIcon) {
     final label = mapIcon.label;
     final hasLabel = label != null;
-    if (controller.isDisposed) return;
-    final symbol = await controller.addSymbol(
-      SymbolOptions(
-        geometry: mapIcon.latLng,
-        iconImage: mapIcon.identifier,
-        iconAnchor: mapIcon.anchor.mglIconValue,
-        iconSize: iconScale,
-        textField: hasLabel ? label : null,
-        textAnchor: hasLabel ? RouteMapIconAnchor.top.mglIconValue : null,
-        // textColor: hasLabel ? appTheme.objectsDefault.toHexStringRGB() : null,
-        // textHaloColor: hasLabel ? appTheme.surfaceCard.toHexStringRGB() : null,
-        textHaloWidth: hasLabel ? 3 : null,
-        draggable: mapIcon.draggable,
-      ),
+
+    return SymbolOptions(
+      geometry: mapIcon.latLng,
+      iconImage: mapIcon.identifier,
+      iconAnchor: mapIcon.anchor.mglIconValue,
+      iconSize: iconScale,
+      iconRotate: mapIcon.rotationDegrees,
+      textField: hasLabel ? label : null,
+      textAnchor: hasLabel ? RouteMapIconAnchor.top.mglIconValue : null,
+      // textColor: hasLabel ? appTheme.objectsDefault.toHexStringRGB() : null,
+      // textHaloColor: hasLabel ? appTheme.surfaceCard.toHexStringRGB() : null,
+      textHaloWidth: hasLabel ? 3 : null,
+      draggable: mapIcon.draggable,
     );
-    _symbolMap[symbol.id] = mapIcon;
   }
 
   Future<Uint8List> _generatePngMarker({required RouteMapIcon mapIcon}) async {

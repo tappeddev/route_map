@@ -12,7 +12,26 @@ abstract class RouteMapUserLocationIndicator
     required double accuracyWidth,
     required RouteMapUserLocationIndicatorTheme theme,
     RouteMapUserLocationIndicatorTheme? darkTheme,
+    RouteMapUserLocationIndicatorIcon? icon,
+    double? headingDegrees,
   }) = _RouteMapUserLocationIndicator;
+}
+
+@freezed
+abstract class RouteMapUserLocationIndicatorIcon
+    with _$RouteMapUserLocationIndicatorIcon {
+  @Assert(
+    'svgIconPath == null || text == null',
+    'Either svgIcon or text must be provided, not both.',
+  )
+  const factory RouteMapUserLocationIndicatorIcon({
+    required Path markerPath,
+    required RouteMapIconTheme theme,
+    RouteMapIconTheme? darkTheme,
+    String? svgIconPath,
+    String? text,
+    @Default(RouteMapIconAnchor.center) RouteMapIconAnchor anchor,
+  }) = _RouteMapUserLocationIndicatorIcon;
 }
 
 @freezed

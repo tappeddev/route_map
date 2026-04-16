@@ -4,6 +4,30 @@ import 'package:collection/collection.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
+enum RouteMapRouteMutationStrategy { add, update, rebuild }
+
+RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
+  required bool hasExistingRoute,
+  required RouteMapRouteTheme previousTheme,
+  required RouteMapRouteTheme nextTheme,
+}) {
+  if (!hasExistingRoute) {
+    return RouteMapRouteMutationStrategy.add;
+  }
+
+  final hadBackLine =
+      previousTheme.backLineWidth != null &&
+      previousTheme.backLineColor != null;
+  final hasBackLine =
+      nextTheme.backLineWidth != null && nextTheme.backLineColor != null;
+
+  if (hadBackLine != hasBackLine) {
+    return RouteMapRouteMutationStrategy.rebuild;
+  }
+
+  return RouteMapRouteMutationStrategy.update;
+}
+
 class RouteMapLineManager {
   final MapLibreMapController controller;
   Brightness _brightness = Brightness.light;
@@ -41,23 +65,50 @@ class RouteMapLineManager {
   /// Returns a tuple (String, String?) containing the front line id and the optional back line id
   Future<void> drawRoute(RouteMapRoute route) async {
     final drawnRoute = _routeMap[route.identifier];
-    if (drawnRoute != null) {
-      await controller.removeLines([
-        drawnRoute.line,
-        if (drawnRoute.backLine != null) drawnRoute.backLine!,
-      ]);
-    }
-
     final theme = switch (_brightness) {
       Brightness.dark => route.darkTheme ?? route.theme,
       Brightness.light => route.theme,
     };
+    final mutationStrategy = resolveRouteMutationStrategy(
+      hasExistingRoute: drawnRoute != null,
+      previousTheme:
+          switch (_brightness) {
+            Brightness.dark =>
+              drawnRoute?.route.darkTheme ?? drawnRoute?.route.theme,
+            Brightness.light => drawnRoute?.route.theme,
+          } ??
+          theme,
+      nextTheme: theme,
+    );
 
+    switch (mutationStrategy) {
+      case RouteMapRouteMutationStrategy.add:
+        await _drawNewRoute(route, theme);
+        break;
+      case RouteMapRouteMutationStrategy.update:
+        await _updateExistingRoute(drawnRoute!, route, theme);
+        break;
+      case RouteMapRouteMutationStrategy.rebuild:
+        await controller.removeLines([
+          drawnRoute!.line,
+          if (drawnRoute.backLine != null) drawnRoute.backLine!,
+        ]);
+        await _drawNewRoute(route, theme);
+        break;
+    }
+  }
+
+  Future<void> _drawNewRoute(
+    RouteMapRoute route,
+    RouteMapRouteTheme theme,
+  ) async {
     final routeLine = LineOptions(
       geometry: route.points,
       lineColor: theme.color.toHexStringRGB(),
       lineOpacity: theme.color.a,
       lineWidth: theme.lineWidth,
+      lineJoin: theme.lineJoin,
+      lineBlur: theme.lineBlur,
     );
 
     Line? backLine;
@@ -67,6 +118,8 @@ class RouteMapLineManager {
         lineColor: theme.backLineColor!.toHexStringRGB(),
         lineOpacity: theme.backLineColor!.a,
         lineWidth: theme.backLineWidth,
+        lineJoin: theme.lineJoin,
+        lineBlur: theme.lineBlur,
       );
       backLine = await controller.addLine(backgroundLine);
     }
@@ -77,6 +130,47 @@ class RouteMapLineManager {
       route: route,
       line: line,
       backLine: backLine,
+    );
+  }
+
+  Future<void> _updateExistingRoute(
+    _DrawnRoute drawnRoute,
+    RouteMapRoute route,
+    RouteMapRouteTheme theme,
+  ) async {
+    await controller.updateLine(
+      drawnRoute.line,
+      LineOptions(
+        geometry: route.points,
+        lineColor: theme.color.toHexStringRGB(),
+        lineOpacity: theme.color.a,
+        lineWidth: theme.lineWidth,
+        lineJoin: theme.lineJoin,
+        lineBlur: theme.lineBlur,
+      ),
+    );
+
+    final backLine = drawnRoute.backLine;
+    if (backLine != null &&
+        theme.backLineWidth != null &&
+        theme.backLineColor != null) {
+      await controller.updateLine(
+        backLine,
+        LineOptions(
+          geometry: route.points,
+          lineColor: theme.backLineColor!.toHexStringRGB(),
+          lineOpacity: theme.backLineColor!.a,
+          lineWidth: theme.backLineWidth,
+          lineJoin: theme.lineJoin,
+          lineBlur: theme.lineBlur,
+        ),
+      );
+    }
+
+    _routeMap[route.identifier] = _DrawnRoute(
+      route: route,
+      line: drawnRoute.line,
+      backLine: drawnRoute.backLine,
     );
   }
 }

@@ -19,6 +19,7 @@ abstract class RouteMapIcon with _$RouteMapIcon {
     String? svgIconPath,
     String? text,
     String? label,
+    double? rotationDegrees,
     @Default(false) bool draggable,
     @Default(RouteMapIconAnchor.bottom) RouteMapIconAnchor anchor,
   }) = _RouteMapIcon;
