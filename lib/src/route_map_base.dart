@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
+part 'route_map_no_service_area_layer.dart';
 
 class RouteMap extends StatefulWidget {
   final CameraPosition initialCameraPosition;
@@ -260,88 +262,5 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _setOverlap() async {
     final controller = await _controller;
     await controller.setSymbolIconAllowOverlap(widget.allowIconsOverlap);
-  }
-
-  Future<void> _addNoServiceAreaLayers() async {
-    final noServiceAreaLayers = widget.noServiceAreaLayers;
-    if (noServiceAreaLayers.isEmpty) return;
-    final controller = await _controller;
-    if (!mounted) return;
-
-    for (var index = 0; index < noServiceAreaLayers.length; index++) {
-      await _addNoServiceAreaLayer(
-        controller: controller,
-        noServiceAreaLayer: noServiceAreaLayers[index],
-        index: index,
-      );
-    }
-  }
-
-  Future<void> _addNoServiceAreaLayer({
-    required MapLibreMapController controller,
-    required NoServiceAreaLayer noServiceAreaLayer,
-    required int index,
-  }) async {
-    /// The no service layer needs to be below the manager layers, to show
-    /// all lines, icons, images above the grey layer and not below.
-    final belowLayerId = noServiceAreaLayer.belowLayerId;
-
-    final topLayers = [
-      ...controller.lineManager!.layerIds,
-      ...controller.symbolManager!.layerIds,
-      ...controller.circleManager!.layerIds,
-      ...controller.fillManager!.layerIds,
-      ?belowLayerId,
-    ];
-    final allLayerIds = await controller.getLayerIds();
-
-    final insertBelowLayer = allLayerIds
-        .map((layerId) => layerId.toString())
-        .firstWhere((layerId) => topLayers.contains(layerId));
-
-    if (!mounted) return;
-
-    final source = await noServiceAreaLayer.createSource();
-
-    if (!mounted) return;
-
-    final sourceId = "no_service_area_source_id_$index";
-    await controller.addSource(sourceId, source);
-    if (!mounted) return;
-
-    await controller.addLayer(
-      sourceId,
-      "no_service_area_layer_id_$index",
-      FillLayerProperties(
-        fillColor: noServiceAreaLayer.fillColor.toHexStringRGB(),
-        fillOpacity: noServiceAreaLayer.fillColor.a,
-      ),
-      belowLayerId: insertBelowLayer,
-      enableInteraction: noServiceAreaLayer.enableInteraction,
-    );
-
-    final border = noServiceAreaLayer.border;
-    if (border == null) return;
-
-    if (!mounted) return;
-
-    final borderSource = await border.createSource();
-    if (!mounted) return;
-
-    final borderSourceId = "no_service_area_border_source_id_$index";
-    await controller.addSource(borderSourceId, borderSource);
-    if (!mounted) return;
-
-    await controller.addLayer(
-      borderSourceId,
-      "no_service_area_border_layer_id_$index",
-      LineLayerProperties(
-        lineColor: border.color.toHexStringRGB(),
-        lineOpacity: border.color.a,
-        lineWidth: border.width,
-      ),
-      belowLayerId: insertBelowLayer,
-      enableInteraction: noServiceAreaLayer.enableInteraction,
-    );
   }
 }
