@@ -320,18 +320,25 @@ class _RouteMapState extends State<RouteMap> {
       enableInteraction: noServiceAreaLayer.enableInteraction,
     );
 
-    final borderColor = noServiceAreaLayer.borderColor;
-    if (borderColor == null) return;
+    final border = noServiceAreaLayer.border;
+    if (border == null) return;
 
     if (!mounted) return;
 
+    final borderSource = await border.createSource();
+    if (!mounted) return;
+
+    final borderSourceId = "no_service_area_border_source_id_$index";
+    await controller.addSource(borderSourceId, borderSource);
+    if (!mounted) return;
+
     await controller.addLayer(
-      sourceId,
+      borderSourceId,
       "no_service_area_border_layer_id_$index",
       LineLayerProperties(
-        lineColor: borderColor.toHexStringRGB(),
-        lineOpacity: borderColor.a,
-        lineWidth: noServiceAreaLayer.borderWidth,
+        lineColor: border.color.toHexStringRGB(),
+        lineOpacity: border.color.a,
+        lineWidth: border.width,
       ),
       belowLayerId: insertBelowLayer,
       enableInteraction: noServiceAreaLayer.enableInteraction,
