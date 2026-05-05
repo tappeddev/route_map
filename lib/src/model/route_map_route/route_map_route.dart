@@ -22,5 +22,7 @@ abstract class RouteMapRouteTheme with _$RouteMapRouteTheme {
     required Color color,
     double? backLineWidth,
     Color? backLineColor,
+    String? lineJoin,
+    double? lineBlur,
   }) = _RouteMapRouteTheme;
 }

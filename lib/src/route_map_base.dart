@@ -5,9 +5,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
-import 'package:route_map/src/manager/route_map_circle_manager.dart';
-import 'package:route_map/src/manager/route_map_icon_manager.dart';
-import 'package:route_map/src/manager/route_map_line_manager.dart';
+import 'package:route_map/src/coordinator/route_map_location_indicator_coordinator.dart';
+import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
+import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
@@ -22,6 +24,9 @@ class RouteMap extends StatefulWidget {
   final MinMaxZoomPreference? minMaxZoomPreference;
   final NoServiceAreaLayer? noServiceAreaLayer;
   final RouteMapController controller;
+  final bool trackCameraPosition;
+  final VoidCallback? onCameraMoveStarted;
+  final VoidCallback? onCameraIdle;
 
   /// If true, the icon will be visible even if it collides with other previously drawn symbols.
   final bool allowIconsOverlap;
@@ -53,6 +58,9 @@ class RouteMap extends StatefulWidget {
     this.cameraTargetBounds,
     this.minMaxZoomPreference,
     this.noServiceAreaLayer,
+    this.trackCameraPosition = false,
+    this.onCameraMoveStarted,
+    this.onCameraIdle,
     this.onFeatureDrag,
     this.onFeatureHover,
     this.allowIconsOverlap = false,
@@ -66,12 +74,17 @@ class RouteMap extends StatefulWidget {
 class _RouteMapState extends State<RouteMap> {
   final _fullyLoadedCompleter = Completer<void>();
   final _controllerCompleter = Completer<MapLibreMapController>();
+  bool _wasCameraMoving = false;
+  VoidCallback? _cameraStateListener;
 
   late final RouteMapIconManager _iconManagerInstance;
 
   late final RouteMapLineManager _lineManagerInstance;
 
   late final RouteMapCircleManager _circleManagerInstance;
+
+  late final RouteMapLocationIndicatorCoordinator
+  _locationIndicatorCoordinatorInstance;
 
   Future<MapLibreMapController> get _controller => _controllerCompleter.future;
 
@@ -91,10 +104,16 @@ class _RouteMapState extends State<RouteMap> {
     return _circleManagerInstance;
   }
 
+  Future<RouteMapLocationIndicatorCoordinator>
+  get _locationIndicatorCoordinator async {
+    await _fullyLoadedCompleter.future;
+    return _locationIndicatorCoordinatorInstance;
+  }
+
   @override
   void initState() {
     super.initState();
-    widget.controller._state = this;
+    widget.controller._attachState(this);
   }
 
   @override
@@ -117,6 +136,10 @@ class _RouteMapState extends State<RouteMap> {
     controller.onFeatureDrag.remove(_onFeatureDrag);
     if (kIsWeb) {
       controller.onFeatureHover.remove(_onFeatureHover);
+    }
+    final cameraStateListener = _cameraStateListener;
+    if (cameraStateListener != null) {
+      controller.removeListener(cameraStateListener);
     }
   }
 
@@ -168,6 +191,7 @@ class _RouteMapState extends State<RouteMap> {
         styleString: widget.styleUrl,
         compassEnabled: false,
         myLocationEnabled: false,
+        trackCameraPosition: widget.trackCameraPosition,
         cameraTargetBounds:
             widget.cameraTargetBounds ?? CameraTargetBounds.unbounded,
         minMaxZoomPreference:
@@ -177,13 +201,27 @@ class _RouteMapState extends State<RouteMap> {
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
         tiltGesturesEnabled: false,
         onMapClick: widget.onMapClicked,
+        onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
           _iconManagerInstance = RouteMapIconManager(controller: controller);
           _lineManagerInstance = RouteMapLineManager(controller: controller);
           _circleManagerInstance = RouteMapCircleManager(
             controller: controller,
           );
+          _locationIndicatorCoordinatorInstance =
+              RouteMapLocationIndicatorCoordinator(
+                circleManager: _circleManagerInstance,
+                iconManager: _iconManagerInstance,
+              );
           _controllerCompleter.complete(controller);
+          _cameraStateListener = () {
+            final isCameraMoving = controller.isCameraMoving;
+            if (isCameraMoving && !_wasCameraMoving) {
+              widget.onCameraMoveStarted?.call();
+            }
+            _wasCameraMoving = isCameraMoving;
+          };
+          controller.addListener(_cameraStateListener!);
 
           controller.onFeatureDrag.add(_onFeatureDrag);
           if (kIsWeb) {
@@ -205,9 +243,9 @@ class _RouteMapState extends State<RouteMap> {
         },
         annotationOrder: const [
           AnnotationType.fill,
-          AnnotationType.circle,
           AnnotationType.line,
           AnnotationType.symbol,
+          AnnotationType.circle,
         ],
       ),
     );
@@ -224,13 +262,13 @@ class _RouteMapState extends State<RouteMap> {
     // because _fullyLoadedCompleter is not completed yet
     final lineManager = _lineManagerInstance;
     final symbolManager = _iconManagerInstance;
-    final circleManger = _circleManagerInstance;
+    final circleManager = _circleManagerInstance;
 
     final brightness = MediaQuery.platformBrightnessOf(context);
     await Future.wait([
       lineManager.restore(brightness),
       symbolManager.restore(brightness),
-      circleManger.restore(brightness),
+      circleManager.restore(brightness),
     ]);
   }
 
