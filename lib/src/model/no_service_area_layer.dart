@@ -8,7 +8,6 @@ class NoServiceAreaLayer {
   final NoServiceAreaHashLines? hashLines;
   final NoServiceAreaBorder? border;
   final String? belowLayerId;
-  final bool enableInteraction;
 
   const NoServiceAreaLayer({
     required this.createSource,
@@ -16,7 +15,6 @@ class NoServiceAreaLayer {
     this.hashLines,
     this.border,
     this.belowLayerId,
-    this.enableInteraction = false,
   });
 }
 

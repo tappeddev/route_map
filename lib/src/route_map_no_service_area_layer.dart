@@ -49,32 +49,35 @@ extension _RouteMapNoServiceAreaLayerState on _RouteMapState {
     if (!mounted) return;
 
     final hashLines = noServiceAreaLayer.hashLines;
-    final fillPatternId = hashLines == null
-        ? null
-        : "no_service_area_hash_lines_$index";
-    if (hashLines != null && fillPatternId != null) {
-      final patternBytes = await _createHashLinesPattern(
-        backgroundColor: noServiceAreaLayer.fillColor,
-        hashLines: hashLines,
-      );
-      if (!mounted) return;
-      await controller.addImage(fillPatternId, patternBytes);
-      if (!mounted) return;
-    }
 
     await controller.addLayer(
       sourceId,
       "no_service_area_layer_id_$index",
       FillLayerProperties(
-        fillColor: hashLines == null
-            ? noServiceAreaLayer.fillColor.toHexStringRGB()
-            : null,
-        fillOpacity: hashLines == null ? noServiceAreaLayer.fillColor.a : 1,
-        fillPattern: fillPatternId,
+        fillColor: noServiceAreaLayer.fillColor.toHexStringRGB(),
+        fillOpacity: noServiceAreaLayer.fillColor.a,
       ),
       belowLayerId: insertBelowLayer,
-      enableInteraction: noServiceAreaLayer.enableInteraction,
+      enableInteraction: false,
     );
+
+    if (hashLines != null) {
+      final patternBytes = await _createHashLinesPattern(hashLines: hashLines);
+      if (!mounted) return;
+      final patternId = "no_service_area_hash_lines_$index";
+      await controller.addImage(patternId, patternBytes);
+      if (!mounted) return;
+
+      if (!mounted) return;
+
+      await controller.addLayer(
+        sourceId,
+        "no_service_area_hash_lines_layer_id_$index",
+        FillLayerProperties(fillOpacity: 1, fillPattern: patternId),
+        belowLayerId: insertBelowLayer,
+        enableInteraction: false,
+      );
+    }
 
     final border = noServiceAreaLayer.border;
     if (border == null) return;
@@ -97,24 +100,18 @@ extension _RouteMapNoServiceAreaLayerState on _RouteMapState {
         lineWidth: border.width,
       ),
       belowLayerId: insertBelowLayer,
-      enableInteraction: noServiceAreaLayer.enableInteraction,
+      enableInteraction: false,
     );
   }
 }
 
 Future<Uint8List> _createHashLinesPattern({
-  required Color backgroundColor,
   required NoServiceAreaHashLines hashLines,
 }) async {
   final tileSize = max(32, (hashLines.spacing * 4).ceil());
   final tileDimension = tileSize.toDouble();
   final recorder = ui.PictureRecorder();
   final canvas = ui.Canvas(recorder);
-
-  canvas.drawRect(
-    ui.Rect.fromLTWH(0, 0, tileDimension, tileDimension),
-    ui.Paint()..color = backgroundColor,
-  );
 
   final linePaint = ui.Paint()
     ..color = hashLines.color
