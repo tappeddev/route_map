@@ -6,9 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
-import 'package:route_map/src/manager/route_map_icon_manager.dart';
-import 'package:route_map/src/manager/route_map_line_manager.dart';
-import 'package:route_map/src/manager/route_map_location_indicator_manager.dart';
+import 'package:route_map/src/coordinator/route_map_location_indicator_coordinator.dart';
+import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
@@ -82,7 +83,10 @@ class _RouteMapState extends State<RouteMap> {
 
   late final RouteMapLineManager _lineManagerInstance;
 
-  late final RouteMapLocationIndicatorManager _locationIndicatorManagerInstance;
+  late final RouteMapCircleManager _circleManagerInstance;
+
+  late final RouteMapLocationIndicatorCoordinator
+  _locationIndicatorCoordinatorInstance;
 
   Future<MapLibreMapController> get _controller => _controllerCompleter.future;
 
@@ -97,9 +101,15 @@ class _RouteMapState extends State<RouteMap> {
     return _lineManagerInstance;
   }
 
-  Future<RouteMapLocationIndicatorManager> get _locationIndicatorManager async {
+  Future<RouteMapCircleManager> get _circleManager async {
     await _fullyLoadedCompleter.future;
-    return _locationIndicatorManagerInstance;
+    return _circleManagerInstance;
+  }
+
+  Future<RouteMapLocationIndicatorCoordinator>
+  get _locationIndicatorCoordinator async {
+    await _fullyLoadedCompleter.future;
+    return _locationIndicatorCoordinatorInstance;
   }
 
   @override
@@ -197,9 +207,14 @@ class _RouteMapState extends State<RouteMap> {
         onMapCreated: (controller) {
           _iconManagerInstance = RouteMapIconManager(controller: controller);
           _lineManagerInstance = RouteMapLineManager(controller: controller);
-          _locationIndicatorManagerInstance = RouteMapLocationIndicatorManager(
+          _circleManagerInstance = RouteMapCircleManager(
             controller: controller,
           );
+          _locationIndicatorCoordinatorInstance =
+              RouteMapLocationIndicatorCoordinator(
+                circleManager: _circleManagerInstance,
+                iconManager: _iconManagerInstance,
+              );
           _controllerCompleter.complete(controller);
           _cameraStateListener = () {
             final isCameraMoving = controller.isCameraMoving;
@@ -249,13 +264,13 @@ class _RouteMapState extends State<RouteMap> {
     // because _fullyLoadedCompleter is not completed yet
     final lineManager = _lineManagerInstance;
     final symbolManager = _iconManagerInstance;
-    final locationIndicatorManager = _locationIndicatorManagerInstance;
+    final circleManager = _circleManagerInstance;
 
     final brightness = MediaQuery.platformBrightnessOf(context);
     await Future.wait([
       lineManager.restore(brightness),
       symbolManager.restore(brightness),
-      locationIndicatorManager.restore(brightness),
+      circleManager.restore(brightness),
     ]);
   }
 

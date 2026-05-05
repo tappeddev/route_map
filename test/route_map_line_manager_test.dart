@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:route_map/src/manager/route_map_line_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
 void main() {
