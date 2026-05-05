@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
+part 'route_map_no_service_area_layer.dart';
 
 class RouteMap extends StatefulWidget {
   final CameraPosition initialCameraPosition;
@@ -22,7 +24,7 @@ class RouteMap extends StatefulWidget {
   final String styleUrl;
   final CameraTargetBounds? cameraTargetBounds;
   final MinMaxZoomPreference? minMaxZoomPreference;
-  final NoServiceAreaLayer? noServiceAreaLayer;
+  final List<NoServiceAreaLayer> noServiceAreaLayers;
   final RouteMapController controller;
   final bool trackCameraPosition;
   final VoidCallback? onCameraMoveStarted;
@@ -57,7 +59,7 @@ class RouteMap extends StatefulWidget {
     required this.styleUrl,
     this.cameraTargetBounds,
     this.minMaxZoomPreference,
-    this.noServiceAreaLayer,
+    this.noServiceAreaLayers = const [],
     this.trackCameraPosition = false,
     this.onCameraMoveStarted,
     this.onCameraIdle,
@@ -229,7 +231,7 @@ class _RouteMapState extends State<RouteMap> {
           }
         },
         onStyleLoadedCallback: () async {
-          await _addNoServiceAreaLayer();
+          await _addNoServiceAreaLayers();
 
           await _setMapLanguage();
 
@@ -275,50 +277,5 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _setOverlap() async {
     final controller = await _controller;
     await controller.setSymbolIconAllowOverlap(widget.allowIconsOverlap);
-  }
-
-  Future<void> _addNoServiceAreaLayer() async {
-    final noServiceAreaLayer = widget.noServiceAreaLayer;
-    if (noServiceAreaLayer == null) return;
-    final controller = await _controller;
-    if (!mounted) return;
-
-    /// The no service layer needs to be below the manager layers, to show
-    /// all lines, icons, images above the grey layer and not below.
-    final belowLayerId = noServiceAreaLayer.belowLayerId;
-
-    final topLayers = [
-      ...controller.lineManager!.layerIds,
-      ...controller.symbolManager!.layerIds,
-      ...controller.circleManager!.layerIds,
-      ...controller.fillManager!.layerIds,
-      ?belowLayerId,
-    ];
-    final allLayerIds = await controller.getLayerIds();
-
-    final insertBelowLayer = allLayerIds
-        .map((layerId) => layerId.toString())
-        .firstWhere((layerId) => topLayers.contains(layerId));
-
-    if (!mounted) return;
-
-    final source = await noServiceAreaLayer.createSource();
-
-    if (!mounted) return;
-
-    const sourceId = "no_service_area_source_id";
-    await controller.addSource(sourceId, source);
-    if (!mounted) return;
-
-    await controller.addLayer(
-      sourceId,
-      "no_service_area_layer_id",
-      FillLayerProperties(
-        fillColor: noServiceAreaLayer.fillColor.toHexStringRGB(),
-        fillOpacity: noServiceAreaLayer.fillColor.a,
-      ),
-      belowLayerId: insertBelowLayer,
-      enableInteraction: false,
-    );
   }
 }
