@@ -16,12 +16,15 @@ class RouteMapController {
   Future<RouteMapLineManager> get _lineManager async =>
       (await _state)._lineManager;
 
+  Future<RouteMapCircleManager> get _circleManager async =>
+      (await _state)._circleManager;
+
   Future<RouteMapIconManager> get _iconManager async =>
       (await _state)._iconManager;
 
-  Future<RouteMapLocationIndicatorManager>
+  Future<RouteMapLocationIndicatorCoordinator>
   get _locationIndicatorManager async =>
-      (await _state)._locationIndicatorManager;
+      (await _state)._locationIndicatorCoordinator;
 
   Future<bool> get _mounted async => (await _state).mounted;
 
@@ -65,6 +68,19 @@ class RouteMapController {
     }
   }
 
+  Future<void> drawCircle(
+    RouteMapCircle circle, {
+    bool animateCamera = false,
+  }) async {
+    final circleManager = await _circleManager;
+    if (!await _mounted) return;
+    await circleManager.drawCircle(circle);
+    if (!await _mounted) return;
+    if (animateCamera) {
+      await animateCameraTo(points: [circle.latLng]);
+    }
+  }
+
   Future<void> removeIcons() async {
     final iconManager = await _iconManager;
     if (!await _mounted) return;
@@ -81,6 +97,18 @@ class RouteMapController {
     final iconManager = await _iconManager;
     if (!await _mounted) return;
     await iconManager.removeIcon(identifier: identifier);
+  }
+
+  Future<void> removeCircles() async {
+    final circleManager = await _circleManager;
+    if (!await _mounted) return;
+    await circleManager.removeCircles();
+  }
+
+  Future<void> removeCircle(String identifier) async {
+    final circleManager = await _circleManager;
+    if (!await _mounted) return;
+    await circleManager.removeCircle(identifier: identifier);
   }
 
   Future<void> drawUserLocationIndicator(

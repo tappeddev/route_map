@@ -131,8 +131,6 @@ class RouteMapIconManager {
       iconRotate: mapIcon.rotationDegrees,
       textField: hasLabel ? label : null,
       textAnchor: hasLabel ? RouteMapIconAnchor.top.mglIconValue : null,
-      // textColor: hasLabel ? appTheme.objectsDefault.toHexStringRGB() : null,
-      // textHaloColor: hasLabel ? appTheme.surfaceCard.toHexStringRGB() : null,
       textHaloWidth: hasLabel ? 3 : null,
       draggable: mapIcon.draggable,
     );
