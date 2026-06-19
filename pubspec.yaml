@@ -12,7 +12,28 @@ dependencies:
   flutter_svg: ^2.3.0
   freezed_annotation: ^3.1.0
   collection: ^1.19.1
-  maplibre_gl: ^0.26.1
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl
+      ref: release-0.26.2
+      path: maplibre_gl
+
+dependency_overrides:
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl
+      ref: release-0.26.2
+      path: maplibre_gl
+  maplibre_gl_web:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl
+      ref: release-0.26.2
+      path: maplibre_gl_web
+  maplibre_gl_platform_interface:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl
+      ref: release-0.26.2
+      path: maplibre_gl_platform_interface
 
 dev_dependencies:
   flutter_test:
