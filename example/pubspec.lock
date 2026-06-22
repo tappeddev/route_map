@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: async
-      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
+      sha256: e2eb0491ba5ddb6177742d2da23904574082139b07c1e33b8503b9f46f3e1a37
       url: "https://pub.dev"
     source: hosted
-    version: "2.13.0"
+    version: "2.13.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -37,10 +37,10 @@ packages:
     dependency: transitive
     description:
       name: characters
-      sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
+      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   clock:
     dependency: transitive
     description:
@@ -90,10 +90,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_svg
-      sha256: "1ded017b39c8e15c8948ea855070a5ff8ff8b3d5e83f3446e02d6bb12add7ad9"
+      sha256: "35882981abcbfb8c15b286f0cd690ff25bac12d95eff3e25ee207f37d4c42e7f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.4"
+    version: "2.3.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -132,26 +132,18 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: f9881ff4998044947ec38d098bc7c8316ae1186fa786eddffdb867b9bc94dfce
+      sha256: "6300175e00616bbc832e2fc91bfa4d776af5402c81c7151bee6905bb08473c52"
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.0"
-  js:
-    dependency: transitive
-    description:
-      name: js
-      sha256: "53385261521cc4a0c4658fd0ad07a7d14591cf8fc33abbceae306ddb974888dc"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.2"
+    version: "4.9.1"
   json_annotation:
     dependency: transitive
     description:
       name: json_annotation
-      sha256: cb09e7dac6210041fad964ed7fbee004f14258b4eca4040f72d1234062ace4c8
+      sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
       url: "https://pub.dev"
     source: hosted
-    version: "4.11.0"
+    version: "4.12.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -188,42 +180,42 @@ packages:
     dependency: transitive
     description:
       name: maplibre_gl
-      sha256: a66be9a877081b3316cf540e80355e823353e29f736a1f7d62317bf3150fef4f
+      sha256: b676f124a2fcf88c4dafedc7b462155e6396d61ce7af46354b4de11b45c9812f
       url: "https://pub.dev"
     source: hosted
-    version: "0.24.1"
+    version: "0.26.2"
   maplibre_gl_platform_interface:
     dependency: transitive
     description:
       name: maplibre_gl_platform_interface
-      sha256: f423e6c4b0add1ddc423bc36096e29b5d09e8fc720beeac76a21b23259e5a421
+      sha256: "1f0ca8a99f03fa9434618ee21f4e42dd615830a7dd973e632b11c73ffec993a8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.24.1"
+    version: "0.26.2"
   maplibre_gl_web:
     dependency: transitive
     description:
       name: maplibre_gl_web
-      sha256: "969f3a61e51f404e5500e5085405496e1f2ecf4d1e63b2105402dd9a088a4f8b"
+      sha256: bbf022f29ceef26d73f63e584819fbd02fbaf4eb1facf5234206c78936cf8f1c
       url: "https://pub.dev"
     source: hosted
-    version: "0.24.1"
+    version: "0.26.2"
   matcher:
     dependency: transitive
     description:
       name: matcher
-      sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
+      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.17"
+    version: "0.12.19"
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
-      sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec
+      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.1"
+    version: "0.13.0"
   meta:
     dependency: transitive
     description:
@@ -313,7 +305,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: "25ffd359a1e15e52495db6a852e005c60d515a71"
+      resolved-ref: c0808b2333ad5a8cc44dc80f62fe5fa832aa1604
       url: "https://github.com/tappeddev/tapped_lints.git"
     source: git
     version: "2.0.0+2"
@@ -329,10 +321,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
+      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.7"
+    version: "0.7.10"
   typed_data:
     dependency: transitive
     description:
@@ -345,10 +337,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics
-      sha256: "7076216a10d5c390315fbe536a30f1254c341e7543e6c4c8a815e591307772b1"
+      sha256: "2306c03da2ba81724afeb589c351ebbc0aa7d86005925be8f8735856dbe5e42d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.20"
+    version: "1.2.2"
   vector_graphics_codec:
     dependency: transitive
     description:
@@ -361,10 +353,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "5a88dd14c0954a5398af544651c7fb51b457a2a556949bfb25369b210ef73a74"
+      sha256: "142a9146f447d15b10bdc00e21d5f4d83e5b32bb5f8f8f5a04c75311344923a3"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.6"
   vector_math:
     dependency: transitive
     description:
@@ -377,10 +369,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "45caa6c5917fa127b5dbcfbd1fa60b14e583afdc08bfc96dda38886ca252eb60"
+      sha256: "0016aef94fc66495ac78af5859181e3f3bf2026bd8eecc72b9565601e19ab360"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.2"
+    version: "15.2.0"
   web:
     dependency: transitive
     description:
@@ -393,10 +385,10 @@ packages:
     dependency: transitive
     description:
       name: xml
-      sha256: "971043b3a0d3da28727e40ed3e0b5d18b742fa5a68665cca88e74b7876d5e025"
+      sha256: "67f0aff7be013d107995e9b75bf4e7f2c3ef2dfdb2c8e68024bba0a7fd5756a4"
       url: "https://pub.dev"
     source: hosted
-    version: "6.6.1"
+    version: "7.0.1"
 sdks:
-  dart: ">=3.10.7 <4.0.0"
+  dart: ">=3.11.0 <4.0.0"
   flutter: ">=3.35.0"
