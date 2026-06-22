@@ -154,7 +154,7 @@ class RouteMapController {
 
     final cameraUpdate = await controller.cameraUpdateFrom(
       points: points,
-      additionalPadding: state.widget.zoomPadding,
+      padding: state.widget.zoomPadding,
     );
     if (!await _mounted) return;
 

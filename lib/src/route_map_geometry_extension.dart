@@ -4,20 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 extension RouteMapGeometryExtensions on MapLibreMapController {
-  static const _routeDefaultPadding = 40.0;
-
   Future<CameraUpdate> cameraUpdateFrom({
     required List<LatLng> points,
-    required EdgeInsets additionalPadding,
+    required EdgeInsets padding,
   }) async {
     final cameraBounds = points.convertToBounds();
 
     final cameraUpdate = CameraUpdate.newLatLngBounds(
       cameraBounds,
-      left: _routeDefaultPadding + additionalPadding.left,
-      right: _routeDefaultPadding + additionalPadding.right,
-      bottom: _routeDefaultPadding + additionalPadding.bottom,
-      top: _routeDefaultPadding + additionalPadding.top,
+      left: padding.left,
+      right: padding.right,
+      bottom: padding.bottom,
+      top: padding.top,
     );
 
     return cameraUpdate;
