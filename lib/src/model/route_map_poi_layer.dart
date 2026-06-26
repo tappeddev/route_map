@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:route_map/src/model/route_map_icon/route_map_icon.dart';
 import 'package:route_map/src/model/route_map_icon_anchor.dart';
 
 /// Describes a clustered, optionally interactive point-of-interest overlay.
@@ -47,6 +48,10 @@ class RouteMapPoiLayer {
 }
 
 /// One filtered "sub-layer" within a [RouteMapPoiLayer].
+///
+/// Visually identical to [RouteMapIcon] — every feature is rendered as a
+/// pin-shaped marker (the [markerPath] filled with [theme.background])
+/// containing the supplied SVG icon.
 class RouteMapPoiCategory {
   /// Stable identifier — forwarded back to the caller via
   /// [RouteMapPoiTappedEvent.categoryIdentifier].
@@ -56,19 +61,20 @@ class RouteMapPoiCategory {
   /// Example: `['==', ['get', 'type'], 'service']`.
   final List<Object> filter;
 
-  /// SVG asset path. The icon is rasterized at runtime — all `fill="…"`
-  /// and `stroke="…"` attributes are overridden with [iconColor].
+  /// Outline of the pin background, identical to [RouteMapIcon.markerPath].
+  /// Pass the same path you use for the regular icons so the POI markers
+  /// match visually.
+  final Path markerPath;
+
+  /// SVG asset path of the icon drawn inside the pin. All `fill="…"` /
+  /// `stroke="…"` attributes are overridden with [theme.foreground].
   final String svgIconPath;
 
-  /// Color the SVG fill / stroke is overridden with for the light theme.
-  final Color iconColor;
+  /// Pin background + foreground theme (light mode).
+  final RouteMapIconTheme theme;
 
-  /// Optional color used when the device is in dark mode. Defaults to
-  /// [iconColor].
-  final Color? darkIconColor;
-
-  /// Logical pixel size used for SVG rasterization.
-  final double iconSize;
+  /// Optional dark-mode theme. Defaults to [theme].
+  final RouteMapIconTheme? darkTheme;
 
   /// Whether tapping a feature of this category should trigger
   /// `onPoiTapped`.
@@ -83,10 +89,10 @@ class RouteMapPoiCategory {
   const RouteMapPoiCategory({
     required this.identifier,
     required this.filter,
+    required this.markerPath,
     required this.svgIconPath,
-    required this.iconColor,
-    this.darkIconColor,
-    this.iconSize = 32,
+    required this.theme,
+    this.darkTheme,
     this.interactive = false,
     this.label,
     this.anchor = RouteMapIconAnchor.bottom,

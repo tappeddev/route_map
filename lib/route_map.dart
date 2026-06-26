@@ -17,4 +17,4 @@ export 'src/route_map_base.dart';
 export 'src/model/no_service_area_layer.dart';
 export 'src/model/route_map_poi_layer.dart';
 export 'src/model/route_map_user_location_indicator/route_map_user_location_indicator.dart';
-export 'src/util/svg_rasterizer.dart' show rasterizeSvgAsset;
+export 'src/util/pin_marker_rasterizer.dart' show rasterizePinMarker;

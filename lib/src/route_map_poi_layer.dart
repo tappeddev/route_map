@@ -82,17 +82,19 @@ extension _RouteMapPoiLayerState on _RouteMapState {
     if (!mounted) return;
 
     // Register icon images for every category. SVGs are rasterized to PNG
-    // bytes once per (category, brightness) tuple.
+    // bytes once per (category, brightness) tuple — using the same pin
+    // marker renderer that backs [RouteMapIcon] so POI markers match the
+    // visual style of regular icons.
     final brightness = MediaQuery.platformBrightnessOf(context);
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
-      final color = brightness == Brightness.dark
-          ? (category.darkIconColor ?? category.iconColor)
-          : category.iconColor;
-      final iconBytes = await rasterizeSvgAsset(
-        assetPath: category.svgIconPath,
-        color: color,
-        size: category.iconSize,
+      final theme = brightness == Brightness.dark
+          ? (category.darkTheme ?? category.theme)
+          : category.theme;
+      final iconBytes = await rasterizePinMarker(
+        markerPath: category.markerPath,
+        theme: theme,
+        svgIconPath: category.svgIconPath,
       );
       if (!mounted) return;
 
@@ -137,6 +139,9 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         SymbolLayerProperties(
           iconImage: imageId,
           iconAnchor: category.anchor.mglIconValue,
+          // Match the [RouteMapIconManager.iconScale] used for regular
+          // icons so POI pins are rendered at the same size.
+          iconSize: kIsWeb ? 0.5 : 1.5,
           iconAllowOverlap: widget.allowIconsOverlap,
           iconIgnorePlacement: widget.ignoreIconsPlacement,
           textField: hasLabel ? labelDef.textExpression : null,
