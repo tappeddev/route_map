@@ -29,7 +29,15 @@ abstract class RouteMapIcon with _$RouteMapIcon {
 abstract class RouteMapIconTheme with _$RouteMapIconTheme {
   const factory RouteMapIconTheme({
     required Color background,
-    required Color foreground,
+
+    /// Foreground color used to tint the SVG icon (or render the text).
+    ///
+    /// When `null`, the original `fill="…"` / `stroke="…"` attributes of
+    /// the SVG are preserved instead of being overridden. Useful for
+    /// multi-color brand icons where the source colors should win.
+    ///
+    /// Must be non-null when `RouteMapIcon.text` is used.
+    required Color? foreground,
     @Default(false) bool drawCircleAroundIcon,
     @Default(0) double strokeWidth,
     @Default(10) double padding,
