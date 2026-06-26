@@ -17,6 +17,10 @@ import 'package:route_map/src/model/route_map_icon/route_map_icon.dart';
 /// 4. Centers and tints [svgIconPath] (if supplied) using
 ///    [RouteMapIconTheme.foreground]; otherwise centers [text].
 ///
+/// When [RouteMapIconTheme.foreground] is `null`, the original `fill="…"` /
+/// `stroke="…"` attributes of the SVG are preserved instead of being
+/// overridden. In that case [text] must not be used.
+///
 /// Exactly one of [svgIconPath] / [text] may be non-null.
 Future<Uint8List> rasterizePinMarker({
   required Path markerPath,
@@ -28,7 +32,12 @@ Future<Uint8List> rasterizePinMarker({
     svgIconPath == null || text == null,
     "Provide either svgIconPath or text, not both.",
   );
+  assert(
+    text == null || theme.foreground != null,
+    "RouteMapIconTheme.foreground must be non-null when rendering text.",
+  );
 
+  final foreground = theme.foreground;
   final sizeBeforeStroke = markerPath.getBounds().size;
   final sizeWithStroke = Size(
     sizeBeforeStroke.width + theme.strokeWidth,
@@ -38,8 +47,6 @@ Future<Uint8List> rasterizePinMarker({
   final strokeWidth = theme.strokeWidth;
   final drawCircleAroundIcon = theme.drawCircleAroundIcon;
 
-  // ignore: deprecated_member_use
-  final colorHex = theme.foreground.toHexStringRGB();
   final circleRadius = sizeBeforeStroke.width / 2 - padding;
   final circleOffset = padding + circleRadius;
 
@@ -47,8 +54,6 @@ Future<Uint8List> rasterizePinMarker({
   final canvas = Canvas(recorder);
   final paint = Paint()..style = PaintingStyle.fill;
 
-  // Half of stroke is outer / half is inner — translate only half so the
-  // path stays centered within [sizeWithStroke].
   canvas.translate(strokeWidth / 2, strokeWidth / 2);
   paint.color = theme.background;
   canvas.drawPath(markerPath, paint);
@@ -73,11 +78,21 @@ Future<Uint8List> rasterizePinMarker({
   }
 
   if (svgIconPath != null) {
-    final rawSvg = (await rootBundle.loadString(svgIconPath))
-        .replaceAll(RegExp(r'fill="[^"]*"'), 'fill="$colorHex"')
-        .replaceAll(RegExp(r'stroke="[^"]*"'), 'stroke="$colorHex"');
+    final rawSvg = await rootBundle.loadString(svgIconPath);
+    final tintedSvg = foreground == null
+        ? rawSvg
+        // ignore: deprecated_member_use
+        : rawSvg
+              .replaceAll(
+                RegExp(r'fill="[^"]*"'),
+                'fill="${foreground.toHexStringRGB()}"',
+              )
+              .replaceAll(
+                RegExp(r'stroke="[^"]*"'),
+                'stroke="${foreground.toHexStringRGB()}"',
+              );
 
-    final loader = SvgStringLoader(rawSvg);
+    final loader = SvgStringLoader(tintedSvg);
     final pictureInfo = await vg.loadPicture(loader, null);
 
     final iconWidth = drawCircleAroundIcon
@@ -107,7 +122,8 @@ Future<Uint8List> rasterizePinMarker({
         style: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: theme.foreground,
+          // Asserted to be non-null above.
+          color: foreground,
         ),
       ),
       textDirection: TextDirection.ltr,
