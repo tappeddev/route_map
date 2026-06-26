@@ -118,7 +118,10 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       // clustered features don't render individually.
       final filter = <Object>[
         'all',
-        ['!', ['has', 'point_count']],
+        [
+          '!',
+          ['has', 'point_count'],
+        ],
         category.filter,
       ];
 
