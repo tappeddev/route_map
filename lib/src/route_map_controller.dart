@@ -186,25 +186,4 @@ class RouteMapController {
       isVisible: isVisible,
     );
   }
-
-  /// Whether a given POI layer is currently visible. Returns `null` when
-  /// no layer with the supplied [identifier] is installed.
-  Future<bool?> isPoiLayerVisible(String identifier) async {
-    final state = await _state;
-    return state._poiLayers[identifier]?.isVisible;
-  }
-
-  /// Removes a previously-installed POI layer entirely (including its
-  /// GeoJSON source). Silently does nothing when no layer with that
-  /// identifier is installed.
-  Future<void> removePoiLayer(String identifier) async {
-    final state = await _state;
-    final controller = await _controller;
-    if (!await _mounted) return;
-
-    final entry = state._poiLayers[identifier];
-    if (entry == null) return;
-
-    await state._removePoiLayerEntry(controller: controller, entry: entry);
-  }
 }
