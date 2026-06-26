@@ -81,30 +81,34 @@ extension _RouteMapPoiLayerState on _RouteMapState {
     await controller.addSource(sourceId, source);
     if (!mounted) return;
 
-    // Register icon images for every category. SVGs are rasterized to PNG
-    // bytes once per (category, brightness) tuple — using the same pin
-    // marker renderer that backs [RouteMapIcon] so POI markers match the
-    // visual style of regular icons.
-    final brightness = MediaQuery.platformBrightnessOf(context);
+    // Register icon images for every category via the shared icon manager
+    // so POI markers go through the exact same rasterization pipeline as
+    // regular [RouteMapIcon]s. A synthetic [RouteMapIcon] template is used
+    // — only the markerPath, theme and svgIconPath are read by the
+    // rasterizer; latLng is ignored.
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
-      final theme = brightness == Brightness.dark
-          ? (category.darkTheme ?? category.theme)
-          : category.theme;
-      final iconBytes = await rasterizePinMarker(
+      final template = RouteMapIcon(
+        identifier: imageId,
+        latLng: const LatLng(0, 0),
         markerPath: category.markerPath,
-        theme: theme,
+        theme: category.theme,
+        darkTheme: category.darkTheme,
         svgIconPath: category.svgIconPath,
+        anchor: category.anchor,
       );
-      if (!mounted) return;
-
-      await controller.addImage(imageId, iconBytes);
+      await _iconManagerInstance.addImageToCacheIfNeeded(
+        controller,
+        mapIcon: template,
+      );
       if (!mounted) return;
     }
 
     // Add a SymbolLayer per category.
     final categoryLayerIds = <String>[];
     final categoryById = <String, RouteMapPoiCategory>{};
+
+    final brightness = MediaQuery.platformBrightnessOf(context);
 
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
@@ -141,7 +145,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           iconAnchor: category.anchor.mglIconValue,
           // Match the [RouteMapIconManager.iconScale] used for regular
           // icons so POI pins are rendered at the same size.
-          iconSize: kIsWeb ? 0.5 : 1.5,
+          iconSize: _iconManagerInstance.iconScale,
           iconAllowOverlap: widget.allowIconsOverlap,
           iconIgnorePlacement: widget.ignoreIconsPlacement,
           textField: hasLabel ? labelDef.textExpression : null,
