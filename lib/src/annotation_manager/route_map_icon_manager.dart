@@ -153,8 +153,13 @@ class RouteMapIconManager {
     final drawCircleAroundIcon = theme.drawCircleAroundIcon;
     final svgIconPath = mapIcon.svgIconPath;
     final text = mapIcon.text;
+    final foreground = theme.foreground;
 
-    final colorHex = theme.foreground.toHexStringRGB();
+    assert(
+      text == null || foreground != null,
+      "RouteMapIconTheme.foreground must be non-null when rendering text.",
+    );
+
     final circleRadius = sizeBeforeStroke.width / 2 - padding;
     final circleOffset = padding + circleRadius;
 
@@ -189,12 +194,23 @@ class RouteMapIconManager {
     }
 
     if (svgIconPath != null) {
-      // Load SVG and override color
-      final rawSvg = (await rootBundle.loadString(svgIconPath))
-          .replaceAll(RegExp(r'fill="[^"]*"'), 'fill="$colorHex"')
-          .replaceAll(RegExp(r'stroke="[^"]*"'), 'stroke="$colorHex"');
+      // Load SVG and (optionally) override its fill / stroke. When
+      // [foreground] is null, the original SVG colors are preserved.
+      final rawSvg = await rootBundle.loadString(svgIconPath);
+      final tintedSvg = foreground == null
+          ? rawSvg
+          // ignore: deprecated_member_use
+          : rawSvg
+                .replaceAll(
+                  RegExp(r'fill="[^"]*"'),
+                  'fill="${foreground.toHexStringRGB()}"',
+                )
+                .replaceAll(
+                  RegExp(r'stroke="[^"]*"'),
+                  'stroke="${foreground.toHexStringRGB()}"',
+                );
 
-      final loader = SvgStringLoader(rawSvg);
+      final loader = SvgStringLoader(tintedSvg);
       final pictureInfo = await vg.loadPicture(loader, null);
 
       // Draw the SVG icon
@@ -231,7 +247,8 @@ class RouteMapIconManager {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: theme.foreground,
+            // Asserted to be non-null above.
+            color: foreground,
           ),
         ),
         textDirection: TextDirection.ltr,

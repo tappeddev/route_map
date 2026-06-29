@@ -343,7 +343,14 @@ $RouteMapIconThemeCopyWith<$Res>? get darkTheme {
 /// @nodoc
 mixin _$RouteMapIconTheme {
 
- Color get background; Color get foreground; bool get drawCircleAroundIcon; double get strokeWidth; double get padding;
+ Color get background;/// Foreground color used to tint the SVG icon (or render the text).
+///
+/// When `null`, the original `fill="…"` / `stroke="…"` attributes of
+/// the SVG are preserved instead of being overridden. Useful for
+/// multi-color brand icons where the source colors should win.
+///
+/// Must be non-null when `RouteMapIcon.text` is used.
+ Color? get foreground; bool get drawCircleAroundIcon; double get strokeWidth; double get padding;
 /// Create a copy of RouteMapIconTheme
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -374,7 +381,7 @@ abstract mixin class $RouteMapIconThemeCopyWith<$Res>  {
   factory $RouteMapIconThemeCopyWith(RouteMapIconTheme value, $Res Function(RouteMapIconTheme) _then) = _$RouteMapIconThemeCopyWithImpl;
 @useResult
 $Res call({
- Color background, Color foreground, bool drawCircleAroundIcon, double strokeWidth, double padding
+ Color background, Color? foreground, bool drawCircleAroundIcon, double strokeWidth, double padding
 });
 
 
@@ -391,11 +398,11 @@ class _$RouteMapIconThemeCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapIconTheme
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? background = null,Object? foreground = null,Object? drawCircleAroundIcon = null,Object? strokeWidth = null,Object? padding = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? background = null,Object? foreground = freezed,Object? drawCircleAroundIcon = null,Object? strokeWidth = null,Object? padding = null,}) {
   return _then(_self.copyWith(
 background: null == background ? _self.background : background // ignore: cast_nullable_to_non_nullable
-as Color,foreground: null == foreground ? _self.foreground : foreground // ignore: cast_nullable_to_non_nullable
-as Color,drawCircleAroundIcon: null == drawCircleAroundIcon ? _self.drawCircleAroundIcon : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
+as Color,foreground: freezed == foreground ? _self.foreground : foreground // ignore: cast_nullable_to_non_nullable
+as Color?,drawCircleAroundIcon: null == drawCircleAroundIcon ? _self.drawCircleAroundIcon : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
 as bool,strokeWidth: null == strokeWidth ? _self.strokeWidth : strokeWidth // ignore: cast_nullable_to_non_nullable
 as double,padding: null == padding ? _self.padding : padding // ignore: cast_nullable_to_non_nullable
 as double,
@@ -483,7 +490,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Color background,  Color foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Color background,  Color? foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RouteMapIconTheme() when $default != null:
 return $default(_that.background,_that.foreground,_that.drawCircleAroundIcon,_that.strokeWidth,_that.padding);case _:
@@ -504,7 +511,7 @@ return $default(_that.background,_that.foreground,_that.drawCircleAroundIcon,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Color background,  Color foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Color background,  Color? foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapIconTheme():
 return $default(_that.background,_that.foreground,_that.drawCircleAroundIcon,_that.strokeWidth,_that.padding);case _:
@@ -524,7 +531,7 @@ return $default(_that.background,_that.foreground,_that.drawCircleAroundIcon,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Color background,  Color foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Color background,  Color? foreground,  bool drawCircleAroundIcon,  double strokeWidth,  double padding)?  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapIconTheme() when $default != null:
 return $default(_that.background,_that.foreground,_that.drawCircleAroundIcon,_that.strokeWidth,_that.padding);case _:
@@ -543,7 +550,14 @@ class _RouteMapIconTheme implements RouteMapIconTheme {
   
 
 @override final  Color background;
-@override final  Color foreground;
+/// Foreground color used to tint the SVG icon (or render the text).
+///
+/// When `null`, the original `fill="…"` / `stroke="…"` attributes of
+/// the SVG are preserved instead of being overridden. Useful for
+/// multi-color brand icons where the source colors should win.
+///
+/// Must be non-null when `RouteMapIcon.text` is used.
+@override final  Color? foreground;
 @override@JsonKey() final  bool drawCircleAroundIcon;
 @override@JsonKey() final  double strokeWidth;
 @override@JsonKey() final  double padding;
@@ -578,7 +592,7 @@ abstract mixin class _$RouteMapIconThemeCopyWith<$Res> implements $RouteMapIconT
   factory _$RouteMapIconThemeCopyWith(_RouteMapIconTheme value, $Res Function(_RouteMapIconTheme) _then) = __$RouteMapIconThemeCopyWithImpl;
 @override @useResult
 $Res call({
- Color background, Color foreground, bool drawCircleAroundIcon, double strokeWidth, double padding
+ Color background, Color? foreground, bool drawCircleAroundIcon, double strokeWidth, double padding
 });
 
 
@@ -595,11 +609,11 @@ class __$RouteMapIconThemeCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapIconTheme
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? background = null,Object? foreground = null,Object? drawCircleAroundIcon = null,Object? strokeWidth = null,Object? padding = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? background = null,Object? foreground = freezed,Object? drawCircleAroundIcon = null,Object? strokeWidth = null,Object? padding = null,}) {
   return _then(_RouteMapIconTheme(
 background: null == background ? _self.background : background // ignore: cast_nullable_to_non_nullable
-as Color,foreground: null == foreground ? _self.foreground : foreground // ignore: cast_nullable_to_non_nullable
-as Color,drawCircleAroundIcon: null == drawCircleAroundIcon ? _self.drawCircleAroundIcon : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
+as Color,foreground: freezed == foreground ? _self.foreground : foreground // ignore: cast_nullable_to_non_nullable
+as Color?,drawCircleAroundIcon: null == drawCircleAroundIcon ? _self.drawCircleAroundIcon : drawCircleAroundIcon // ignore: cast_nullable_to_non_nullable
 as bool,strokeWidth: null == strokeWidth ? _self.strokeWidth : strokeWidth // ignore: cast_nullable_to_non_nullable
 as double,padding: null == padding ? _self.padding : padding // ignore: cast_nullable_to_non_nullable
 as double,

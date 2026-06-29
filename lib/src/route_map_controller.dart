@@ -163,4 +163,27 @@ class RouteMapController {
       duration: const Duration(milliseconds: 1500),
     );
   }
+
+  /// Toggles the visibility of a previously-installed POI layer.
+  ///
+  /// Identifier must match [RouteMapPoiLayer.identifier]. Silently does
+  /// nothing when no layer with that identifier is installed.
+  Future<void> setPoiLayerVisibility({
+    required String identifier,
+    required bool isVisible,
+  }) async {
+    final state = await _state;
+    final controller = await _controller;
+    if (!await _mounted) return;
+
+    final entry = state._poiLayers[identifier];
+    if (entry == null) return;
+    if (entry.isVisible == isVisible) return;
+
+    await state._applyPoiLayerVisibility(
+      controller: controller,
+      entry: entry,
+      isVisible: isVisible,
+    );
+  }
 }

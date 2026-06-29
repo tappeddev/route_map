@@ -15,4 +15,5 @@ export 'src/model/route_map_circle/route_map_circle.dart';
 export 'src/model/route_map_route/route_map_route.dart';
 export 'src/route_map_base.dart';
 export 'src/model/no_service_area_layer.dart';
+export 'src/model/route_map_poi_layer.dart';
 export 'src/model/route_map_user_location_indicator/route_map_user_location_indicator.dart';

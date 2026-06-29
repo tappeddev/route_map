@@ -15,6 +15,7 @@ import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
 part 'route_map_no_service_area_layer.dart';
+part 'poi_layer_extension.dart';
 
 class RouteMap extends StatefulWidget {
   final CameraPosition initialCameraPosition;
@@ -49,6 +50,15 @@ class RouteMap extends StatefulWidget {
   )?
   onFeatureHover;
 
+  /// Optional clustered POI overlays (e.g. service points, border crossings).
+  /// Each entry is materialised when the map's style is loaded; visibility
+  /// can later be toggled through [RouteMapController.setPoiLayerVisibility].
+  final List<RouteMapPoiLayer> poiLayers;
+
+  /// Called when the user taps a feature of an interactive
+  /// [RouteMapPoiCategory] (see [RouteMapPoiCategory.interactive]).
+  final void Function(RouteMapPoiTappedEvent event)? onPoiTapped;
+
   const RouteMap({
     super.key,
     required this.initialCameraPosition,
@@ -60,11 +70,13 @@ class RouteMap extends StatefulWidget {
     this.cameraTargetBounds,
     this.minMaxZoomPreference,
     this.noServiceAreaLayers = const [],
+    this.poiLayers = const [],
     this.trackCameraPosition = false,
     this.onCameraMoveStarted,
     this.onCameraIdle,
     this.onFeatureDrag,
     this.onFeatureHover,
+    this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
   });
@@ -87,6 +99,9 @@ class _RouteMapState extends State<RouteMap> {
 
   late final RouteMapLocationIndicatorCoordinator
   _locationIndicatorCoordinatorInstance;
+
+  /// Currently materialised POI layers (keyed by layer identifier).
+  final Map<String, _PoiLayerEntry> _poiLayers = {};
 
   Future<MapLibreMapController> get _controller => _controllerCompleter.future;
 
@@ -136,6 +151,7 @@ class _RouteMapState extends State<RouteMap> {
     if (!_controllerCompleter.isCompleted) return;
     final controller = await _controllerCompleter.future;
     controller.onFeatureDrag.remove(_onFeatureDrag);
+    controller.onFeatureTapped.remove(_onFeatureTapped);
     if (kIsWeb) {
       controller.onFeatureHover.remove(_onFeatureHover);
     }
@@ -183,6 +199,32 @@ class _RouteMapState extends State<RouteMap> {
     widget.onFeatureHover?.call(id, latLng, eventType);
   }
 
+  /// Looks up the [RouteMapPoiCategory] (if any) for the layer-id reported
+  /// by maplibre's tap event and forwards the event to the caller via
+  /// [RouteMap.onPoiTapped].
+  void _onFeatureTapped(
+    Point<double> point,
+    LatLng latLng,
+    String featureId,
+    String layerId,
+    Annotation? annotation,
+  ) {
+    final onPoiTapped = widget.onPoiTapped;
+    if (onPoiTapped == null) return;
+
+    final match = _findPoiCategoryByLayerId(layerId);
+    if (match == null) return;
+
+    onPoiTapped(
+      RouteMapPoiTappedEvent(
+        layerIdentifier: match.layer.identifier,
+        categoryIdentifier: match.category.identifier,
+        featureId: featureId,
+        latLng: latLng,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // the [PlatformView] could get the focus, but it doesn't make any sense
@@ -226,12 +268,19 @@ class _RouteMapState extends State<RouteMap> {
           controller.addListener(_cameraStateListener!);
 
           controller.onFeatureDrag.add(_onFeatureDrag);
+          controller.onFeatureTapped.add(_onFeatureTapped);
           if (kIsWeb) {
             controller.onFeatureHover.add(_onFeatureHover);
           }
         },
         onStyleLoadedCallback: () async {
+          // Drop any POI layers we set up for the previous style so the
+          // following `_addPoiLayers` rebuild can re-use the same identifiers.
+          await _removeAllPoiLayers();
+
           await _addNoServiceAreaLayers();
+
+          await _addPoiLayers();
 
           await _setMapLanguage();
 
