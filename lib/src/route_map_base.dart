@@ -15,7 +15,7 @@ import 'package:route_map/src/route_map_geometry_extension.dart';
 
 part 'route_map_controller.dart';
 part 'route_map_no_service_area_layer.dart';
-part 'route_map_poi_layer.dart';
+part 'poi_layer_extension.dart';
 
 class RouteMap extends StatefulWidget {
   final CameraPosition initialCameraPosition;
