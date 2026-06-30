@@ -12,8 +12,33 @@ dependencies:
   flutter_svg: ^2.3.0
   freezed_annotation: ^3.1.0
   collection: ^1.19.1
-  maplibre_gl: ^0.26.2
   synchronized: ^3.4.0
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: feature/840-manual-location-display
+      path: maplibre_gl
+
+# The manual location display feature lives in maplibre PR #885. The PR modifies
+# maplibre_gl_platform_interface without bumping its version, so we override all
+# interdependent monorepo packages to the same git ref to pull in the changes.
+# See: https://github.com/maplibre/flutter-maplibre-gl/pull/885
+dependency_overrides:
+  maplibre_gl:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: feature/840-manual-location-display
+      path: maplibre_gl
+  maplibre_gl_platform_interface:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: feature/840-manual-location-display
+      path: maplibre_gl_platform_interface
+  maplibre_gl_web:
+    git:
+      url: https://github.com/maplibre/flutter-maplibre-gl.git
+      ref: feature/840-manual-location-display
+      path: maplibre_gl_web
 
 dev_dependencies:
   flutter_test:

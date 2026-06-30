@@ -125,6 +125,39 @@ class RouteMapController {
     await locationIndicatorManager.removeUserLocationIndicator();
   }
 
+  /// Pushes an app-provided location into the native user-location component
+  /// (the "puck").
+  ///
+  /// Requires the [RouteMap] to be created with
+  /// `enableManualLocationDisplay: true`, which sets up the map with
+  /// `myLocationEnabled: true` and a [ManualLocationSource]. No location
+  /// permission is required in this mode.
+  ///
+  /// **Not supported on web** — throws an [UnsupportedError] there.
+  Future<void> updateManualLocation({
+    required LatLng location,
+    double? horizontalAccuracy,
+    double? verticalAccuracy,
+    double? altitude,
+    double? bearing,
+    double? speed,
+    DateTime? timestamp,
+  }) async {
+    final controller = await _controller;
+    if (!await _mounted) return;
+    await controller.updateManualLocation(
+      ManualLocationUpdate(
+        target: location,
+        horizontalAccuracy: horizontalAccuracy,
+        verticalAccuracy: verticalAccuracy,
+        altitude: altitude,
+        bearing: bearing,
+        speed: speed,
+        timestamp: timestamp,
+      ),
+    );
+  }
+
   Future<void> animateCameraToTarget({
     required LatLng target,
     double? zoom,

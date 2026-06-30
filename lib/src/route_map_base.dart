@@ -41,6 +41,21 @@ class RouteMap extends StatefulWidget {
 
   /// If true, icons are not preserving space allowing other items like POIs to be visible even if they collide with the icon.
   final bool ignoreIconsPlacement;
+
+  /// Enables the native user-location component (the "puck") driven by
+  /// app-provided locations.
+  ///
+  /// When `true`, the map is created with `myLocationEnabled: true` and a
+  /// [ManualLocationSource], so no location permission is requested and the
+  /// device's location engine is not used. Push locations into the puck via
+  /// [RouteMapController.updateManualLocation].
+  ///
+  /// This is independent of the custom indicator drawn by
+  /// [RouteMapController.drawUserLocationIndicator]; enable only one to avoid
+  /// showing two indicators at once.
+  ///
+  /// **Not supported on web** — pushing a manual location throws there.
+  final bool enableManualLocationDisplay;
   final void Function(
     String identifier,
     LatLng current,
@@ -84,6 +99,7 @@ class RouteMap extends StatefulWidget {
     this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
+    this.enableManualLocationDisplay = false,
   });
 
   @override
@@ -257,7 +273,10 @@ class _RouteMapState extends State<RouteMap> {
         // ⚠️ MapBox styles are not supported! -> https://github.com/maplibre/flutter-maplibre-gl/issues/149
         styleString: widget.styleUrl,
         compassEnabled: false,
-        myLocationEnabled: false,
+        myLocationEnabled: widget.enableManualLocationDisplay,
+        locationSource: widget.enableManualLocationDisplay
+            ? const ManualLocationSource()
+            : const PlatformLocationSource(),
         trackCameraPosition: widget.trackCameraPosition,
         cameraTargetBounds:
             widget.cameraTargetBounds ?? CameraTargetBounds.unbounded,
