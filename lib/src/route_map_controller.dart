@@ -197,6 +197,20 @@ class RouteMapController {
     );
   }
 
+  /// Takes a snapshot of the current map view and returns it as PNG bytes.
+  ///
+  /// The map must be fully loaded and visible before calling this. If tiles
+  /// are still rendering, the returned image may contain incomplete content.
+  ///
+  /// A [TimeoutException] is thrown if the native platform does not respond
+  /// within [timeout] (default 10 s).
+  Future<Uint8List> takeSnapshot({
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final controller = await _controller;
+    return controller.takeSnapshot().timeout(timeout);
+  }
+
   /// Toggles the visibility of a previously-installed POI layer.
   ///
   /// Identifier must match [RouteMapPoiLayer.identifier]. Silently does
