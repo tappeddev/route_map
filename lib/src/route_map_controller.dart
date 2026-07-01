@@ -180,14 +180,17 @@ class RouteMapController {
   }
 
   /// Move cameras center to the [latLng] with zoom in by [detailCameraFocusZoom]
-  Future<void> animateCameraTo({required List<LatLng> points}) async {
+  Future<void> animateCameraTo({
+    required List<LatLng> points,
+    EdgeInsets? padding,
+  }) async {
     final state = await _state;
     final controller = await _controller;
     if (!await _mounted) return;
 
     final cameraUpdate = await controller.cameraUpdateFrom(
       points: points,
-      padding: state.widget.zoomPadding,
+      padding: padding ?? state.widget.zoomPadding,
     );
     if (!await _mounted) return;
 
