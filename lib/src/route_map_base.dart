@@ -67,6 +67,10 @@ class RouteMap extends StatefulWidget {
   /// Only relevant when [enableManualLocationDisplay] is `true`.
   final MyLocationRenderMode myLocationRenderMode;
 
+  /// Called when the camera tracking mode changes, e.g. when the user pans
+  /// the map and tracking is disengaged.
+  final void Function(MyLocationTrackingMode mode)? onCameraTrackingChanged;
+
   final void Function(
     String identifier,
     LatLng current,
@@ -113,6 +117,7 @@ class RouteMap extends StatefulWidget {
     this.enableManualLocationDisplay = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.none,
     this.myLocationRenderMode = MyLocationRenderMode.normal,
+    this.onCameraTrackingChanged,
   });
 
   @override
@@ -289,6 +294,7 @@ class _RouteMapState extends State<RouteMap> {
         myLocationEnabled: widget.enableManualLocationDisplay,
         myLocationTrackingMode: widget.myLocationTrackingMode,
         myLocationRenderMode: widget.myLocationRenderMode,
+        onCameraTrackingChanged: widget.onCameraTrackingChanged,
         locationSource: widget.enableManualLocationDisplay
             ? const ManualLocationSource()
             : const PlatformLocationSource(),
