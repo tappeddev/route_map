@@ -56,6 +56,17 @@ class RouteMap extends StatefulWidget {
   ///
   /// **Not supported on web** — pushing a manual location throws there.
   final bool enableManualLocationDisplay;
+
+  /// Defines how the map's camera follows the user-location "puck".
+  ///
+  /// Only relevant when [enableManualLocationDisplay] is `true`.
+  final MyLocationTrackingMode myLocationTrackingMode;
+
+  /// Defines how the user-location "puck" is rendered.
+  ///
+  /// Only relevant when [enableManualLocationDisplay] is `true`.
+  final MyLocationRenderMode myLocationRenderMode;
+
   final void Function(
     String identifier,
     LatLng current,
@@ -100,6 +111,8 @@ class RouteMap extends StatefulWidget {
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
     this.enableManualLocationDisplay = false,
+    this.myLocationTrackingMode = MyLocationTrackingMode.none,
+    this.myLocationRenderMode = MyLocationRenderMode.normal,
   });
 
   @override
@@ -274,6 +287,8 @@ class _RouteMapState extends State<RouteMap> {
         styleString: widget.styleUrl,
         compassEnabled: false,
         myLocationEnabled: widget.enableManualLocationDisplay,
+        myLocationTrackingMode: widget.myLocationTrackingMode,
+        myLocationRenderMode: widget.myLocationRenderMode,
         locationSource: widget.enableManualLocationDisplay
             ? const ManualLocationSource()
             : const PlatformLocationSource(),
