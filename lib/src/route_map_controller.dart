@@ -165,12 +165,15 @@ class RouteMapController {
     double? tilt,
     Duration duration = const Duration(milliseconds: 1500),
   }) async {
+    final state = await _state;
     final controller = await _controller;
     if (!await _mounted) return;
 
     final cameraUpdate = resolveAnimateCameraToTargetUpdate(
       target: target,
       trackedCameraPosition: controller.cameraPosition,
+      trackCameraPosition: state.widget.trackCameraPosition,
+      fallbackCameraPosition: state.widget.initialCameraPosition,
       zoom: zoom,
       bearing: bearing,
       tilt: tilt,

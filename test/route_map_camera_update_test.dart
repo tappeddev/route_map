@@ -7,6 +7,7 @@ void main() {
     final update = resolveAnimateCameraToTargetUpdate(
       target: const LatLng(30.0, 31.0),
       trackedCameraPosition: null,
+      trackCameraPosition: false,
     );
 
     expect(update.toJson(), [
@@ -21,6 +22,7 @@ void main() {
       final update = resolveAnimateCameraToTargetUpdate(
         target: const LatLng(30.0, 31.0),
         trackedCameraPosition: null,
+        trackCameraPosition: false,
         zoom: 12,
       );
 
@@ -39,6 +41,7 @@ void main() {
         () => resolveAnimateCameraToTargetUpdate(
           target: const LatLng(30.0, 31.0),
           trackedCameraPosition: null,
+          trackCameraPosition: false,
           bearing: 90,
         ),
         throwsStateError,
@@ -55,6 +58,7 @@ void main() {
         bearing: 45,
         tilt: 20,
       ),
+      trackCameraPosition: true,
       bearing: 90,
     );
 
@@ -68,4 +72,32 @@ void main() {
       },
     ]);
   });
+
+  test(
+    'initial camera position is used until tracking reports a camera position',
+    () {
+      final update = resolveAnimateCameraToTargetUpdate(
+        target: const LatLng(30.0, 31.0),
+        trackedCameraPosition: null,
+        trackCameraPosition: true,
+        fallbackCameraPosition: const CameraPosition(
+          target: LatLng(29.0, 30.0),
+          zoom: 9,
+          bearing: 45,
+          tilt: 20,
+        ),
+        bearing: 90,
+      );
+
+      expect(update.toJson(), [
+        'newCameraPosition',
+        {
+          'bearing': 90.0,
+          'target': [30.0, 31.0],
+          'tilt': 20.0,
+          'zoom': 9.0,
+        },
+      ]);
+    },
+  );
 }
