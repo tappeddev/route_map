@@ -16,7 +16,7 @@ const _darkStyle =
 
 /// A more complex service area: a multi-polygon (two separate areas) where the
 /// first polygon also has a hole.
-const Map<String, Object?> _serviceAreaGeoJson = {
+const Map<String, Object?> serviceAreaGeoJson = {
   "type": "FeatureCollection",
   "features": [
     {
@@ -66,20 +66,20 @@ const Map<String, Object?> _serviceAreaGeoJson = {
   ],
 };
 
-Future<GeojsonSourceProperties> _createServiceAreaSource() async {
-  return const GeojsonSourceProperties(data: _serviceAreaGeoJson);
+Future<GeojsonSourceProperties> createServiceAreaSource() async {
+  return const GeojsonSourceProperties(data: serviceAreaGeoJson);
 }
 
-List<NoServiceAreaLayer> _noServiceAreaLayers() => [
+List<NoServiceAreaLayer> noServiceAreaLayers() => [
   NoServiceAreaLayer(
-    createSource: _createServiceAreaSource,
+    createSource: createServiceAreaSource,
     fillColor: Colors.grey.withValues(alpha: 0.45),
     hashLines: const NoServiceAreaHashLines(
       color: Colors.black26,
       spacing: 10,
     ),
     border: const NoServiceAreaBorder(
-      createSource: _createServiceAreaSource,
+      createSource: createServiceAreaSource,
       color: Colors.redAccent,
       width: 2,
     ),
@@ -117,6 +117,7 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
             child: SizedBox(
               height: 240,
               child: RouteMap(
+                key: const Key("small map - map_bottom_sheet"),
                 styleUrl: _lightStyle,
                 locale: "en",
                 zoomPadding: const EdgeInsets.all(24),
@@ -125,7 +126,7 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
                   target: LatLng(48.13, 11.62),
                   zoom: 7.5,
                 ),
-                noServiceAreaLayers: _noServiceAreaLayers(),
+                noServiceAreaLayers: noServiceAreaLayers(),
                 onMapClicked: (_, _) {},
               ),
             ),
@@ -155,13 +156,7 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
   final _controller = RouteMapController();
 
   double _heightFactor = 0.6;
-  String _styleUrl = _lightStyle;
-
-  void _toggleStyle() {
-    setState(() {
-      _styleUrl = _styleUrl == _lightStyle ? _darkStyle : _lightStyle;
-    });
-  }
+  final String _styleUrl = _lightStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -195,20 +190,13 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
-                      Positioned(
-                        right: 4,
-                        child: IconButton(
-                          tooltip: "Reload style",
-                          onPressed: _toggleStyle,
-                          icon: const Icon(Icons.refresh),
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ),
               Expanded(
                 child: RouteMap(
+                  key: const Key("map_bottom_sheet"),
                   styleUrl: _styleUrl,
                   locale: "en",
                   zoomPadding: const EdgeInsets.all(40),
@@ -217,7 +205,7 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
                     target: LatLng(48.13, 11.62),
                     zoom: 8.5,
                   ),
-                  noServiceAreaLayers: _noServiceAreaLayers(),
+                  noServiceAreaLayers: noServiceAreaLayers(),
                   onMapClicked: (_, _) {},
                 ),
               ),

@@ -286,7 +286,7 @@ class _RouteMapState extends State<RouteMap> {
 
           unawaited(_setOverlap());
 
-          await _scheduleGeometryRedraw();
+          await _restoreAllGeometry();
 
           if (!_fullyLoadedCompleter.isCompleted) {
             _fullyLoadedCompleter.complete();
@@ -308,7 +308,7 @@ class _RouteMapState extends State<RouteMap> {
     await controller.setMapLanguage(widget.locale);
   }
 
-  Future<void> _scheduleGeometryRedraw() async {
+  Future<void> _restoreAllGeometry() async {
     // Use [_lineManagerInstance] directly instead of [_lineManager]
     // because _fullyLoadedCompleter is not completed yet
     final lineManager = _lineManagerInstance;

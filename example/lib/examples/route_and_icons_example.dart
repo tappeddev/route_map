@@ -1,3 +1,4 @@
+import 'package:example/examples/map_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:route_map/route_map.dart';
 
@@ -86,6 +87,7 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
     return Stack(
       children: [
         RouteMap(
+          key: const Key("route and icons example - route_map"),
           minMaxZoomPreference: const MinMaxZoomPreference(5, 18),
           styleUrl: styleUrl,
           locale: "en",
@@ -98,6 +100,7 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
           allowIconsOverlap: true,
           ignoreIconsPlacement: true,
           controller: _mapController,
+          noServiceAreaLayers: noServiceAreaLayers(),
           initialCameraPosition: const CameraPosition(
             target: LatLng(48.123287, 11.572062),
             zoom: 15,
