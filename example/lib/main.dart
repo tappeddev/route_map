@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:route_map/route_map.dart';
+
+import 'package:example/examples/map_bottom_sheet.dart';
+import 'package:example/examples/route_and_icons_example.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,118 +27,104 @@ class MyApp extends StatelessWidget {
         ),
       ),
       themeMode: ThemeMode.system,
-      home: const MyHomePage(),
+      home: const HomeShell(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+/// A single selectable example in the drawer.
+class ExamplePage {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final WidgetBuilder builder;
+
+  const ExamplePage({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.builder,
+  });
+}
+
+final _examples = <ExamplePage>[
+  ExamplePage(
+    title: "Route & Icons",
+    subtitle: "Draw a route with start/end pins",
+    icon: Icons.route,
+    builder: (_) => const RouteAndIconsExample(),
+  ),
+  ExamplePage(
+    title: "Map bottom sheet",
+    subtitle: "Detailed map in a draggable sheet",
+    icon: Icons.layers,
+    builder: (_) => const MapBottomSheetPage(),
+  ),
+];
+
+/// App shell hosting the navigation drawer and the currently-selected example.
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HomeShell> createState() => _HomeShellState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final _mapController = RouteMapController();
+class _HomeShellState extends State<HomeShell> {
+  int _selectedIndex = 0;
 
-  Path _getPinPath() {
-    return Path()..addOval(const Rect.fromLTWH(0, 0, 36, 36));
-  }
-
-  Future<void> drawRoute() async {
-    if (!mounted) return;
-
-    await _mapController.removeRoutes();
-    await _mapController.removeIcons();
-
-    const start = LatLng(47.7826, 9.6106);
-    const destination = LatLng(48.1371, 11.5754);
-
-    await _mapController.drawIcon(
-      RouteMapIcon(
-        identifier: "start_pin",
-        latLng: start,
-        markerPath: _getPinPath(),
-        text: "A",
-        theme: const RouteMapIconTheme(
-          background: Colors.green,
-          foreground: Colors.white,
-          strokeWidth: 2,
-          padding: 4,
-          drawCircleAroundIcon: true,
-        ),
-      ),
-    );
-
-    if (!mounted) return;
-
-    await _mapController.drawIcon(
-      RouteMapIcon(
-        identifier: "end_pin",
-        latLng: destination,
-        markerPath: _getPinPath(),
-        text: "B",
-        theme: const RouteMapIconTheme(
-          background: Colors.red,
-          foreground: Colors.white,
-          strokeWidth: 2,
-          padding: 4,
-          drawCircleAroundIcon: true,
-        ),
-      ),
-    );
-
-    if (!mounted) return;
-    await _mapController.drawRoute(
-      route: const RouteMapRoute(
-        identifier: "route-identifier",
-        points: [start, destination],
-        theme: RouteMapRouteTheme(
-          lineWidth: 5,
-          color: Color.fromARGB(255, 85, 97, 117),
-          backLineColor: Colors.black45,
-          backLineWidth: 7,
-        ),
-      ),
-      animateCamera: true,
-    );
-
-    if (!mounted) return;
+  void _select(int index) {
+    setState(() => _selectedIndex = index);
+    Navigator.of(context).pop(); // close the drawer
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    final styleUrl = isDarkMode
-        ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-        : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
+    final example = _examples[_selectedIndex];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Map")),
-      floatingActionButton: FloatingActionButton(
-        onPressed: drawRoute,
-        child: const Icon(Icons.route),
+      appBar: AppBar(title: Text(example.title)),
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              const DrawerHeader(
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    "route_map examples",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: _examples.length,
+                  itemBuilder: (context, index) {
+                    final e = _examples[index];
+                    return ListTile(
+                      leading: Icon(e.icon),
+                      title: Text(e.title),
+                      subtitle: Text(e.subtitle),
+                      selected: index == _selectedIndex,
+                      onTap: () => _select(index),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
-      body: RouteMap(
-        minMaxZoomPreference: const MinMaxZoomPreference(5, 18),
-        styleUrl: styleUrl,
-        locale: "en",
-        zoomPadding: const EdgeInsets.only(
-          left: 40,
-          right: 40,
-          top: 60,
-          bottom: 100,
-        ),
-        allowIconsOverlap: true,
-        ignoreIconsPlacement: true,
-        controller: _mapController,
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(48.123287, 11.572062),
-          zoom: 15,
-        ),
-        onMapClicked: (_, location) async {},
+      // A key per index ensures each example is fully rebuilt (fresh map
+      // controllers) when switching pages.
+      body: KeyedSubtree(
+        key: ValueKey(_selectedIndex),
+        child: example.builder(context),
       ),
     );
   }
