@@ -74,10 +74,7 @@ List<ServiceAreaLayer> serviceAreaLayers() => [
   ServiceAreaLayer(
     createSource: createServiceAreaSource,
     fillColor: Colors.grey.withValues(alpha: 0.45),
-    hashLines: const ServiceAreaHashLines(
-      color: Colors.black26,
-      spacing: 10,
-    ),
+    hashLines: const ServiceAreaHashLines(color: Colors.black26, spacing: 10),
     border: const ServiceAreaBorder(
       createSource: createServiceAreaSource,
       color: Colors.redAccent,
@@ -107,6 +104,10 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isLightTheme = Theme.of(context).brightness == Brightness.light;
+
+    final styleUrl = isLightTheme ? _lightStyle : _darkStyle;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -118,7 +119,7 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
               height: 240,
               child: RouteMap(
                 key: const Key("small map - map_bottom_sheet"),
-                styleUrl: _lightStyle,
+                styleUrl: styleUrl,
                 locale: "en",
                 zoomPadding: const EdgeInsets.all(24),
                 controller: _smallMapController,
@@ -126,7 +127,7 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
                   target: LatLng(48.13, 11.62),
                   zoom: 7.5,
                 ),
-                  serviceAreaLayers: serviceAreaLayers(),
+                serviceAreaLayers: serviceAreaLayers(),
                 onMapClicked: (_, _) {},
               ),
             ),
@@ -205,7 +206,7 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
                     target: LatLng(48.13, 11.62),
                     zoom: 8.5,
                   ),
-                serviceAreaLayers: serviceAreaLayers(),
+                  serviceAreaLayers: serviceAreaLayers(),
                   onMapClicked: (_, _) {},
                 ),
               ),
