@@ -14,6 +14,7 @@ import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 import 'package:route_map/src/utils/coalescing_runner.dart';
+import 'package:synchronized/synchronized.dart';
 
 part 'route_map_controller.dart';
 
@@ -95,6 +96,8 @@ class _RouteMapState extends State<RouteMap> {
   bool _wasCameraMoving = false;
   VoidCallback? _cameraStateListener;
 
+  final _mapStyleLoadLock = Lock();
+
   /// Coordinates concurrent `onStyleLoadedCallback` invocations.
   /// MapLibre fires the callback on initial construction *and* on
   /// every subsequent style change (theme switch, style-url reload),
@@ -127,23 +130,23 @@ class _RouteMapState extends State<RouteMap> {
 
   Future<RouteMapIconManager> get _iconManager async {
     // wait for style and restore to complete
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _iconManagerInstance;
   }
 
   Future<RouteMapLineManager> get _lineManager async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _lineManagerInstance;
   }
 
   Future<RouteMapCircleManager> get _circleManager async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _circleManagerInstance;
   }
 
   Future<RouteMapLocationIndicatorCoordinator>
   get _locationIndicatorCoordinator async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _locationIndicatorCoordinatorInstance;
   }
 
@@ -294,7 +297,12 @@ class _RouteMapState extends State<RouteMap> {
             controller.onFeatureHover.add(_onFeatureHover);
           }
         },
-        onStyleLoadedCallback: _installRunner.schedule,
+        onStyleLoadedCallback: () =>
+            // We might run into the issue that we have concurrent calls of onStyleLoadedCallback.
+            // _installRunner makes sure that we only run one at a time and coalesce overlapping calls.
+            // However, our managers are not safe and should only be used after all concurrent calls have finished.
+            // Therefore, we use a lock which is awaited in [_afterStyleReady].
+            _mapStyleLoadLock.synchronized(_installRunner.schedule),
         annotationOrder: const [
           AnnotationType.fill,
           AnnotationType.line,
@@ -353,5 +361,10 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _setOverlap() async {
     final controller = await _controller;
     await controller.setSymbolIconAllowOverlap(widget.allowIconsOverlap);
+  }
+
+  Future<void> _afterStyleReady() async {
+    await _fullyLoadedCompleter.future;
+    await _mapStyleLoadLock.synchronized(() async {});
   }
 }
