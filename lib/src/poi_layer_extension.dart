@@ -128,6 +128,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         ),
         belowLayerId: layer.belowLayerId,
         enableInteraction: category.interactive,
+        isVisible: layer.initiallyVisible,
         filter: filter,
       );
       if (!mounted) return;
@@ -168,6 +169,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           circleStrokeWidth: clusterTheme.circleStrokeWidth,
         ),
         belowLayerId: layer.belowLayerId,
+        isVisible: layer.initiallyVisible,
         filter: ['has', 'point_count'],
       );
       if (!mounted) return;
@@ -182,6 +184,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           textColor: textColor.toHexStringRGB(),
         ),
         belowLayerId: layer.belowLayerId,
+        isVisible: layer.initiallyVisible,
         filter: ['has', 'point_count'],
       );
       if (!mounted) return;
@@ -198,14 +201,6 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       isVisible: layer.initiallyVisible,
     );
     _poiLayers[layer.identifier] = entry;
-
-    if (!layer.initiallyVisible) {
-      await _applyPoiLayerVisibility(
-        controller: controller,
-        entry: entry,
-        isVisible: false,
-      );
-    }
   }
 
   Future<void> _applyPoiLayerVisibility({

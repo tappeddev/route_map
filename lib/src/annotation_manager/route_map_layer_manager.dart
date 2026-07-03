@@ -60,6 +60,7 @@ class RouteMapLayerManager {
     // Mirror maplibre_gl's own default (true) so callers that don't
     // explicitly opt out keep the same behavior as before.
     bool enableInteraction = true,
+    bool isVisible = true,
     dynamic filter,
   }) async {
     if (_layerIds.contains(layerId)) return;
@@ -75,6 +76,15 @@ class RouteMapLayerManager {
       filter: filter,
     );
     _layerIds.add(layerId);
+
+    if (controller.isDisposed) return;
+
+    // MapLibre defaults new layers to visible; only flip when the
+    // caller wants it hidden right from the start (saves a native
+    // round-trip in the common case).
+    if (!isVisible) {
+      await controller.setLayerVisibility(layerId, false);
+    }
   }
 
   Future<void> addImage(String id, Uint8List bytes) async {
