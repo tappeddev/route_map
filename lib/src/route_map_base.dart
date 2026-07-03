@@ -42,6 +42,13 @@ class RouteMap extends StatefulWidget {
   /// If true, icons are not preserving space allowing other items like POIs to be visible even if they collide with the icon.
   final bool ignoreIconsPlacement;
 
+  /// Enables the tilt (pitch) gesture, letting users rotate the camera into a
+  /// perspective (3D) view.
+  ///
+  /// Defaults to `false` because most styles are not designed for a tilted
+  /// perspective. Enable this only when the active [styleUrl] supports it.
+  final bool tiltGesturesEnabled;
+
   /// Enables the native user-location component (the "puck") driven by
   /// app-provided locations.
   ///
@@ -114,6 +121,7 @@ class RouteMap extends StatefulWidget {
     this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
+    this.tiltGesturesEnabled = false,
     this.enableManualLocationDisplay = false,
     this.myLocationTrackingMode = MyLocationTrackingMode.none,
     this.myLocationRenderMode = MyLocationRenderMode.normal,
@@ -303,10 +311,11 @@ class _RouteMapState extends State<RouteMap> {
             widget.cameraTargetBounds ?? CameraTargetBounds.unbounded,
         minMaxZoomPreference:
             widget.minMaxZoomPreference ?? MinMaxZoomPreference.unbounded,
-        // We disable the different perspective, since the style doesn't
-        // support that feature in 3d.
+        // We disable the different perspective by default, since most styles
+        // don't support that feature in 3d. Callers can opt in via
+        // [RouteMap.tiltGesturesEnabled] when their style supports it.
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
-        tiltGesturesEnabled: false,
+        tiltGesturesEnabled: widget.tiltGesturesEnabled,
         onMapClick: widget.onMapClicked,
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
