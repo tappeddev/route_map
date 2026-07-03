@@ -13,6 +13,7 @@ dependencies:
   freezed_annotation: ^3.1.0
   collection: ^1.19.1
   maplibre_gl: ^0.26.2
+  synchronized: ^3.4.0
 
 dev_dependencies:
   flutter_test:

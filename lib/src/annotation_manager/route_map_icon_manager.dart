@@ -15,9 +15,13 @@ class RouteMapIconManager {
   // ⚠️ the values are the scaling and not the actual size!
   double get iconScale => kIsWeb ? 0.5 : 1.5;
 
-  /// There is no need to create the same icon image multiple times,
-  /// that why we cache the hashcode of [RouteMapIcon].
-  final _cachedImages = <int>[];
+  /// Cache of MapLibre image keys that have already been registered via
+  /// [MapLibreMapController.addImage]. The key is derived from the visual
+  /// properties of a [RouteMapIcon] (see [RouteMapIcon.imageKey]) so that
+  /// multiple icons sharing the same visuals (e.g. all via markers)
+  /// reuse the same registered image instead of trying to re-add it
+  /// under a colliding identifier.
+  final _cachedImages = <String>{};
 
   /// The key is the symbol id by maplibre
   /// the value is the icon object from the user.
@@ -39,16 +43,23 @@ class RouteMapIconManager {
   }
 
   // inspiration from: https://stackoverflow.com/a/78289149
-  Future<void> addImageToCacheIfNeeded(
+  Future<String> addImageToCacheIfNeeded(
     MapLibreMapController controller, {
     required RouteMapIcon mapIcon,
   }) async {
-    if (_cachedImages.contains(mapIcon.hashCode)) return;
+    final imageKey = mapIcon.imageKey;
+    if (_cachedImages.contains(imageKey)) return imageKey;
 
     final uint8List = await _generatePngMarker(mapIcon: mapIcon);
-    if (controller.isDisposed) return;
-    await controller.addImage(mapIcon.identifier, uint8List);
-    _cachedImages.add(mapIcon.hashCode);
+
+    if (controller.isDisposed) return imageKey;
+    // Re-check after the async gap in case another concurrent call
+    // added the same image in the meantime.
+    if (_cachedImages.contains(imageKey)) return imageKey;
+
+    await controller.addImage(imageKey, uint8List);
+    _cachedImages.add(imageKey);
+    return imageKey;
   }
 
   Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
@@ -95,12 +106,15 @@ class RouteMapIconManager {
   }
 
   Future<void> drawIcon(RouteMapIcon mapIcon) async {
-    await addImageToCacheIfNeeded(controller, mapIcon: mapIcon);
+    final imageKey = await addImageToCacheIfNeeded(
+      controller,
+      mapIcon: mapIcon,
+    );
     if (controller.isDisposed) return;
     final existingSymbolEntry = _symbolMap.entries.firstWhereOrNull(
       (entry) => entry.value.identifier == mapIcon.identifier,
     );
-    final symbolOptions = _buildSymbolOptions(mapIcon);
+    final symbolOptions = _buildSymbolOptions(mapIcon, imageKey);
 
     if (existingSymbolEntry != null) {
       final symbol = controller.symbols.firstWhereOrNull(
@@ -119,13 +133,13 @@ class RouteMapIconManager {
     _symbolMap[symbol.id] = mapIcon;
   }
 
-  SymbolOptions _buildSymbolOptions(RouteMapIcon mapIcon) {
+  SymbolOptions _buildSymbolOptions(RouteMapIcon mapIcon, String imageKey) {
     final label = mapIcon.label;
     final hasLabel = label != null;
 
     return SymbolOptions(
       geometry: mapIcon.latLng,
-      iconImage: mapIcon.identifier,
+      iconImage: imageKey,
       iconAnchor: mapIcon.anchor.mglIconValue,
       iconSize: iconScale,
       iconRotate: mapIcon.rotationDegrees,

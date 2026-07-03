@@ -9,12 +9,17 @@ import 'package:route_map/route_map.dart';
 import 'package:route_map/src/coordinator/route_map_location_indicator_coordinator.dart';
 import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
+import 'package:route_map/src/utils/coalescing_runner.dart';
+import 'package:synchronized/synchronized.dart';
 
 part 'route_map_controller.dart';
-part 'route_map_no_service_area_layer.dart';
+
+part 'route_map_service_area_layer.dart';
+
 part 'poi_layer_extension.dart';
 
 class RouteMap extends StatefulWidget {
@@ -25,7 +30,7 @@ class RouteMap extends StatefulWidget {
   final String styleUrl;
   final CameraTargetBounds? cameraTargetBounds;
   final MinMaxZoomPreference? minMaxZoomPreference;
-  final List<NoServiceAreaLayer> noServiceAreaLayers;
+  final List<ServiceAreaLayer> serviceAreaLayers;
   final RouteMapController controller;
   final bool trackCameraPosition;
   final VoidCallback? onCameraMoveStarted;
@@ -69,7 +74,7 @@ class RouteMap extends StatefulWidget {
     required this.styleUrl,
     this.cameraTargetBounds,
     this.minMaxZoomPreference,
-    this.noServiceAreaLayers = const [],
+    this.serviceAreaLayers = const [],
     this.poiLayers = const [],
     this.trackCameraPosition = false,
     this.onCameraMoveStarted,
@@ -91,11 +96,29 @@ class _RouteMapState extends State<RouteMap> {
   bool _wasCameraMoving = false;
   VoidCallback? _cameraStateListener;
 
+  final _mapStyleLoadLock = Lock();
+
+  /// Coordinates concurrent `onStyleLoadedCallback` invocations.
+  /// MapLibre fires the callback on initial construction *and* on
+  /// every subsequent style change (theme switch, style-url reload),
+  /// sometimes twice in quick succession. Overlapping installs would
+  /// race the shared layer state, so the runner ensures at most one
+  /// install runs at a time and folds any fires that arrive
+  /// mid-install into a single trailing rerun — enough to pick up
+  /// whatever caused the latest fire without executing every fire
+  /// individually.
+  late final _installRunner = CoalescingRunner(
+    _installStyleContent,
+    shouldRerun: () => mounted,
+  );
+
   late final RouteMapIconManager _iconManagerInstance;
 
   late final RouteMapLineManager _lineManagerInstance;
 
   late final RouteMapCircleManager _circleManagerInstance;
+
+  late final RouteMapLayerManager _layerManagerInstance;
 
   late final RouteMapLocationIndicatorCoordinator
   _locationIndicatorCoordinatorInstance;
@@ -107,23 +130,23 @@ class _RouteMapState extends State<RouteMap> {
 
   Future<RouteMapIconManager> get _iconManager async {
     // wait for style and restore to complete
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _iconManagerInstance;
   }
 
   Future<RouteMapLineManager> get _lineManager async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _lineManagerInstance;
   }
 
   Future<RouteMapCircleManager> get _circleManager async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _circleManagerInstance;
   }
 
   Future<RouteMapLocationIndicatorCoordinator>
   get _locationIndicatorCoordinator async {
-    await _fullyLoadedCompleter.future;
+    await _afterStyleReady();
     return _locationIndicatorCoordinatorInstance;
   }
 
@@ -252,6 +275,7 @@ class _RouteMapState extends State<RouteMap> {
           _circleManagerInstance = RouteMapCircleManager(
             controller: controller,
           );
+          _layerManagerInstance = RouteMapLayerManager(controller: controller);
           _locationIndicatorCoordinatorInstance =
               RouteMapLocationIndicatorCoordinator(
                 circleManager: _circleManagerInstance,
@@ -273,25 +297,12 @@ class _RouteMapState extends State<RouteMap> {
             controller.onFeatureHover.add(_onFeatureHover);
           }
         },
-        onStyleLoadedCallback: () async {
-          // Drop any POI layers we set up for the previous style so the
-          // following `_addPoiLayers` rebuild can re-use the same identifiers.
-          await _removeAllPoiLayers();
-
-          await _addNoServiceAreaLayers();
-
-          await _addPoiLayers();
-
-          await _setMapLanguage();
-
-          unawaited(_setOverlap());
-
-          await _scheduleGeometryRedraw();
-
-          if (!_fullyLoadedCompleter.isCompleted) {
-            _fullyLoadedCompleter.complete();
-          }
-        },
+        onStyleLoadedCallback: () =>
+            // We might run into the issue that we have concurrent calls of onStyleLoadedCallback.
+            // _installRunner makes sure that we only run one at a time and coalesce overlapping calls.
+            // However, our managers are not safe and should only be used after all concurrent calls have finished.
+            // Therefore, we use a lock which is awaited in [_afterStyleReady].
+            _mapStyleLoadLock.synchronized(_installRunner.schedule),
         annotationOrder: const [
           AnnotationType.fill,
           AnnotationType.line,
@@ -302,13 +313,37 @@ class _RouteMapState extends State<RouteMap> {
     );
   }
 
+  Future<void> _installStyleContent() async {
+    if (!mounted) return;
+
+    _poiLayers.clear();
+    await _layerManagerInstance.removeAll();
+    if (!mounted) return;
+
+    await _addServiceAreaLayers();
+    if (!mounted) return;
+    await _addPoiLayers();
+    if (!mounted) return;
+
+    await _setMapLanguage();
+    if (!mounted) return;
+
+    unawaited(_setOverlap());
+
+    await _restoreAllGeometry();
+
+    if (!_fullyLoadedCompleter.isCompleted) {
+      _fullyLoadedCompleter.complete();
+    }
+  }
+
   Future<void> _setMapLanguage() async {
     final controller = await _controller;
     if (!mounted) return;
     await controller.setMapLanguage(widget.locale);
   }
 
-  Future<void> _scheduleGeometryRedraw() async {
+  Future<void> _restoreAllGeometry() async {
     // Use [_lineManagerInstance] directly instead of [_lineManager]
     // because _fullyLoadedCompleter is not completed yet
     final lineManager = _lineManagerInstance;
@@ -326,5 +361,10 @@ class _RouteMapState extends State<RouteMap> {
   Future<void> _setOverlap() async {
     final controller = await _controller;
     await controller.setSymbolIconAllowOverlap(widget.allowIconsOverlap);
+  }
+
+  Future<void> _afterStyleReady() async {
+    await _fullyLoadedCompleter.future;
+    await _mapStyleLoadLock.synchronized(() async {});
   }
 }
