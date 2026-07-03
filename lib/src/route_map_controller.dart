@@ -143,6 +143,9 @@ class RouteMapController {
     double? speed,
     DateTime? timestamp,
   }) async {
+    final state = await _state;
+    await state._fullyLoadedCompleter.future;
+
     final controller = await _controller;
     if (!await _mounted) return;
     await controller.updateManualLocation(
