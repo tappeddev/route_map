@@ -87,7 +87,6 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
     return Stack(
       children: [
         RouteMap(
-          key: const Key("route and icons example - route_map"),
           minMaxZoomPreference: const MinMaxZoomPreference(5, 18),
           styleUrl: styleUrl,
           locale: "en",

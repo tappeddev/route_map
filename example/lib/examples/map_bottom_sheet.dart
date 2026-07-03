@@ -96,7 +96,6 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
   Future<void> _openSheet() {
     return showModalBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
       useSafeArea: true,
       builder: (_) => const _DetailedMapSheet(),
     );
@@ -118,7 +117,6 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
             child: SizedBox(
               height: 240,
               child: RouteMap(
-                key: const Key("small map - map_bottom_sheet"),
                 styleUrl: styleUrl,
                 locale: "en",
                 zoomPadding: const EdgeInsets.all(24),
@@ -197,7 +195,6 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
               ),
               Expanded(
                 child: RouteMap(
-                  key: const Key("map_bottom_sheet"),
                   styleUrl: _styleUrl,
                   locale: "en",
                   zoomPadding: const EdgeInsets.all(40),
