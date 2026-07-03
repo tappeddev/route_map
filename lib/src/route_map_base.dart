@@ -34,6 +34,7 @@ class RouteMap extends StatefulWidget {
   final RouteMapController controller;
   final bool trackCameraPosition;
   final VoidCallback? onCameraMoveStarted;
+  final void Function(CameraPosition cameraPosition)? onCameraMove;
   final VoidCallback? onCameraIdle;
 
   /// If true, the icon will be visible even if it collides with other previously drawn symbols.
@@ -78,6 +79,9 @@ class RouteMap extends StatefulWidget {
   /// the map and tracking is disengaged.
   final void Function(MyLocationTrackingMode mode)? onCameraTrackingChanged;
 
+  /// Called when camera tracking is dismissed, e.g. by a user gesture.
+  final VoidCallback? onCameraTrackingDismissed;
+
   final void Function(
     String identifier,
     LatLng current,
@@ -115,6 +119,7 @@ class RouteMap extends StatefulWidget {
     this.poiLayers = const [],
     this.trackCameraPosition = false,
     this.onCameraMoveStarted,
+    this.onCameraMove,
     this.onCameraIdle,
     this.onFeatureDrag,
     this.onFeatureHover,
@@ -126,6 +131,7 @@ class RouteMap extends StatefulWidget {
     this.myLocationTrackingMode = MyLocationTrackingMode.none,
     this.myLocationRenderMode = MyLocationRenderMode.normal,
     this.onCameraTrackingChanged,
+    this.onCameraTrackingDismissed,
   });
 
   @override
@@ -302,6 +308,7 @@ class _RouteMapState extends State<RouteMap> {
         myLocationEnabled: widget.enableManualLocationDisplay,
         myLocationTrackingMode: widget.myLocationTrackingMode,
         myLocationRenderMode: widget.myLocationRenderMode,
+        onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         onCameraTrackingChanged: widget.onCameraTrackingChanged,
         locationSource: widget.enableManualLocationDisplay
             ? const ManualLocationSource()
@@ -317,6 +324,7 @@ class _RouteMapState extends State<RouteMap> {
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
         tiltGesturesEnabled: widget.tiltGesturesEnabled,
         onMapClick: widget.onMapClicked,
+        onCameraMove: widget.onCameraMove,
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
           _iconManagerInstance = RouteMapIconManager(controller: controller);
