@@ -104,7 +104,7 @@ class _RouteMapState extends State<RouteMap> {
   /// mid-install into a single trailing rerun — enough to pick up
   /// whatever caused the latest fire without executing every fire
   /// individually.
-  late final CoalescingRunner _installRunner = CoalescingRunner(
+  late final _installRunner = CoalescingRunner(
     _installStyleContent,
     shouldRerun: () => mounted,
   );
