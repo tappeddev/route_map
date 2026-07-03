@@ -196,23 +196,29 @@ void main() {
       expect(calls, 2);
     });
 
-    test('shouldRerun is only consulted for reruns, not the first run', () async {
-      var calls = 0;
-      var shouldRerunCallCount = 0;
-      final runner = CoalescingRunner(() async {
-        calls++;
-      }, shouldRerun: () {
-        shouldRerunCallCount++;
-        return true;
-      });
+    test(
+      'shouldRerun is only consulted for reruns, not the first run',
+      () async {
+        var calls = 0;
+        var shouldRerunCallCount = 0;
+        final runner = CoalescingRunner(
+          () async {
+            calls++;
+          },
+          shouldRerun: () {
+            shouldRerunCallCount++;
+            return true;
+          },
+        );
 
-      // A lone schedule finishes before any other fire arrives, so there is
-      // no pending rerun and the guard is never consulted.
-      await runner.schedule();
+        // A lone schedule finishes before any other fire arrives, so there is
+        // no pending rerun and the guard is never consulted.
+        await runner.schedule();
 
-      expect(calls, 1);
-      expect(shouldRerunCallCount, 0);
-    });
+        expect(calls, 1);
+        expect(shouldRerunCallCount, 0);
+      },
+    );
 
     test('recovers after the task throws so it can run again', () async {
       var calls = 0;
