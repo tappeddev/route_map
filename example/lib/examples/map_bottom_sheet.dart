@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:route_map/route_map.dart';
 
 /// A small map plus a button that opens a draggable bottom sheet containing a
-/// more detailed map. Both maps render the same (fairly complex) no-service
+/// more detailed map. Both maps render the same (fairly complex) service
 /// area so the layer setup runs on every style load.
 ///
 /// Dragging / resizing the sheet embeds the map in an animated container and
 /// the refresh button reloads the style at runtime — both re-fire
 /// `onStyleLoadedCallback`, which is what surfaces issue #13
-/// (`sourceAlreadyExists` for `no_service_area_source_id_0`).
+/// (`sourceAlreadyExists` for `service_area_source_id_0`).
 const _lightStyle =
     "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 const _darkStyle =
@@ -70,15 +70,15 @@ Future<GeojsonSourceProperties> createServiceAreaSource() async {
   return const GeojsonSourceProperties(data: serviceAreaGeoJson);
 }
 
-List<NoServiceAreaLayer> noServiceAreaLayers() => [
-  NoServiceAreaLayer(
+List<ServiceAreaLayer> serviceAreaLayers() => [
+  ServiceAreaLayer(
     createSource: createServiceAreaSource,
     fillColor: Colors.grey.withValues(alpha: 0.45),
-    hashLines: const NoServiceAreaHashLines(
+    hashLines: const ServiceAreaHashLines(
       color: Colors.black26,
       spacing: 10,
     ),
-    border: const NoServiceAreaBorder(
+    border: const ServiceAreaBorder(
       createSource: createServiceAreaSource,
       color: Colors.redAccent,
       width: 2,
@@ -126,7 +126,7 @@ class _MapBottomSheetPageState extends State<MapBottomSheetPage> {
                   target: LatLng(48.13, 11.62),
                   zoom: 7.5,
                 ),
-                noServiceAreaLayers: noServiceAreaLayers(),
+                  serviceAreaLayers: serviceAreaLayers(),
                 onMapClicked: (_, _) {},
               ),
             ),
@@ -205,7 +205,7 @@ class _DetailedMapSheetState extends State<_DetailedMapSheet> {
                     target: LatLng(48.13, 11.62),
                     zoom: 8.5,
                   ),
-                  noServiceAreaLayers: noServiceAreaLayers(),
+                serviceAreaLayers: serviceAreaLayers(),
                   onMapClicked: (_, _) {},
                 ),
               ),

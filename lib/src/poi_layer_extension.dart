@@ -1,7 +1,10 @@
 part of 'route_map_base.dart';
 
 /// Internal book-keeping for a single [RouteMapPoiLayer] that has been
-/// materialised on the map.
+/// materialised on the map. The manager only tracks *raw* sources /
+/// layers / images — this struct captures the higher-level grouping we
+/// need for POI-specific operations like visibility toggling and tap
+/// routing.
 class _PoiLayerEntry {
   final RouteMapPoiLayer layer;
   final String sourceId;
@@ -23,8 +26,6 @@ class _PoiLayerEntry {
 }
 
 extension _RouteMapPoiLayerState on _RouteMapState {
-  /// Wires up every declared [RouteMapPoiLayer] on the freshly-loaded
-  /// style. Must be called from `onStyleLoadedCallback`.
   Future<void> _addPoiLayers() async {
     final poiLayers = widget.poiLayers;
     if (poiLayers.isEmpty) return;
@@ -37,50 +38,22 @@ extension _RouteMapPoiLayerState on _RouteMapState {
     }
   }
 
-  /// Removes all currently-installed POI layers. Used both for explicit
-  /// removal and on style change to clean up before re-installing.
-  Future<void> _removeAllPoiLayers() async {
-    if (_poiLayers.isEmpty) return;
-    final controller = await _controller;
-    if (!mounted) return;
-
-    for (final entry in _poiLayers.values.toList()) {
-      await _removePoiLayerEntry(controller: controller, entry: entry);
-      if (!mounted) return;
-    }
-  }
-
   Future<void> _addPoiLayer({
     required MapLibreMapController controller,
     required RouteMapPoiLayer layer,
   }) async {
-    // Resolve the layer-id below which we insert all POI sub-layers. Mirrors
-    // the logic of `_addNoServiceAreaLayer` to keep symbol manager layers
-    // above the inserted POI layers.
-    final belowLayerId = layer.belowLayerId;
-
-    final topLayers = [
-      ...controller.lineManager!.layerIds,
-      ...controller.symbolManager!.layerIds,
-      ...controller.circleManager!.layerIds,
-      ...controller.fillManager!.layerIds,
-      ?belowLayerId,
-    ];
-    final allLayerIds = await controller.getLayerIds();
-    final insertBelowLayer = allLayerIds
-        .map((layerId) => layerId.toString())
-        .firstWhere((layerId) => topLayers.contains(layerId));
-
-    if (!mounted) return;
-
-    // Load the GeoJSON source.
     final source = await layer.createSource();
     if (!mounted) return;
 
     final sourceId = "route_map_poi_source_${layer.identifier}";
-    await controller.addSource(sourceId, source);
+    await _layerManagerInstance.addSource(sourceId, source);
     if (!mounted) return;
 
+    // Register PNGs via the shared icon manager so POI markers go
+    // through the exact same rasterization pipeline as regular icons.
+    // The manager returns the actual MapLibre image key it registered
+    // the PNG under (derived from visuals), which we reuse as
+    // `iconImage` for the SymbolLayer below.
     final categoryImageKeys = <String, String>{};
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
@@ -101,10 +74,8 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       if (!mounted) return;
     }
 
-    // Add a SymbolLayer per category.
     final categoryLayerIds = <String>[];
     final categoryById = <String, RouteMapPoiCategory>{};
-
     final brightness = MediaQuery.platformBrightnessOf(context);
 
     for (final category in layer.categories) {
@@ -126,7 +97,6 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       final labelDef = category.label;
       final hasLabel = labelDef != null;
 
-      // Resolve theme-aware label colors.
       final labelColor = labelDef == null
           ? null
           : (brightness == Brightness.dark
@@ -138,14 +108,12 @@ extension _RouteMapPoiLayerState on _RouteMapState {
                 ? (labelDef.darkHaloColor ?? labelDef.haloColor)
                 : labelDef.haloColor);
 
-      await controller.addLayer(
+      await _layerManagerInstance.addLayer(
         sourceId,
         layerId,
         SymbolLayerProperties(
           iconImage: imageKey,
           iconAnchor: category.anchor.mglIconValue,
-          // Match the [RouteMapIconManager.iconScale] used for regular
-          // icons so POI pins are rendered at the same size.
           iconSize: _iconManagerInstance.iconScale,
           iconAllowOverlap: widget.allowIconsOverlap,
           iconIgnorePlacement: widget.ignoreIconsPlacement,
@@ -158,7 +126,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           textHaloColor: labelHaloColor?.toHexStringRGB(),
           textHaloWidth: hasLabel ? labelDef.haloWidth : null,
         ),
-        belowLayerId: insertBelowLayer,
+        belowLayerId: layer.belowLayerId,
         enableInteraction: category.interactive,
         filter: filter,
       );
@@ -168,9 +136,9 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       categoryById[layerId] = category;
     }
 
-    // Cluster appearance — single circle layer + count text layer, inserted
-    // *above* the categories so they always paint on top of individual
-    // features (mirroring the maplibre clustering example).
+    // Cluster appearance — inserted *above* the categories so they
+    // always paint on top of individual features (mirroring the
+    // maplibre clustering example).
     final clusterLayerIds = <String>[];
     final clusterTheme = layer.clusterTheme;
     if (clusterTheme != null) {
@@ -188,7 +156,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           ? (clusterTheme.darkTextColor ?? clusterTheme.textColor)
           : clusterTheme.textColor;
 
-      await controller.addLayer(
+      await _layerManagerInstance.addLayer(
         sourceId,
         circleId,
         CircleLayerProperties(
@@ -199,12 +167,12 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           circleStrokeColor: circleStrokeColor.toHexStringRGB(),
           circleStrokeWidth: clusterTheme.circleStrokeWidth,
         ),
-        belowLayerId: insertBelowLayer,
+        belowLayerId: layer.belowLayerId,
         filter: ['has', 'point_count'],
       );
       if (!mounted) return;
 
-      await controller.addLayer(
+      await _layerManagerInstance.addLayer(
         sourceId,
         textId,
         SymbolLayerProperties(
@@ -213,7 +181,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           // ignore: deprecated_member_use
           textColor: textColor.toHexStringRGB(),
         ),
-        belowLayerId: insertBelowLayer,
+        belowLayerId: layer.belowLayerId,
         filter: ['has', 'point_count'],
       );
       if (!mounted) return;
@@ -238,26 +206,6 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         isVisible: false,
       );
     }
-  }
-
-  Future<void> _removePoiLayerEntry({
-    required MapLibreMapController controller,
-    required _PoiLayerEntry entry,
-  }) async {
-    for (final layerId in entry.allLayerIds) {
-      try {
-        await controller.removeLayer(layerId);
-      } catch (_) {
-        // The layer might already be gone after a style change — ignore.
-      }
-      if (!mounted) return;
-    }
-    try {
-      await controller.removeSource(entry.sourceId);
-    } catch (_) {
-      // Same here.
-    }
-    _poiLayers.remove(entry.layer.identifier);
   }
 
   Future<void> _applyPoiLayerVisibility({

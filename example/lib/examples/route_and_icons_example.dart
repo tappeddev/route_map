@@ -100,7 +100,7 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
           allowIconsOverlap: true,
           ignoreIconsPlacement: true,
           controller: _mapController,
-          noServiceAreaLayers: noServiceAreaLayers(),
+          serviceAreaLayers: serviceAreaLayers(),
           initialCameraPosition: const CameraPosition(
             target: LatLng(48.123287, 11.572062),
             zoom: 15,

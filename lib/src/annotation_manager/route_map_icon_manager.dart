@@ -17,10 +17,10 @@ class RouteMapIconManager {
 
   /// Cache of MapLibre image keys that have already been registered via
   /// [MapLibreMapController.addImage]. The key is derived from the visual
-  /// properties of a [RouteMapIcon] (see [_imageKeyFor]) so that multiple
-  /// icons sharing the same visuals (e.g. all via markers) reuse the same
-  /// registered image instead of trying to re-add it under a colliding
-  /// identifier.
+  /// properties of a [RouteMapIcon] (see [RouteMapIcon.imageKey]) so that
+  /// multiple icons sharing the same visuals (e.g. all via markers)
+  /// reuse the same registered image instead of trying to re-add it
+  /// under a colliding identifier.
   final _cachedImages = <String>{};
 
   /// The key is the symbol id by maplibre
