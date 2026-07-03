@@ -4,11 +4,11 @@ import 'package:example/examples/map_bottom_sheet.dart';
 import 'package:example/examples/route_and_icons_example.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ExampleApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ExampleApp extends StatelessWidget {
+  const ExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// A single selectable example in the drawer.
+/// A single selectable example in the navigation rail.
 class ExamplePage {
   final String title;
   final String subtitle;
@@ -62,7 +62,7 @@ final _examples = <ExamplePage>[
   ),
 ];
 
-/// App shell hosting the navigation drawer and the currently-selected example.
+/// App shell hosting the navigation rail and the currently-selected example.
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
 
@@ -73,10 +73,7 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
 
-  void _select(int index) {
-    setState(() => _selectedIndex = index);
-    Navigator.of(context).pop(); // close the drawer
-  }
+  void _select(int index) => setState(() => _selectedIndex = index);
 
   @override
   Widget build(BuildContext context) {
@@ -84,44 +81,29 @@ class _HomeShellState extends State<HomeShell> {
 
     return Scaffold(
       appBar: AppBar(title: Text(example.title)),
-      drawer: Drawer(
-        child: SafeArea(
-          child: Column(
-            children: [
-              const DrawerHeader(
-                child: Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Text(
-                    "route_map examples",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
+      body: Row(
+        children: [
+          NavigationRail(
+            labelType: NavigationRailLabelType.all,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _select,
+            destinations: [
+              for (final e in _examples)
+                NavigationRailDestination(
+                  icon: Icon(e.icon),
+                  selectedIcon: Icon(e.icon),
+                  label: Text(e.title),
                 ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: _examples.length,
-                  itemBuilder: (context, index) {
-                    final e = _examples[index];
-                    return ListTile(
-                      leading: Icon(e.icon),
-                      title: Text(e.title),
-                      subtitle: Text(e.subtitle),
-                      selected: index == _selectedIndex,
-                      onTap: () => _select(index),
-                    );
-                  },
-                ),
-              ),
             ],
           ),
-        ),
-      ),
-      // A key per index ensures each example is fully rebuilt (fresh map
-      // controllers) when switching pages.
-      body: KeyedSubtree(
-        key: ValueKey(_selectedIndex),
-        child: example.builder(context),
+          const VerticalDivider(width: 1),
+          Expanded(
+            child: KeyedSubtree(
+              key: ValueKey(_selectedIndex),
+              child: example.builder(context),
+            ),
+          ),
+        ],
       ),
     );
   }

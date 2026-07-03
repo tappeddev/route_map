@@ -1,4 +1,5 @@
-import 'package:example/examples/map_bottom_sheet.dart';
+import 'package:example/util/example_service_area.dart';
+import 'package:example/util/style_url.dart';
 import 'package:flutter/material.dart';
 import 'package:route_map/route_map.dart';
 
@@ -78,17 +79,11 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    final styleUrl = isDarkMode
-        ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-        : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
-
     return Stack(
       children: [
         RouteMap(
           minMaxZoomPreference: const MinMaxZoomPreference(5, 18),
-          styleUrl: styleUrl,
+          styleUrl: getStyleUrl(context),
           locale: "en",
           zoomPadding: const EdgeInsets.only(
             left: 40,
