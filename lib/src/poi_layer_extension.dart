@@ -81,11 +81,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
     await controller.addSource(sourceId, source);
     if (!mounted) return;
 
-    // Register icon images for every category via the shared icon manager
-    // so POI markers go through the exact same rasterization pipeline as
-    // regular [RouteMapIcon]s. A synthetic [RouteMapIcon] template is used
-    // — only the markerPath, theme and svgIconPath are read by the
-    // rasterizer; latLng is ignored.
+    final categoryImageKeys = <String, String>{};
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
       final template = RouteMapIcon(
@@ -97,10 +93,11 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         svgIconPath: category.svgIconPath,
         anchor: category.anchor,
       );
-      await _iconManagerInstance.addImageToCacheIfNeeded(
+      final imageKey = await _iconManagerInstance.addImageToCacheIfNeeded(
         controller,
         mapIcon: template,
       );
+      categoryImageKeys[imageId] = imageKey;
       if (!mounted) return;
     }
 
@@ -112,6 +109,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
 
     for (final category in layer.categories) {
       final imageId = _poiCategoryImageId(layer: layer, category: category);
+      final imageKey = categoryImageKeys[imageId] ?? imageId;
       final layerId = _poiCategoryLayerId(layer: layer, category: category);
 
       // Combine the user-provided filter with a "not clustered" check so
@@ -144,7 +142,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         sourceId,
         layerId,
         SymbolLayerProperties(
-          iconImage: imageId,
+          iconImage: imageKey,
           iconAnchor: category.anchor.mglIconValue,
           // Match the [RouteMapIconManager.iconScale] used for regular
           // icons so POI pins are rendered at the same size.

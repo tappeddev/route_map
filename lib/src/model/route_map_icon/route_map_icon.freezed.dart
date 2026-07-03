@@ -236,8 +236,8 @@ return $default(_that.markerPath,_that.latLng,_that.identifier,_that.theme,_that
 /// @nodoc
 
 
-class _RouteMapIcon implements RouteMapIcon {
-  const _RouteMapIcon({required this.markerPath, required this.latLng, required this.identifier, required this.theme, this.darkTheme, this.svgIconPath, this.text, this.label, this.rotationDegrees, this.draggable = false, this.anchor = RouteMapIconAnchor.bottom}): assert(svgIconPath == null || text == null, 'Either svgIcon or text must be provided, not both.');
+class _RouteMapIcon extends RouteMapIcon {
+  const _RouteMapIcon({required this.markerPath, required this.latLng, required this.identifier, required this.theme, this.darkTheme, this.svgIconPath, this.text, this.label, this.rotationDegrees, this.draggable = false, this.anchor = RouteMapIconAnchor.bottom}): assert(svgIconPath == null || text == null, 'Either svgIcon or text must be provided, not both.'),super._();
   
 
 @override final  Path markerPath;
