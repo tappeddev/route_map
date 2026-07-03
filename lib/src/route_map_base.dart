@@ -307,10 +307,7 @@ class _RouteMapState extends State<RouteMap> {
 
   Future<void> _installStyleContent() async {
     if (!mounted) return;
-    // Remove anything a previous style-load left behind. The layer
-    // manager makes this a no-op on the very first invocation and
-    // handles missing-native-side entries gracefully after a style
-    // change.
+
     _poiLayers.clear();
     await _layerManagerInstance.removeAll();
     if (!mounted) return;
@@ -321,6 +318,7 @@ class _RouteMapState extends State<RouteMap> {
     if (!mounted) return;
 
     await _setMapLanguage();
+    if (!mounted) return;
 
     unawaited(_setOverlap());
 
