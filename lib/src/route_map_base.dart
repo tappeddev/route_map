@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
@@ -65,6 +66,17 @@ class RouteMap extends StatefulWidget {
   /// [RouteMapPoiCategory] (see [RouteMapPoiCategory.interactive]).
   final void Function(RouteMapPoiTappedEvent event)? onPoiTapped;
 
+  /// Which gestures should be consumed by the map (iOS / Android).
+  ///
+  /// Needed when the map is inside another widget handling gestures, e.g. a
+  /// scrollable page would take the vertical drags away from the map. Pass
+  /// `{Factory(() => EagerGestureRecognizer())}` to let the map handle all
+  /// gestures. Without recognizers, the map only gets the gestures nobody
+  /// else claims.
+  ///
+  /// It has no effect on web, where the map receives the events directly.
+  final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
+
   const RouteMap({
     super.key,
     required this.initialCameraPosition,
@@ -85,6 +97,7 @@ class RouteMap extends StatefulWidget {
     this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
+    this.gestureRecognizers,
   });
 
   @override
@@ -275,6 +288,7 @@ class _RouteMapState extends State<RouteMap> {
         // support that feature in 3d.
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
         tiltGesturesEnabled: false,
+        gestureRecognizers: widget.gestureRecognizers,
         onMapClick: widget.onMapClicked,
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
