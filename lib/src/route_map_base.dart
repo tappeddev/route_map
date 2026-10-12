@@ -11,6 +11,7 @@ import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_area_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 import 'package:route_map/src/utils/coalescing_runner.dart';
@@ -120,6 +121,8 @@ class _RouteMapState extends State<RouteMap> {
 
   late final RouteMapLayerManager _layerManagerInstance;
 
+  late final RouteMapAreaManager _areaManagerInstance;
+
   late final RouteMapLocationIndicatorCoordinator
   _locationIndicatorCoordinatorInstance;
 
@@ -142,6 +145,11 @@ class _RouteMapState extends State<RouteMap> {
   Future<RouteMapCircleManager> get _circleManager async {
     await _afterStyleReady();
     return _circleManagerInstance;
+  }
+
+  Future<RouteMapAreaManager> get _areaManager async {
+    await _afterStyleReady();
+    return _areaManagerInstance;
   }
 
   Future<RouteMapLocationIndicatorCoordinator>
@@ -276,6 +284,10 @@ class _RouteMapState extends State<RouteMap> {
             controller: controller,
           );
           _layerManagerInstance = RouteMapLayerManager(controller: controller);
+          _areaManagerInstance = RouteMapAreaManager(
+            controller: controller,
+            layerManager: _layerManagerInstance,
+          );
           _locationIndicatorCoordinatorInstance =
               RouteMapLocationIndicatorCoordinator(
                 circleManager: _circleManagerInstance,
@@ -351,6 +363,14 @@ class _RouteMapState extends State<RouteMap> {
     final circleManager = _circleManagerInstance;
 
     final brightness = MediaQuery.platformBrightnessOf(context);
+
+    // The areas are style layers, which were removed together with the
+    // other style content, so they have to be added again. This isn't done in
+    // parallel with the annotations, since the layers are inserted relative to
+    // the annotation layers.
+    await _areaManagerInstance.restore(brightness);
+    if (!mounted) return;
+
     await Future.wait([
       lineManager.restore(brightness),
       symbolManager.restore(brightness),
