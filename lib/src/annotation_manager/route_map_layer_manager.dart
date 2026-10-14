@@ -93,8 +93,6 @@ class RouteMapLayerManager {
     _imageIds.add(id);
   }
 
-  bool hasLayer(String id) => _layerIds.contains(id);
-
   /// Removes a single layer added via [addLayer]. Does nothing when the layer
   /// isn't attached (anymore), e.g. because a style change removed it.
   Future<void> removeLayer(String id) async {

@@ -4,6 +4,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/model/route_map_area/route_map_area.dart';
 import 'package:route_map/src/route_map_area_geometry.dart';
+import 'package:synchronized/synchronized.dart';
 
 class RouteMapAreaManager {
   final MapLibreMapController controller;
@@ -12,54 +13,69 @@ class RouteMapAreaManager {
   Brightness _brightness = Brightness.light;
   final _areaMap = <String, RouteMapArea>{};
 
+  final _lock = Lock();
+
   RouteMapAreaManager({required this.controller, required this.layerManager});
 
-  Future<void> restore(Brightness brightness) async {
-    _brightness = brightness;
+  Future<void> restore(Brightness brightness) {
+    return _lock.synchronized(() async {
+      _brightness = brightness;
 
-    for (final area in _areaMap.values.toList()) {
+      for (final area in _areaMap.values.toList()) {
+        if (controller.isDisposed) return;
+        await _install(area);
+      }
+    });
+  }
+
+  Future<void> drawArea(RouteMapArea area) {
+    return _lock.synchronized(() async {
       if (controller.isDisposed) return;
-      await _install(area);
-    }
+
+      final isDrawn = _areaMap.containsKey(area.identifier);
+      _areaMap[area.identifier] = area;
+
+      if (!isDrawn) {
+        await _install(area);
+        return;
+      }
+
+      final ids = _AreaIds(area.identifier);
+      final theme = _resolveTheme(area);
+
+      await controller.setGeoJsonSource(
+        ids.source,
+        createAreaFeatureCollection(area.polygons),
+      );
+      if (controller.isDisposed) return;
+      await controller.setLayerProperties(
+        ids.fillLayer,
+        _fillProperties(theme),
+      );
+      if (controller.isDisposed) return;
+      await controller.setLayerProperties(
+        ids.borderLayer,
+        _borderProperties(theme),
+      );
+    });
   }
 
-  Future<void> drawArea(RouteMapArea area) async {
-    final isDrawn = _areaMap.containsKey(area.identifier);
-    _areaMap[area.identifier] = area;
-
-    if (!isDrawn) {
-      await _install(area);
-      return;
-    }
-
-    final ids = _AreaIds(area.identifier);
-    final theme = _resolveTheme(area);
-
-    await controller.setGeoJsonSource(
-      ids.source,
-      createAreaFeatureCollection(area.polygons),
-    );
-    if (controller.isDisposed) return;
-    await controller.setLayerProperties(ids.fillLayer, _fillProperties(theme));
-    if (controller.isDisposed) return;
-    await controller.setLayerProperties(
-      ids.borderLayer,
-      _borderProperties(theme),
-    );
-  }
-
-  Future<void> removeArea({required String identifier}) async {
-    if (_areaMap.remove(identifier) == null) return;
-    await _uninstall(identifier);
-  }
-
-  Future<void> removeAreas() async {
-    final identifiers = _areaMap.keys.toList();
-    _areaMap.clear();
-
-    for (final identifier in identifiers) {
+  Future<void> removeArea({required String identifier}) {
+    return _lock.synchronized(() async {
+      if (_areaMap.remove(identifier) == null) return;
       await _uninstall(identifier);
-    }
+    });
+  }
+
+  Future<void> removeAreas() {
+    return _lock.synchronized(() async {
+      final identifiers = _areaMap.keys.toList();
+      _areaMap.clear();
+
+      for (final identifier in identifiers) {
+        await _uninstall(identifier);
+      }
+    });
   }
 
   Future<void> _install(RouteMapArea area) async {
