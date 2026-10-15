@@ -22,6 +22,9 @@ class RouteMapController {
   Future<RouteMapIconManager> get _iconManager async =>
       (await _state)._iconManager;
 
+  Future<RouteMapAreaManager> get _areaManager async =>
+      (await _state)._areaManager;
+
   Future<RouteMapLocationIndicatorCoordinator>
   get _locationIndicatorManager async =>
       (await _state)._locationIndicatorCoordinator;
@@ -109,6 +112,31 @@ class RouteMapController {
     final circleManager = await _circleManager;
     if (!await _mounted) return;
     await circleManager.removeCircle(identifier: identifier);
+  }
+
+  Future<void> drawArea(RouteMapArea area, {bool animateCamera = false}) async {
+    final areaManager = await _areaManager;
+    if (!await _mounted) return;
+    await areaManager.drawArea(area);
+    if (!await _mounted) return;
+
+    if (animateCamera) {
+      await animateCameraTo(
+        points: [for (final polygon in area.polygons) ...polygon.outline],
+      );
+    }
+  }
+
+  Future<void> removeArea(String identifier) async {
+    final areaManager = await _areaManager;
+    if (!await _mounted) return;
+    await areaManager.removeArea(identifier: identifier);
+  }
+
+  Future<void> removeAreas() async {
+    final areaManager = await _areaManager;
+    if (!await _mounted) return;
+    await areaManager.removeAreas();
   }
 
   Future<void> drawUserLocationIndicator(

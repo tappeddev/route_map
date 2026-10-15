@@ -213,16 +213,7 @@ class RouteMapIconManager {
       final rawSvg = await rootBundle.loadString(svgIconPath);
       final tintedSvg = foreground == null
           ? rawSvg
-          // ignore: deprecated_member_use
-          : rawSvg
-                .replaceAll(
-                  RegExp(r'fill="[^"]*"'),
-                  'fill="${foreground.toHexStringRGB()}"',
-                )
-                .replaceAll(
-                  RegExp(r'stroke="[^"]*"'),
-                  'stroke="${foreground.toHexStringRGB()}"',
-                );
+          : tintSvg(rawSvg, color: foreground);
 
       final loader = SvgStringLoader(tintedSvg);
       final pictureInfo = await vg.loadPicture(loader, null);
@@ -297,4 +288,17 @@ class RouteMapIconManager {
     img.dispose();
     return pngBytes;
   }
+}
+
+/// Replaces every fill and stroke color of the [svg] with the [color].
+///
+/// `none` is kept, otherwise e.g. an outlined icon (`fill="none"` with a
+/// stroke) would be filled completely.
+@visibleForTesting
+String tintSvg(String svg, {required Color color}) {
+  final hexColor = color.toHexStringRGB();
+
+  return svg
+      .replaceAll(RegExp(r'fill="(?!none")[^"]*"'), 'fill="$hexColor"')
+      .replaceAll(RegExp(r'stroke="(?!none")[^"]*"'), 'stroke="$hexColor"');
 }

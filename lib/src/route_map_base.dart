@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
@@ -11,6 +12,7 @@ import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
+import 'package:route_map/src/annotation_manager/route_map_area_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 import 'package:route_map/src/utils/coalescing_runner.dart';
@@ -64,6 +66,17 @@ class RouteMap extends StatefulWidget {
   /// [RouteMapPoiCategory] (see [RouteMapPoiCategory.interactive]).
   final void Function(RouteMapPoiTappedEvent event)? onPoiTapped;
 
+  /// Which gestures should be consumed by the map (iOS / Android).
+  ///
+  /// Needed when the map is inside another widget handling gestures, e.g. a
+  /// scrollable page would take the vertical drags away from the map. Pass
+  /// `{Factory(() => EagerGestureRecognizer())}` to let the map handle all
+  /// gestures. Without recognizers, the map only gets the gestures nobody
+  /// else claims.
+  ///
+  /// It has no effect on web, where the map receives the events directly.
+  final Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers;
+
   const RouteMap({
     super.key,
     required this.initialCameraPosition,
@@ -84,6 +97,7 @@ class RouteMap extends StatefulWidget {
     this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
+    this.gestureRecognizers,
   });
 
   @override
@@ -120,6 +134,8 @@ class _RouteMapState extends State<RouteMap> {
 
   late final RouteMapLayerManager _layerManagerInstance;
 
+  late final RouteMapAreaManager _areaManagerInstance;
+
   late final RouteMapLocationIndicatorCoordinator
   _locationIndicatorCoordinatorInstance;
 
@@ -142,6 +158,11 @@ class _RouteMapState extends State<RouteMap> {
   Future<RouteMapCircleManager> get _circleManager async {
     await _afterStyleReady();
     return _circleManagerInstance;
+  }
+
+  Future<RouteMapAreaManager> get _areaManager async {
+    await _afterStyleReady();
+    return _areaManagerInstance;
   }
 
   Future<RouteMapLocationIndicatorCoordinator>
@@ -267,6 +288,7 @@ class _RouteMapState extends State<RouteMap> {
         // support that feature in 3d.
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
         tiltGesturesEnabled: false,
+        gestureRecognizers: widget.gestureRecognizers,
         onMapClick: widget.onMapClicked,
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
@@ -276,6 +298,10 @@ class _RouteMapState extends State<RouteMap> {
             controller: controller,
           );
           _layerManagerInstance = RouteMapLayerManager(controller: controller);
+          _areaManagerInstance = RouteMapAreaManager(
+            controller: controller,
+            layerManager: _layerManagerInstance,
+          );
           _locationIndicatorCoordinatorInstance =
               RouteMapLocationIndicatorCoordinator(
                 circleManager: _circleManagerInstance,
@@ -351,6 +377,14 @@ class _RouteMapState extends State<RouteMap> {
     final circleManager = _circleManagerInstance;
 
     final brightness = MediaQuery.platformBrightnessOf(context);
+
+    // The areas are style layers, which were removed together with the
+    // other style content, so they have to be added again. This isn't done in
+    // parallel with the annotations, since the layers are inserted relative to
+    // the annotation layers.
+    await _areaManagerInstance.restore(brightness);
+    if (!mounted) return;
+
     await Future.wait([
       lineManager.restore(brightness),
       symbolManager.restore(brightness),

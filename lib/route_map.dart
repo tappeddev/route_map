@@ -12,6 +12,7 @@ export 'package:maplibre_gl/maplibre_gl.dart'
 export 'src/model/route_map_icon/route_map_icon.dart';
 export 'src/model/route_map_icon_anchor.dart';
 export 'src/model/route_map_circle/route_map_circle.dart';
+export 'src/model/route_map_area/route_map_area.dart';
 export 'src/model/route_map_route/route_map_route.dart';
 export 'src/route_map_base.dart';
 export 'src/model/service_area_layer.dart';
