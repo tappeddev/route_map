@@ -4,7 +4,7 @@ version: 0.0.2
 
 environment:
   sdk: ^3.8.0
-  flutter: ">=1.17.0"
+  flutter: ">=3.29.0"
 
 dependencies:
   flutter:
@@ -12,7 +12,7 @@ dependencies:
   flutter_svg: ^2.3.0
   freezed_annotation: ^3.1.0
   collection: ^1.19.1
-  maplibre_gl: ^0.26.2
+  maplibre_gl: ^0.27.1
   synchronized: ^3.4.0
 
 dev_dependencies:
