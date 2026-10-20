@@ -36,6 +36,7 @@ class RouteMap extends StatefulWidget {
   final RouteMapController controller;
   final bool trackCameraPosition;
   final VoidCallback? onCameraMoveStarted;
+  final void Function(CameraPosition cameraPosition)? onCameraMove;
   final VoidCallback? onCameraIdle;
 
   /// If true, the icon will be visible even if it collides with other previously drawn symbols.
@@ -43,6 +44,29 @@ class RouteMap extends StatefulWidget {
 
   /// If true, icons are not preserving space allowing other items like POIs to be visible even if they collide with the icon.
   final bool ignoreIconsPlacement;
+
+  /// Enables perspective gestures when the active [styleUrl] supports them.
+  final bool tiltGesturesEnabled;
+
+  /// Displays the native location puck using app-provided location fixes.
+  ///
+  /// Uses [ManualLocationSource], so the map does not request location
+  /// permission or start the device's location engine. Supply fixes through
+  /// [RouteMapController.updateManualLocation].
+  /// Do not also draw a custom user-location indicator in this mode.
+  final bool enableManualLocationDisplay;
+
+  /// Camera follow mode for the native location puck.
+  final MyLocationTrackingMode myLocationTrackingMode;
+
+  /// Rendering mode for the native location puck.
+  final MyLocationRenderMode myLocationRenderMode;
+
+  /// Called when native camera tracking changes, including user gestures.
+  final void Function(MyLocationTrackingMode mode)? onCameraTrackingChanged;
+
+  /// Called when a user gesture dismisses native camera tracking.
+  final VoidCallback? onCameraTrackingDismissed;
   final void Function(
     String identifier,
     LatLng current,
@@ -91,12 +115,19 @@ class RouteMap extends StatefulWidget {
     this.poiLayers = const [],
     this.trackCameraPosition = false,
     this.onCameraMoveStarted,
+    this.onCameraMove,
     this.onCameraIdle,
     this.onFeatureDrag,
     this.onFeatureHover,
     this.onPoiTapped,
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
+    this.tiltGesturesEnabled = false,
+    this.enableManualLocationDisplay = false,
+    this.myLocationTrackingMode = MyLocationTrackingMode.none,
+    this.myLocationRenderMode = MyLocationRenderMode.normal,
+    this.onCameraTrackingChanged,
+    this.onCameraTrackingDismissed,
     this.gestureRecognizers,
   });
 
@@ -278,18 +309,25 @@ class _RouteMapState extends State<RouteMap> {
         // ⚠️ MapBox styles are not supported! -> https://github.com/maplibre/flutter-maplibre-gl/issues/149
         styleString: widget.styleUrl,
         compassEnabled: false,
-        myLocationEnabled: false,
+        myLocationEnabled: widget.enableManualLocationDisplay,
+        locationSource: widget.enableManualLocationDisplay
+            ? const ManualLocationSource()
+            : const PlatformLocationSource(),
+        myLocationTrackingMode: widget.myLocationTrackingMode,
+        myLocationRenderMode: widget.myLocationRenderMode,
+        onCameraTrackingChanged: widget.onCameraTrackingChanged,
+        onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
         trackCameraPosition: widget.trackCameraPosition,
         cameraTargetBounds:
             widget.cameraTargetBounds ?? CameraTargetBounds.unbounded,
         minMaxZoomPreference:
             widget.minMaxZoomPreference ?? MinMaxZoomPreference.unbounded,
-        // We disable the different perspective, since the style doesn't
-        // support that feature in 3d.
+        // Perspective gestures are opt-in because not every style supports 3D.
         // https://www.nextpit.com/forum/561686/how-to-use-google-maps-secret-gestures
-        tiltGesturesEnabled: false,
+        tiltGesturesEnabled: widget.tiltGesturesEnabled,
         gestureRecognizers: widget.gestureRecognizers,
         onMapClick: widget.onMapClicked,
+        onCameraMove: widget.onCameraMove,
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
           _iconManagerInstance = RouteMapIconManager(controller: controller);

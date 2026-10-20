@@ -153,6 +153,38 @@ class RouteMapController {
     await locationIndicatorManager.removeUserLocationIndicator();
   }
 
+  /// Pushes an app-provided fix into MapLibre's native location puck.
+  ///
+  /// Requires [RouteMap.enableManualLocationDisplay]. No location permission
+  /// is needed.
+  Future<void> updateManualLocation({
+    required LatLng location,
+    double? horizontalAccuracy,
+    double? verticalAccuracy,
+    double? altitude,
+    double? bearing,
+    double? speed,
+    DateTime? timestamp,
+  }) async {
+    final state = await _state;
+    await state._afterStyleReady();
+    if (!state.mounted) return;
+
+    final controller = await _controller;
+    if (!state.mounted) return;
+    await controller.updateManualLocation(
+      ManualLocationUpdate(
+        target: location,
+        horizontalAccuracy: horizontalAccuracy,
+        verticalAccuracy: verticalAccuracy,
+        altitude: altitude,
+        bearing: bearing,
+        speed: speed,
+        timestamp: timestamp,
+      ),
+    );
+  }
+
   Future<void> animateCameraToTarget({
     required LatLng target,
     double? zoom,
@@ -160,12 +192,15 @@ class RouteMapController {
     double? tilt,
     Duration duration = const Duration(milliseconds: 1500),
   }) async {
+    final state = await _state;
     final controller = await _controller;
     if (!await _mounted) return;
 
     final cameraUpdate = resolveAnimateCameraToTargetUpdate(
       target: target,
       trackedCameraPosition: controller.cameraPosition,
+      trackCameraPosition: state.widget.trackCameraPosition,
+      fallbackCameraPosition: state.widget.initialCameraPosition,
       zoom: zoom,
       bearing: bearing,
       tilt: tilt,
@@ -175,14 +210,17 @@ class RouteMapController {
   }
 
   /// Move cameras center to the [latLng] with zoom in by [detailCameraFocusZoom]
-  Future<void> animateCameraTo({required List<LatLng> points}) async {
+  Future<void> animateCameraTo({
+    required List<LatLng> points,
+    EdgeInsets? padding,
+  }) async {
     final state = await _state;
     final controller = await _controller;
     if (!await _mounted) return;
 
     final cameraUpdate = await controller.cameraUpdateFrom(
       points: points,
-      padding: state.widget.zoomPadding,
+      padding: padding ?? state.widget.zoomPadding,
     );
     if (!await _mounted) return;
 
@@ -190,6 +228,16 @@ class RouteMapController {
       cameraUpdate,
       duration: const Duration(milliseconds: 1500),
     );
+  }
+
+  /// Captures the visible map as PNG bytes. Call after the map has loaded.
+  ///
+  /// Throws [TimeoutException] if the native snapshot exceeds [timeout].
+  Future<Uint8List> takeSnapshot({
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final controller = await _controller;
+    return controller.takeSnapshot().timeout(timeout);
   }
 
   /// Toggles the visibility of a previously-installed POI layer.
