@@ -137,6 +137,7 @@ class RouteMap extends StatefulWidget {
 
 class _RouteMapState extends State<RouteMap> {
   final _fullyLoadedCompleter = Completer<void>();
+  final _disposedCompleter = Completer<void>();
   final _controllerCompleter = Completer<MapLibreMapController>();
   bool _wasCameraMoving = false;
   VoidCallback? _cameraStateListener;
@@ -210,6 +211,7 @@ class _RouteMapState extends State<RouteMap> {
 
   @override
   void dispose() {
+    _disposedCompleter.complete();
     _removeListeners();
     super.dispose();
   }
@@ -315,8 +317,10 @@ class _RouteMapState extends State<RouteMap> {
             : const PlatformLocationSource(),
         myLocationTrackingMode: widget.myLocationTrackingMode,
         myLocationRenderMode: widget.myLocationRenderMode,
-        onCameraTrackingChanged: widget.onCameraTrackingChanged,
-        onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
+        onCameraTrackingChanged: (mode) =>
+            widget.onCameraTrackingChanged?.call(mode),
+        onCameraTrackingDismissed: () =>
+            widget.onCameraTrackingDismissed?.call(),
         trackCameraPosition: widget.trackCameraPosition,
         cameraTargetBounds:
             widget.cameraTargetBounds ?? CameraTargetBounds.unbounded,
@@ -327,7 +331,7 @@ class _RouteMapState extends State<RouteMap> {
         tiltGesturesEnabled: widget.tiltGesturesEnabled,
         gestureRecognizers: widget.gestureRecognizers,
         onMapClick: widget.onMapClicked,
-        onCameraMove: widget.onCameraMove,
+        onCameraMove: (position) => widget.onCameraMove?.call(position),
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
           _iconManagerInstance = RouteMapIconManager(controller: controller);

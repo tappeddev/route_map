@@ -18,8 +18,12 @@ void main() {
   Future<RouteMapController> pumpMap(
     WidgetTester tester, {
     bool enableManualLocationDisplay = true,
+    RouteMapController? controller,
+    void Function(CameraPosition)? onCameraMove,
+    void Function(MyLocationTrackingMode)? onCameraTrackingChanged,
+    VoidCallback? onCameraTrackingDismissed,
   }) async {
-    final controller = RouteMapController();
+    controller ??= RouteMapController();
     await tester.pumpWidget(
       MaterialApp(
         home: RouteMap(
@@ -30,6 +34,9 @@ void main() {
           locale: 'en',
           styleUrl: '{}',
           enableManualLocationDisplay: enableManualLocationDisplay,
+          onCameraMove: onCameraMove,
+          onCameraTrackingChanged: onCameraTrackingChanged,
+          onCameraTrackingDismissed: onCameraTrackingDismissed,
         ),
       ),
     );
@@ -49,6 +56,51 @@ void main() {
     final disabledMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(disabledMap.myLocationEnabled, isFalse);
     expect(disabledMap.locationSource, isA<PlatformLocationSource>());
+  });
+
+  testWidgets('native events use the current callbacks after a rebuild', (
+    tester,
+  ) async {
+    final controller = await pumpMap(tester);
+    // Native controllers retain the callbacks supplied at map creation.
+    final initialMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+    final positions = <CameraPosition>[];
+    final modes = <MyLocationTrackingMode>[];
+    var dismissed = false;
+    await pumpMap(
+      tester,
+      controller: controller,
+      onCameraMove: positions.add,
+      onCameraTrackingChanged: modes.add,
+      onCameraTrackingDismissed: () => dismissed = true,
+    );
+
+    const position = CameraPosition(target: LatLng(53, 14));
+    initialMap.onCameraMove!(position);
+    initialMap.onCameraTrackingChanged!(MyLocationTrackingMode.none);
+    initialMap.onCameraTrackingDismissed!();
+
+    expect(positions, [position]);
+    expect(modes, [MyLocationTrackingMode.none]);
+    expect(dismissed, isTrue);
+  });
+
+  testWidgets('pending fixes finish when disposed before the style loads', (
+    tester,
+  ) async {
+    final controller = await pumpMap(tester);
+    var completed = false;
+    final pendingUpdate = controller
+        .updateManualLocation(location: const LatLng(52, 13))
+        .then((_) => completed = true);
+    await tester.pump();
+    expect(completed, isFalse);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+    expect(completed, isTrue);
+    expect(platform.locations, isEmpty);
+    await pendingUpdate;
   });
 
   testWidgets('location fixes wait for style readiness and preserve metadata', (

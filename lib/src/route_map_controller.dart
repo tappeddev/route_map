@@ -167,7 +167,10 @@ class RouteMapController {
     DateTime? timestamp,
   }) async {
     final state = await _state;
-    await state._afterStyleReady();
+    await Future.any([
+      state._afterStyleReady(),
+      state._disposedCompleter.future,
+    ]);
     if (!state.mounted) return;
 
     final controller = await _controller;
