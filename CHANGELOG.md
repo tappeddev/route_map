@@ -4,6 +4,10 @@
 - Expose native manual location display and tracking through the released
   MapLibre API, alongside camera tilt, move callbacks, viewport padding and
   bounded snapshots needed by existing consumers.
+- Breaking: remove the custom `RouteMapUserLocationIndicator` models and the
+  controller's `drawUserLocationIndicator` / `removeUserLocationIndicator` APIs.
+  Use `enableManualLocationDisplay` and `updateManualLocation` for MapLibre's
+  native location indicator. Tracking and render mode enums are now re-exported.
 
 ## 0.0.2
 

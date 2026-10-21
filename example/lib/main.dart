@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:example/examples/map_bottom_sheet.dart';
+import 'package:example/examples/manual_location_example.dart';
 import 'package:example/examples/route_and_icons_example.dart';
 
 void main() {
@@ -148,6 +149,12 @@ class ExamplePage {
 }
 
 final _examples = <ExamplePage>[
+  ExamplePage(
+    title: "Manual location",
+    subtitle: "Inject fixes into MapLibre's native location indicator",
+    icon: Icons.my_location,
+    builder: (_) => const ManualLocationExample(),
+  ),
   ExamplePage(
     title: "Route & Icons",
     subtitle: "Draw a route with start/end pins",

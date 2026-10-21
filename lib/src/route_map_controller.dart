@@ -25,10 +25,6 @@ class RouteMapController {
   Future<RouteMapAreaManager> get _areaManager async =>
       (await _state)._areaManager;
 
-  Future<RouteMapLocationIndicatorCoordinator>
-  get _locationIndicatorManager async =>
-      (await _state)._locationIndicatorCoordinator;
-
   Future<bool> get _mounted async => (await _state).mounted;
 
   Future<CameraPosition?> getCameraPosition() async {
@@ -137,20 +133,6 @@ class RouteMapController {
     final areaManager = await _areaManager;
     if (!await _mounted) return;
     await areaManager.removeAreas();
-  }
-
-  Future<void> drawUserLocationIndicator(
-    RouteMapUserLocationIndicator indicator,
-  ) async {
-    final locationIndicatorManager = await _locationIndicatorManager;
-    if (!await _mounted) return;
-    await locationIndicatorManager.drawUserLocationIndicator(indicator);
-  }
-
-  Future<void> removeUserLocationIndicator() async {
-    final locationIndicatorManager = await _locationIndicatorManager;
-    if (!await _mounted) return;
-    await locationIndicatorManager.removeUserLocationIndicator();
   }
 
   /// Pushes an app-provided fix into MapLibre's native location puck.

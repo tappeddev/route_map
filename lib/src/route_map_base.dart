@@ -7,7 +7,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
-import 'package:route_map/src/coordinator/route_map_location_indicator_coordinator.dart';
 import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
@@ -53,7 +52,6 @@ class RouteMap extends StatefulWidget {
   /// Uses [ManualLocationSource], so the map does not request location
   /// permission or start the device's location engine. Supply fixes through
   /// [RouteMapController.updateManualLocation].
-  /// Do not also draw a custom user-location indicator in this mode.
   final bool enableManualLocationDisplay;
 
   /// Camera follow mode for the native location puck.
@@ -168,9 +166,6 @@ class _RouteMapState extends State<RouteMap> {
 
   late final RouteMapAreaManager _areaManagerInstance;
 
-  late final RouteMapLocationIndicatorCoordinator
-  _locationIndicatorCoordinatorInstance;
-
   /// Currently materialised POI layers (keyed by layer identifier).
   final Map<String, _PoiLayerEntry> _poiLayers = {};
 
@@ -195,12 +190,6 @@ class _RouteMapState extends State<RouteMap> {
   Future<RouteMapAreaManager> get _areaManager async {
     await _afterStyleReady();
     return _areaManagerInstance;
-  }
-
-  Future<RouteMapLocationIndicatorCoordinator>
-  get _locationIndicatorCoordinator async {
-    await _afterStyleReady();
-    return _locationIndicatorCoordinatorInstance;
   }
 
   @override
@@ -344,11 +333,6 @@ class _RouteMapState extends State<RouteMap> {
             controller: controller,
             layerManager: _layerManagerInstance,
           );
-          _locationIndicatorCoordinatorInstance =
-              RouteMapLocationIndicatorCoordinator(
-                circleManager: _circleManagerInstance,
-                iconManager: _iconManagerInstance,
-              );
           _controllerCompleter.complete(controller);
           _cameraStateListener = () {
             final isCameraMoving = controller.isCameraMoving;

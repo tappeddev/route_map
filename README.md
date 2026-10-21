@@ -32,6 +32,40 @@ to `/example` folder.
 const like = 'sample';
 ```
 
+### App-provided user locations
+
+Enable `enableManualLocationDisplay: true` on `RouteMap`, then forward fixes
+from your location provider to its controller:
+
+```dart
+await controller.updateManualLocation(
+  location: const LatLng(48.123287, 11.572062),
+  horizontalAccuracy: 10, // metres
+  bearing: 90, // degrees
+  speed: 5, // metres per second
+  timestamp: DateTime.now(),
+);
+```
+
+MapLibre draws the native location indicator and accuracy visualization. It does
+not request location permission or start its own device-location engine in manual
+mode; your app owns the provider, its permissions, and its subscription lifecycle.
+Updates wait until the map's style is ready.
+
+Use `myLocationTrackingMode` and `myLocationRenderMode` to configure native camera
+following and indicator rendering. Both enums are exported by
+`package:route_map/route_map.dart`. To hide the indicator, rebuild the map with
+`enableManualLocationDisplay: false`.
+
+The custom `RouteMapUserLocationIndicator` models and
+`drawUserLocationIndicator` / `removeUserLocationIndicator` methods have been
+removed. Replace custom drawing with the native API above; custom indicator
+icons and themes are no longer part of RouteMap's location API. The old
+`accuracyWidth` was a screen-space width; pass your provider's accuracy in metres
+as `horizontalAccuracy` instead.
+
+See the **Manual location** example to inject fixes by tapping the map.
+
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to
