@@ -77,15 +77,6 @@ Use `myLocationTrackingMode` and `myLocationRenderMode` to configure native came
 following and indicator rendering. Both enums are exported by
 `package:route_map/route_map.dart`.
 
-The custom `RouteMapUserLocationIndicator` models and
-`drawUserLocationIndicator` / `removeUserLocationIndicator` methods have been
-removed. Replace custom drawing with the native API above; custom indicator
-icons and themes are no longer part of RouteMap's location API. The old
-`accuracyWidth` was a screen-space width; pass your provider's accuracy in metres
-as `horizontalAccuracy` instead.
-
-See the **Manual location** example to inject fixes by tapping the map.
-
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to
