@@ -367,6 +367,8 @@ class _RouteMapState extends State<RouteMap> {
         // ⚠️ MapBox styles are not supported! -> https://github.com/maplibre/flutter-maplibre-gl/issues/149
         styleString: widget.styleUrl,
         compassEnabled: false,
+        // Enable the current locations layer, once the location is available
+        // Also fine that the first location is null, whenever the location is available, we enable the layer
         myLocationEnabled: widget.location != null,
         locationSource: const ManualLocationSource(),
         myLocationTrackingMode: widget.myLocationTrackingMode,
