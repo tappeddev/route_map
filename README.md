@@ -100,6 +100,35 @@ as `horizontalAccuracy` instead.
 
 See the **Manual location** example to inject fixes by tapping the map.
 
+### Map screenshots
+
+After the map and its geometry have loaded, capture the current viewport:
+
+```dart
+final png = await controller.takeSnapshot(
+  timeout: const Duration(seconds: 10),
+);
+```
+
+The native implementation captures the existing renderer so that inline JSON
+styles, runtime route layers and custom marker images appear in the PNG. The
+timeout bounds the native snapshot call; call this after map creation/loading.
+Native errors propagate to the caller.
+
+This requires snapshot fixes that are not in the published `maplibre_gl 0.27.1`.
+This branch pins `tappeddev/flutter-maplibre-gl` to
+`b4b9a8c8117c3804323539cd7759ffdaff28779f` (the three snapshot-specific commits
+on top of upstream `v0.27.1`). The platform interface and web implementation
+remain on their published `0.27.1` releases. A consuming app's dependency override
+must not replace this pin with the unpatched package. Web behavior is unchanged.
+
+The fix and native regression fixture are described in
+[flutter-maplibre-gl PR #1](https://github.com/tappeddev/flutter-maplibre-gl/pull/1).
+That PR was closed without merging; this pin deliberately selects its existing
+fix commit. Return to a published dependency when the native fixes are released.
+The temporary Git dependency prevents publishing this branch to pub.dev until
+it is replaced with a hosted release.
+
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to

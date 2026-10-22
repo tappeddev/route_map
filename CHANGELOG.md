@@ -1,5 +1,8 @@
 ## Unreleased
 
+- Add bounded `RouteMapController.takeSnapshot()` PNG export and pin the
+  MapLibre native snapshot fix, preserving inline styles, runtime geometry and
+  custom marker images on Android/iOS.
 - Add declarative `RouteMap(location: ManualLocationUpdate(...))` updates,
   including automatic visibility, latest-fix coalescing and style restoration.
   Re-export `ManualLocationUpdate` for provider-driven consumers.
