@@ -180,8 +180,8 @@ packages:
     dependency: transitive
     description:
       path: maplibre_gl
-      ref: b4b9a8c8117c3804323539cd7759ffdaff28779f
-      resolved-ref: b4b9a8c8117c3804323539cd7759ffdaff28779f
+      ref: bd1c970f9c3765b9727bc818f1120c1e3fe42447
+      resolved-ref: bd1c970f9c3765b9727bc818f1120c1e3fe42447
       url: "https://github.com/tappeddev/flutter-maplibre-gl.git"
     source: git
     version: "0.27.1"
