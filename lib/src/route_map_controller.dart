@@ -215,16 +215,6 @@ class RouteMapController {
     );
   }
 
-  /// Captures the visible map as PNG bytes. Call after the map has loaded.
-  ///
-  /// Throws [TimeoutException] if the native snapshot exceeds [timeout].
-  Future<Uint8List> takeSnapshot({
-    Duration timeout = const Duration(seconds: 10),
-  }) async {
-    final controller = await _controller;
-    return controller.takeSnapshot().timeout(timeout);
-  }
-
   /// Toggles the visibility of a previously-installed POI layer.
   ///
   /// Identifier must match [RouteMapPoiLayer.identifier]. Silently does
