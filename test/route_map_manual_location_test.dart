@@ -19,7 +19,6 @@ void main() {
 
   Future<RouteMapController> pumpMap(
     WidgetTester tester, {
-    bool? enableManualLocationDisplay,
     ManualLocationUpdate? location,
     RouteMapController? controller,
     void Function(CameraPosition)? onCameraMove,
@@ -36,7 +35,6 @@ void main() {
           zoomPadding: EdgeInsets.zero,
           locale: 'en',
           styleUrl: '{}',
-          enableManualLocationDisplay: enableManualLocationDisplay,
           location: location,
           onCameraMove: onCameraMove,
           onCameraTrackingChanged: onCameraTrackingChanged,
@@ -124,7 +122,7 @@ void main() {
     },
   );
 
-  testWidgets('explicitly hidden locations resume with the latest fix', (
+  testWidgets('clearing a location and resuming forwards the latest fix', (
     tester,
   ) async {
     const initial = ManualLocationUpdate(target: LatLng(52, 13));
@@ -134,12 +132,7 @@ void main() {
     map.onStyleLoadedCallback!();
     await tester.pumpAndSettle();
 
-    await pumpMap(
-      tester,
-      controller: controller,
-      location: latest,
-      enableManualLocationDisplay: false,
-    );
+    await pumpMap(tester, controller: controller);
     await tester.pumpAndSettle();
     expect(platform.locations, [initial]);
     expect(
@@ -267,12 +260,7 @@ void main() {
     map.onStyleLoadedCallback!();
     await tester.pumpAndSettle();
 
-    await pumpMap(
-      tester,
-      controller: controller,
-      location: fix,
-      enableManualLocationDisplay: false,
-    );
+    await pumpMap(tester, controller: controller);
     await pumpMap(tester, controller: controller, location: fix);
     platform.locationGate = null;
     gate.complete();
@@ -284,13 +272,16 @@ void main() {
   testWidgets('manual display selects the upstream manual location source', (
     tester,
   ) async {
-    await pumpMap(tester, enableManualLocationDisplay: true);
+    await pumpMap(
+      tester,
+      location: const ManualLocationUpdate(target: LatLng(52, 13)),
+    );
     final map = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(map.myLocationEnabled, isTrue);
     expect(map.locationSource, isA<ManualLocationSource>());
 
     await tester.pumpWidget(const SizedBox());
-    await pumpMap(tester, enableManualLocationDisplay: false);
+    await pumpMap(tester);
     final disabledMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(disabledMap.myLocationEnabled, isFalse);
     expect(disabledMap.locationSource, isA<ManualLocationSource>());
@@ -323,53 +314,28 @@ void main() {
     expect(dismissed, isTrue);
   });
 
-  testWidgets('pending fixes finish when disposed before the style loads', (
-    tester,
-  ) async {
-    final controller = await pumpMap(tester);
-    var completed = false;
-    final pendingUpdate = controller
-        .updateManualLocation(location: const LatLng(52, 13))
-        .then((_) => completed = true);
-    await tester.pump();
-    expect(completed, isFalse);
-
-    await tester.pumpWidget(const SizedBox());
-    await tester.pump();
-    expect(completed, isTrue);
-    expect(platform.locations, isEmpty);
-    await pendingUpdate;
-  });
-
   testWidgets('location fixes wait for style readiness and preserve metadata', (
     tester,
   ) async {
-    final controller = await pumpMap(tester);
-    final map = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
-    final nativeController = MapLibreMapController(
-      maplibrePlatform: platform,
-      annotationOrder: const [],
-      annotationConsumeTapEvents: const [],
-    );
-    addTearDown(nativeController.dispose);
-    map.onMapCreated!(nativeController);
-
     final timestamp = DateTime.utc(2026, 10, 20);
-    final pendingUpdate = controller.updateManualLocation(
-      location: const LatLng(52.5, 13.5),
-      horizontalAccuracy: 5,
-      verticalAccuracy: 3,
-      altitude: 42,
-      bearing: 90,
-      speed: 12,
-      timestamp: timestamp,
+    await pumpMap(
+      tester,
+      location: ManualLocationUpdate(
+        target: const LatLng(52.5, 13.5),
+        horizontalAccuracy: 5,
+        verticalAccuracy: 3,
+        altitude: 42,
+        bearing: 90,
+        speed: 12,
+        timestamp: timestamp,
+      ),
     );
+    final map = createNativeController(tester);
     await tester.pump();
     expect(platform.locations, isEmpty);
 
     map.onStyleLoadedCallback!();
     await tester.pumpAndSettle();
-    await pendingUpdate;
 
     expect(platform.locations.single.toMap(), {
       'position': [52.5, 13.5],

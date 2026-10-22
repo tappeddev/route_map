@@ -135,41 +135,6 @@ class RouteMapController {
     await areaManager.removeAreas();
   }
 
-  /// Pushes an app-provided fix into MapLibre's native location puck.
-  ///
-  /// Requires enabled manual location display. For declarative updates, prefer
-  /// [RouteMap.location] instead. No location permission is needed.
-  Future<void> updateManualLocation({
-    required LatLng location,
-    double? horizontalAccuracy,
-    double? verticalAccuracy,
-    double? altitude,
-    double? bearing,
-    double? speed,
-    DateTime? timestamp,
-  }) async {
-    final state = await _state;
-    await Future.any([
-      state._afterStyleReady(),
-      state._disposedCompleter.future,
-    ]);
-    if (!state.mounted) return;
-
-    final controller = await _controller;
-    if (!state.mounted) return;
-    await controller.updateManualLocation(
-      ManualLocationUpdate(
-        target: location,
-        horizontalAccuracy: horizontalAccuracy,
-        verticalAccuracy: verticalAccuracy,
-        altitude: altitude,
-        bearing: bearing,
-        speed: speed,
-        timestamp: timestamp,
-      ),
-    );
-  }
-
   Future<void> animateCameraToTarget({
     required LatLng target,
     double? zoom,

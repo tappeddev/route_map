@@ -59,7 +59,7 @@ ManualLocationUpdate(
 ```
 
 A non-null `location` enables the native indicator automatically; `null` hides
-it. Set `enableManualLocationDisplay: false` to hide it while retaining the fix.
+it. Visibility and the manual location source are managed internally.
 The latest fix is applied after loading and restored after style changes.
 Intermediate fixes received while loading or sending an update are coalesced.
 Rebuilding with the same fix instance does not resend it; provide a new instance
@@ -68,19 +68,6 @@ for each observation, including accuracy-only or timestamp-only changes.
 Riverpod is optional: `location` is a regular widget property and works with any
 state-management approach. RouteMap does not subscribe to your provider.
 
-For imperative updates, set `enableManualLocationDisplay: true` and forward fixes
-to the controller instead of setting `location`:
-
-```dart
-await controller.updateManualLocation(
-  location: const LatLng(48.123287, 11.572062),
-  horizontalAccuracy: 10, // metres
-  bearing: 90, // degrees
-  speed: 5, // metres per second
-  timestamp: DateTime.now(),
-);
-```
-
 MapLibre draws the native location indicator and accuracy visualization. It does
 not request location permission or start its own device-location engine in manual
 mode; your app owns the provider, its permissions, and its subscription lifecycle.
@@ -88,8 +75,7 @@ Updates wait until the map's style is ready.
 
 Use `myLocationTrackingMode` and `myLocationRenderMode` to configure native camera
 following and indicator rendering. Both enums are exported by
-`package:route_map/route_map.dart`. To hide the indicator, rebuild the map with
-`enableManualLocationDisplay: false`.
+`package:route_map/route_map.dart`.
 
 The custom `RouteMapUserLocationIndicator` models and
 `drawUserLocationIndicator` / `removeUserLocationIndicator` methods have been

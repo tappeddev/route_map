@@ -8,8 +8,9 @@
   MapLibre API, alongside camera tilt, move callbacks and viewport padding.
 - Breaking: remove the custom `RouteMapUserLocationIndicator` models and the
   controller's `drawUserLocationIndicator` / `removeUserLocationIndicator` APIs.
-  Use `enableManualLocationDisplay` and `updateManualLocation` for MapLibre's
-  native location indicator. Tracking and render mode enums are now re-exported.
+  Supply `RouteMap.location` for MapLibre's native location indicator; visibility
+  and the manual location source are managed internally. Tracking and render
+  mode enums are now re-exported.
 
 ## 0.0.2
 
