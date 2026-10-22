@@ -34,8 +34,42 @@ const like = 'sample';
 
 ### App-provided user locations
 
-Enable `enableManualLocationDisplay: true` on `RouteMap`, then forward fixes
-from your location provider to its controller:
+Pass the current fix to `RouteMap.location`. RouteMap forwards updates to
+MapLibre as the widget rebuilds:
+
+```dart
+RouteMap(
+  location: ref.watch(provCurrentLocation), // ManualLocationUpdate?
+  // ...other map options
+)
+```
+
+The provider should return `ManualLocationUpdate?`, exported by
+`package:route_map/route_map.dart`. If your provider returns an app-specific
+model, convert it to this value at the app boundary:
+
+```dart
+ManualLocationUpdate(
+  target: LatLng(fix.latitude, fix.longitude),
+  horizontalAccuracy: fix.accuracy, // metres
+  bearing: fix.heading, // direction of travel in degrees
+  speed: fix.speed, // metres per second
+  timestamp: fix.timestamp,
+)
+```
+
+A non-null `location` enables the native indicator automatically; `null` hides
+it. Set `enableManualLocationDisplay: false` to hide it while retaining the fix.
+The latest fix is applied after loading and restored after style changes.
+Intermediate fixes received while loading or sending an update are coalesced.
+Rebuilding with the same fix instance does not resend it; provide a new instance
+for each observation, including accuracy-only or timestamp-only changes.
+
+Riverpod is optional: `location` is a regular widget property and works with any
+state-management approach. RouteMap does not subscribe to your provider.
+
+For imperative updates, set `enableManualLocationDisplay: true` and forward fixes
+to the controller instead of setting `location`:
 
 ```dart
 await controller.updateManualLocation(

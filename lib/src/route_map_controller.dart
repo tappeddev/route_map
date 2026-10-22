@@ -137,8 +137,8 @@ class RouteMapController {
 
   /// Pushes an app-provided fix into MapLibre's native location puck.
   ///
-  /// Requires [RouteMap.enableManualLocationDisplay]. No location permission
-  /// is needed.
+  /// Requires enabled manual location display. For declarative updates, prefer
+  /// [RouteMap.location] instead. No location permission is needed.
   Future<void> updateManualLocation({
     required LatLng location,
     double? horizontalAccuracy,

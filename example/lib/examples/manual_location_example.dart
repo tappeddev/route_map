@@ -12,6 +12,7 @@ class ManualLocationExample extends StatefulWidget {
 
 class _ManualLocationExampleState extends State<ManualLocationExample> {
   final _controller = RouteMapController();
+  ManualLocationUpdate? _location;
 
   @override
   Widget build(BuildContext context) {
@@ -26,14 +27,16 @@ class _ManualLocationExampleState extends State<ManualLocationExample> {
           styleUrl: getStyleUrl(context),
           locale: 'en',
           zoomPadding: EdgeInsets.zero,
-          enableManualLocationDisplay: true,
+          location: _location,
           myLocationRenderMode: MyLocationRenderMode.normal,
-          onMapClicked: (_, location) async {
-            await _controller.updateManualLocation(
-              location: location,
-              horizontalAccuracy: 20,
-              timestamp: DateTime.now(),
-            );
+          onMapClicked: (_, location) {
+            setState(() {
+              _location = ManualLocationUpdate(
+                target: location,
+                horizontalAccuracy: 20,
+                timestamp: DateTime.now(),
+              );
+            });
           },
         ),
         const SafeArea(

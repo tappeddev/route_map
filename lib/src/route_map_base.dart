@@ -47,12 +47,24 @@ class RouteMap extends StatefulWidget {
   /// Enables perspective gestures when the active [styleUrl] supports them.
   final bool tiltGesturesEnabled;
 
-  /// Displays the native location puck using app-provided location fixes.
+  /// The latest app-provided location fix, forwarded to MapLibre after loading.
+  ///
+  /// A non-null fix enables the native location indicator by default. Set this
+  /// to null to hide it. New fixes are applied when the widget rebuilds; fixes
+  /// received before the style is ready are coalesced to the latest value.
+  final ManualLocationUpdate? location;
+
+  /// Overrides whether the native location indicator is visible.
   ///
   /// Uses [ManualLocationSource], so the map does not request location
-  /// permission or start the device's location engine. Supply fixes through
-  /// [RouteMapController.updateManualLocation].
-  final bool enableManualLocationDisplay;
+  /// permission or start the device's location engine. Defaults to whether
+  /// [location] is non-null. Set to true when supplying fixes imperatively
+  /// through [RouteMapController.updateManualLocation], or false to hide the
+  /// indicator while retaining [location].
+  final bool? enableManualLocationDisplay;
+
+  bool get _manualLocationEnabled =>
+      enableManualLocationDisplay ?? location != null;
 
   /// Camera follow mode for the native location puck.
   final MyLocationTrackingMode myLocationTrackingMode;
@@ -121,7 +133,8 @@ class RouteMap extends StatefulWidget {
     this.allowIconsOverlap = false,
     this.ignoreIconsPlacement = false,
     this.tiltGesturesEnabled = false,
-    this.enableManualLocationDisplay = false,
+    this.location,
+    this.enableManualLocationDisplay,
     this.myLocationTrackingMode = MyLocationTrackingMode.none,
     this.myLocationRenderMode = MyLocationRenderMode.normal,
     this.onCameraTrackingChanged,
@@ -139,6 +152,13 @@ class _RouteMapState extends State<RouteMap> {
   final _controllerCompleter = Completer<MapLibreMapController>();
   bool _wasCameraMoving = false;
   VoidCallback? _cameraStateListener;
+  ManualLocationUpdate? _lastLocation;
+  int _locationRevision = 0;
+
+  late final _locationUpdateRunner = CoalescingRunner(
+    _syncLocation,
+    shouldRerun: () => mounted,
+  );
 
   final _mapStyleLoadLock = Lock();
 
@@ -196,6 +216,7 @@ class _RouteMapState extends State<RouteMap> {
   void initState() {
     super.initState();
     widget.controller._attachState(this);
+    _scheduleLocationUpdate();
   }
 
   @override
@@ -210,7 +231,60 @@ class _RouteMapState extends State<RouteMap> {
     if (widget.locale != oldWidget.locale) {
       _setMapLanguage();
     }
+    if (widget.location != oldWidget.location ||
+        widget._manualLocationEnabled != oldWidget._manualLocationEnabled) {
+      _locationRevision++;
+      _lastLocation = null;
+      _scheduleLocationUpdate();
+    }
     super.didUpdateWidget(oldWidget);
+  }
+
+  void _scheduleLocationUpdate() {
+    // Let MapLibre apply the new source/visibility options before sending fixes.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _locationUpdateRunner.schedule();
+    });
+    WidgetsBinding.instance.ensureVisualUpdate();
+  }
+
+  Future<void> _syncLocation() async {
+    // Handle failures per attempt so a queued newer fix still gets its turn.
+    try {
+      await _applyLocation();
+    } catch (error, stack) {
+      if (!mounted) return;
+      FlutterError.reportError(
+        FlutterErrorDetails(
+          exception: error,
+          stack: stack,
+          library: 'route_map',
+          context: ErrorDescription('while updating the native location'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _applyLocation() async {
+    if (widget.location == null || !widget._manualLocationEnabled) {
+      _lastLocation = null;
+      return;
+    }
+    await Future.any([_afterStyleReady(), _disposedCompleter.future]);
+    if (!mounted) return;
+
+    final controller = await _controller;
+    if (!mounted) return;
+    final location = widget.location;
+    if (location == null || !widget._manualLocationEnabled) {
+      _lastLocation = null;
+      return;
+    }
+    if (identical(location, _lastLocation)) return;
+    final revision = _locationRevision;
+    await controller.updateManualLocation(location);
+    if (_locationRevision == revision) _lastLocation = location;
   }
 
   Future<void> _removeListeners() async {
@@ -300,10 +374,8 @@ class _RouteMapState extends State<RouteMap> {
         // ⚠️ MapBox styles are not supported! -> https://github.com/maplibre/flutter-maplibre-gl/issues/149
         styleString: widget.styleUrl,
         compassEnabled: false,
-        myLocationEnabled: widget.enableManualLocationDisplay,
-        locationSource: widget.enableManualLocationDisplay
-            ? const ManualLocationSource()
-            : const PlatformLocationSource(),
+        myLocationEnabled: widget._manualLocationEnabled,
+        locationSource: const ManualLocationSource(),
         myLocationTrackingMode: widget.myLocationTrackingMode,
         myLocationRenderMode: widget.myLocationRenderMode,
         onCameraTrackingChanged: (mode) =>
@@ -387,6 +459,9 @@ class _RouteMapState extends State<RouteMap> {
     if (!_fullyLoadedCompleter.isCompleted) {
       _fullyLoadedCompleter.complete();
     }
+    _locationRevision++;
+    _lastLocation = null;
+    _scheduleLocationUpdate();
   }
 
   Future<void> _setMapLanguage() async {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +19,8 @@ void main() {
 
   Future<RouteMapController> pumpMap(
     WidgetTester tester, {
-    bool enableManualLocationDisplay = true,
+    bool? enableManualLocationDisplay,
+    ManualLocationUpdate? location,
     RouteMapController? controller,
     void Function(CameraPosition)? onCameraMove,
     void Function(MyLocationTrackingMode)? onCameraTrackingChanged,
@@ -34,6 +37,7 @@ void main() {
           locale: 'en',
           styleUrl: '{}',
           enableManualLocationDisplay: enableManualLocationDisplay,
+          location: location,
           onCameraMove: onCameraMove,
           onCameraTrackingChanged: onCameraTrackingChanged,
           onCameraTrackingDismissed: onCameraTrackingDismissed,
@@ -43,10 +47,244 @@ void main() {
     return controller;
   }
 
+  MapLibreMap createNativeController(WidgetTester tester) {
+    final map = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+    final nativeController = MapLibreMapController(
+      maplibrePlatform: platform,
+      annotationOrder: const [],
+      annotationConsumeTapEvents: const [],
+    );
+    addTearDown(nativeController.dispose);
+    map.onMapCreated!(nativeController);
+    return map;
+  }
+
+  testWidgets(
+    'declarative fixes enable display and apply only the latest fix after loading',
+    (tester) async {
+      const initial = ManualLocationUpdate(target: LatLng(52, 13));
+      final latest = ManualLocationUpdate(
+        target: const LatLng(53, 14),
+        horizontalAccuracy: 5,
+        verticalAccuracy: 3,
+        altitude: 42,
+        bearing: 90,
+        speed: 12,
+        timestamp: DateTime.utc(2026, 10, 22),
+      );
+      final controller = await pumpMap(tester, location: initial);
+      final map = createNativeController(tester);
+      expect(map.myLocationEnabled, isTrue);
+      expect(map.locationSource, isA<ManualLocationSource>());
+      await pumpMap(tester, controller: controller, location: latest);
+      expect(platform.locations, isEmpty);
+
+      map.onStyleLoadedCallback!();
+      await tester.pumpAndSettle();
+      expect(platform.locations, [latest]);
+
+      // An unrelated rebuild does not replay the same fix.
+      await pumpMap(tester, controller: controller, location: latest);
+      await tester.pumpAndSettle();
+      expect(platform.locations, [latest]);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
+    'location can arrive after loading and null hides the indicator',
+    (tester) async {
+      final controller = await pumpMap(tester);
+      final map = createNativeController(tester);
+      expect(map.myLocationEnabled, isFalse);
+      map.onStyleLoadedCallback!();
+      await tester.pumpAndSettle();
+
+      const fix = ManualLocationUpdate(target: LatLng(52, 13));
+      await pumpMap(tester, controller: controller, location: fix);
+      await tester.pumpAndSettle();
+      expect(platform.locations, [fix]);
+      expect(
+        tester.widget<MapLibreMap>(find.byType(MapLibreMap)).myLocationEnabled,
+        isTrue,
+      );
+
+      await pumpMap(tester, controller: controller);
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<MapLibreMap>(find.byType(MapLibreMap)).myLocationEnabled,
+        isFalse,
+      );
+      expect(platform.locations, [fix]);
+
+      await pumpMap(tester, controller: controller, location: fix);
+      await tester.pumpAndSettle();
+      expect(platform.locations, [fix, fix]);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets('explicitly hidden locations resume with the latest fix', (
+    tester,
+  ) async {
+    const initial = ManualLocationUpdate(target: LatLng(52, 13));
+    const latest = ManualLocationUpdate(target: LatLng(53, 14));
+    final controller = await pumpMap(tester, location: initial);
+    final map = createNativeController(tester);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+
+    await pumpMap(
+      tester,
+      controller: controller,
+      location: latest,
+      enableManualLocationDisplay: false,
+    );
+    await tester.pumpAndSettle();
+    expect(platform.locations, [initial]);
+    expect(
+      tester.widget<MapLibreMap>(find.byType(MapLibreMap)).myLocationEnabled,
+      isFalse,
+    );
+
+    await pumpMap(tester, controller: controller, location: latest);
+    await tester.pumpAndSettle();
+    expect(platform.locations, [initial, latest]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('style reloads restore the declarative fix', (tester) async {
+    const fix = ManualLocationUpdate(target: LatLng(52, 13));
+    await pumpMap(tester, location: fix);
+    final map = createNativeController(tester);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    expect(platform.locations, [fix, fix]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('a declarative fix removed before readiness is not forwarded', (
+    tester,
+  ) async {
+    const fix = ManualLocationUpdate(target: LatLng(52, 13));
+    final controller = await pumpMap(tester, location: fix);
+    final map = createNativeController(tester);
+    await pumpMap(tester, controller: controller);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    expect(platform.locations, isEmpty);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets(
+    'declarative fixes are discarded when disposed before readiness',
+    (tester) async {
+      await pumpMap(
+        tester,
+        location: const ManualLocationUpdate(target: LatLng(52, 13)),
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      expect(platform.locations, isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'in-flight updates are serialized and coalesce to the latest fix',
+    (tester) async {
+      const first = ManualLocationUpdate(target: LatLng(52, 13));
+      const intermediate = ManualLocationUpdate(target: LatLng(53, 14));
+      const latest = ManualLocationUpdate(target: LatLng(54, 15));
+      platform.locationGate = Completer<void>();
+      final controller = await pumpMap(tester, location: first);
+      final map = createNativeController(tester);
+      map.onStyleLoadedCallback!();
+      await tester.pumpAndSettle();
+      expect(platform.locations, [first]);
+
+      await pumpMap(tester, controller: controller, location: intermediate);
+      await pumpMap(tester, controller: controller, location: latest);
+      expect(platform.locations, [first]);
+
+      platform.locationGate!.complete();
+      await tester.pumpAndSettle();
+      expect(platform.locations, [first, latest]);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets('a failed send still forwards a queued newer fix', (
+    tester,
+  ) async {
+    const first = ManualLocationUpdate(target: LatLng(52, 13));
+    const latest = ManualLocationUpdate(target: LatLng(53, 14));
+    final gate = platform.locationGate = Completer<void>();
+    final controller = await pumpMap(tester, location: first);
+    final map = createNativeController(tester);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    await pumpMap(tester, controller: controller, location: latest);
+
+    platform.locationGate = null;
+    final error = StateError('native location update failed');
+    gate.completeError(error);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), same(error));
+    expect(platform.locations, [first, latest]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('a style reload during a send still restores the same fix', (
+    tester,
+  ) async {
+    const fix = ManualLocationUpdate(target: LatLng(52, 13));
+    final gate = platform.locationGate = Completer<void>();
+    await pumpMap(tester, location: fix);
+    final map = createNativeController(tester);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    expect(platform.locations, [fix]);
+
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    platform.locationGate = null;
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(platform.locations, [fix, fix]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('hide and re-enable during a send reapplies the same fix', (
+    tester,
+  ) async {
+    const fix = ManualLocationUpdate(target: LatLng(52, 13));
+    final gate = platform.locationGate = Completer<void>();
+    final controller = await pumpMap(tester, location: fix);
+    final map = createNativeController(tester);
+    map.onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+
+    await pumpMap(
+      tester,
+      controller: controller,
+      location: fix,
+      enableManualLocationDisplay: false,
+    );
+    await pumpMap(tester, controller: controller, location: fix);
+    platform.locationGate = null;
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(platform.locations, [fix, fix]);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('manual display selects the upstream manual location source', (
     tester,
   ) async {
-    await pumpMap(tester);
+    await pumpMap(tester, enableManualLocationDisplay: true);
     final map = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(map.myLocationEnabled, isTrue);
     expect(map.locationSource, isA<ManualLocationSource>());
@@ -55,7 +293,7 @@ void main() {
     await pumpMap(tester, enableManualLocationDisplay: false);
     final disabledMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(disabledMap.myLocationEnabled, isFalse);
-    expect(disabledMap.locationSource, isA<PlatformLocationSource>());
+    expect(disabledMap.locationSource, isA<ManualLocationSource>());
   });
 
   testWidgets('native events use the current callbacks after a rebuild', (
@@ -148,6 +386,7 @@ void main() {
 
 class _LocationPlatform extends MapLibrePlatform {
   final locations = <ManualLocationUpdate>[];
+  Completer<void>? locationGate;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -165,5 +404,6 @@ class _LocationPlatform extends MapLibrePlatform {
   @override
   Future<void> setManualLocation(ManualLocationUpdate update) async {
     locations.add(update);
+    await locationGate?.future;
   }
 }
