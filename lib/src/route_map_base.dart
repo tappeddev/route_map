@@ -144,7 +144,7 @@ class _RouteMapState extends State<RouteMap> {
   VoidCallback? _cameraStateListener;
   ManualLocationUpdate? _lastLocation;
 
-  // Incremented when the location, visibility or style changes. An in-flight
+  // Incremented when the location or style changes. An in-flight
   // update may only mark its fix as applied if its captured revision still
   // matches, so an older completion cannot suppress a required resend.
   int _locationRevision = 0;

@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.0
 
 - Add declarative `RouteMap(location: ManualLocationUpdate(...))` updates,
   including automatic visibility, latest-fix coalescing and style restoration.
