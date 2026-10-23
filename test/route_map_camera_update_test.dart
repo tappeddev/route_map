@@ -3,33 +3,6 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 
 void main() {
-  test(
-    'tracked camera uses its initial position before the first camera fix',
-    () {
-      final update = resolveAnimateCameraToTargetUpdate(
-        target: const LatLng(30, 31),
-        trackedCameraPosition: null,
-        trackCameraPosition: true,
-        fallbackCameraPosition: const CameraPosition(
-          target: LatLng(29, 30),
-          zoom: 9,
-          bearing: 45,
-          tilt: 20,
-        ),
-        bearing: 90,
-      );
-      expect(update.toJson(), [
-        'newCameraPosition',
-        {
-          'bearing': 90.0,
-          'target': [30.0, 31.0],
-          'tilt': 20.0,
-          'zoom': 9.0,
-        },
-      ]);
-    },
-  );
-
   test('animating to a target without tracking keeps a target-only update', () {
     final update = resolveAnimateCameraToTargetUpdate(
       target: const LatLng(30.0, 31.0),

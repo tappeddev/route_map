@@ -11,6 +11,9 @@
   Supply `RouteMap.location` for MapLibre's native location indicator; visibility
   and the manual location source are managed internally. Tracking and render
   mode enums are now re-exported.
+- Breaking: the screen-space `accuracyWidth` is replaced by
+  `ManualLocationUpdate.horizontalAccuracy`, in metres. Pass your provider's
+  accuracy directly.
 
 ## 0.0.2
 

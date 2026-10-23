@@ -24,6 +24,8 @@ void main() {
     void Function(CameraPosition)? onCameraMove,
     void Function(MyLocationTrackingMode)? onCameraTrackingChanged,
     VoidCallback? onCameraTrackingDismissed,
+    MyLocationTrackingMode myLocationTrackingMode = MyLocationTrackingMode.none,
+    MyLocationRenderMode myLocationRenderMode = MyLocationRenderMode.normal,
   }) async {
     controller ??= RouteMapController();
     await tester.pumpWidget(
@@ -39,6 +41,8 @@ void main() {
           onCameraMove: onCameraMove,
           onCameraTrackingChanged: onCameraTrackingChanged,
           onCameraTrackingDismissed: onCameraTrackingDismissed,
+          myLocationTrackingMode: myLocationTrackingMode,
+          myLocationRenderMode: myLocationRenderMode,
         ),
       ),
     );
@@ -285,6 +289,30 @@ void main() {
     final disabledMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     expect(disabledMap.myLocationEnabled, isFalse);
     expect(disabledMap.locationSource, isA<ManualLocationSource>());
+  });
+
+  testWidgets('location modes apply only while a location is shown', (
+    tester,
+  ) async {
+    final controller = await pumpMap(
+      tester,
+      myLocationTrackingMode: MyLocationTrackingMode.tracking,
+      myLocationRenderMode: MyLocationRenderMode.compass,
+    );
+    final hiddenMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+    expect(hiddenMap.myLocationTrackingMode, MyLocationTrackingMode.none);
+    expect(hiddenMap.myLocationRenderMode, MyLocationRenderMode.normal);
+
+    await pumpMap(
+      tester,
+      controller: controller,
+      location: const ManualLocationUpdate(target: LatLng(52, 13)),
+      myLocationTrackingMode: MyLocationTrackingMode.tracking,
+      myLocationRenderMode: MyLocationRenderMode.compass,
+    );
+    final shownMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+    expect(shownMap.myLocationTrackingMode, MyLocationTrackingMode.tracking);
+    expect(shownMap.myLocationRenderMode, MyLocationRenderMode.compass);
   });
 
   testWidgets('native events use the current callbacks after a rebuild', (
