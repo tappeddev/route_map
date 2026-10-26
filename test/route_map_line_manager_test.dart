@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
@@ -53,5 +55,217 @@ void main() {
 
     expect(theme.lineJoin, isNull);
     expect(theme.lineBlur, isNull);
+    expect(theme.dashArray, isNull);
   });
+
+  test('dashed routes are always rebuilt', () {
+    const solidTheme = RouteMapRouteTheme(
+      lineWidth: 3,
+      color: Color(0xFFE0A400),
+    );
+    const dashedTheme = RouteMapRouteTheme(
+      lineWidth: 3,
+      color: Color(0xFFE0A400),
+      dashArray: [2, 2],
+    );
+
+    for (final (previousTheme, nextTheme) in [
+      (solidTheme, dashedTheme),
+      (dashedTheme, dashedTheme),
+      (dashedTheme, solidTheme),
+    ]) {
+      final strategy = resolveRouteMutationStrategy(
+        hasExistingRoute: true,
+        previousTheme: previousTheme,
+        nextTheme: nextTheme,
+      );
+
+      expect(strategy, RouteMapRouteMutationStrategy.rebuild);
+    }
+  });
+
+  group('dashed route', () {
+    const sourceId = 'route_map_route_source_not-driven';
+    const frontLayerId = 'route_map_route_layer_not-driven';
+    const backLayerId = 'route_map_route_back_layer_not-driven';
+    const route = RouteMapRoute(
+      identifier: 'not-driven',
+      points: [LatLng(38, 23.5), LatLng(38.5, 24)],
+      theme: RouteMapRouteTheme(
+        lineWidth: 3,
+        color: Color(0xFFE0A400),
+        backLineWidth: 9,
+        backLineColor: Color(0xFFFFF1C2),
+        dashArray: [2, 2],
+      ),
+      darkTheme: RouteMapRouteTheme(
+        lineWidth: 3,
+        color: Color(0xFFE0A400),
+        backLineWidth: 9,
+        backLineColor: Color(0xFF5A4710),
+        dashArray: [2, 2],
+      ),
+    );
+
+    late _FakeMapController controller;
+    late RouteMapLayerManager layerManager;
+    late RouteMapLineManager lineManager;
+
+    setUp(() {
+      controller = _FakeMapController();
+      layerManager = RouteMapLayerManager(controller: controller);
+      lineManager = RouteMapLineManager(
+        controller: controller,
+        layerManager: layerManager,
+      );
+    });
+
+    test(
+      'is drawn as solid back and dashed front layer below annotations',
+      () async {
+        await lineManager.drawRoute(route);
+
+        expect(controller.styleLayerIds, [
+          backLayerId,
+          frontLayerId,
+          ..._annotationLayerIds,
+        ]);
+        expect(controller.sources[sourceId]!['data'], {
+          'type': 'FeatureCollection',
+          'features': [
+            {
+              'type': 'Feature',
+              'properties': <String, dynamic>{},
+              'geometry': {
+                'type': 'LineString',
+                'coordinates': [
+                  [23.5, 38],
+                  [24, 38.5],
+                ],
+              },
+            },
+          ],
+        });
+        expect(controller.layers[frontLayerId], {
+          'line-color': const Color(0xFFE0A400).toHexStringRGB(),
+          'line-opacity': 1.0,
+          'line-width': 3.0,
+          'line-dasharray': [2.0, 2.0],
+        });
+        expect(controller.layers[backLayerId], {
+          'line-color': const Color(0xFFFFF1C2).toHexStringRGB(),
+          'line-opacity': 1.0,
+          'line-width': 9.0,
+        });
+      },
+    );
+
+    test('is removed by removeRoutes', () async {
+      await lineManager.drawRoute(route);
+      await lineManager.removeRoutes();
+
+      expect(controller.styleLayerIds, _annotationLayerIds);
+      expect(controller.sources, isEmpty);
+    });
+
+    test('is redrawn with the dark theme after a style reload', () async {
+      await lineManager.drawRoute(route);
+      // What `_installStyleContent` does when the style is (re)loaded.
+      await layerManager.removeAll();
+      await lineManager.restore(Brightness.dark);
+
+      expect(controller.styleLayerIds, [
+        backLayerId,
+        frontLayerId,
+        ..._annotationLayerIds,
+      ]);
+      expect(
+        controller.layers[backLayerId]!['line-color'],
+        const Color(0xFF5A4710).toHexStringRGB(),
+      );
+    });
+  });
+}
+
+const _annotationLayerIds = ['fills', 'lines', 'symbols', 'circles'];
+
+/// Records sources and layers like a MapLibre style. [styleLayerIds] is
+/// ordered bottom to top.
+class _FakeMapController extends Fake implements MapLibreMapController {
+  final styleLayerIds = [..._annotationLayerIds];
+  final layers = <String, Map<String, dynamic>>{};
+  final sources = <String, Map<String, dynamic>>{};
+
+  @override
+  bool get isDisposed => false;
+
+  @override
+  FillManager? get fillManager => _FakeFillManager();
+
+  @override
+  LineManager? get lineManager => _FakeLineManager();
+
+  @override
+  SymbolManager? get symbolManager => _FakeSymbolManager();
+
+  @override
+  CircleManager? get circleManager => _FakeCircleManager();
+
+  @override
+  Set<Line> get lines => {};
+
+  @override
+  Future<List<dynamic>> getLayerIds() async => [...styleLayerIds];
+
+  @override
+  Future<void> addSource(String sourceid, SourceProperties properties) async {
+    sources[sourceid] = properties.toJson();
+  }
+
+  @override
+  Future<void> removeSource(String sourceId) async {
+    sources.remove(sourceId);
+  }
+
+  @override
+  Future<void> addLayer(
+    String sourceId,
+    String layerId,
+    LayerProperties properties, {
+    String? belowLayerId,
+    bool enableInteraction = true,
+    String? sourceLayer,
+    double? minzoom,
+    double? maxzoom,
+    dynamic filter,
+  }) async {
+    styleLayerIds.insert(styleLayerIds.indexOf(belowLayerId!), layerId);
+    layers[layerId] = properties.toJson();
+  }
+
+  @override
+  Future<void> removeLayer(String layerId) async {
+    styleLayerIds.remove(layerId);
+    layers.remove(layerId);
+  }
+}
+
+class _FakeFillManager extends Fake implements FillManager {
+  @override
+  List<String> get layerIds => ['fills'];
+}
+
+class _FakeLineManager extends Fake implements LineManager {
+  @override
+  List<String> get layerIds => ['lines'];
+}
+
+class _FakeSymbolManager extends Fake implements SymbolManager {
+  @override
+  List<String> get layerIds => ['symbols'];
+}
+
+class _FakeCircleManager extends Fake implements CircleManager {
+  @override
+  List<String> get layerIds => ['circles'];
 }

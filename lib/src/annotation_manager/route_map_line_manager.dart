@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
 enum RouteMapRouteMutationStrategy { add, update, rebuild }
@@ -13,6 +14,11 @@ RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
 }) {
   if (!hasExistingRoute) {
     return RouteMapRouteMutationStrategy.add;
+  }
+
+  // Dashed routes are drawn as style layers, which are rebuilt on every change.
+  if (previousTheme.dashArray != null || nextTheme.dashArray != null) {
+    return RouteMapRouteMutationStrategy.rebuild;
   }
 
   final hadBackLine =
@@ -30,11 +36,14 @@ RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
 
 class RouteMapLineManager {
   final MapLibreMapController controller;
+
+  /// Draws dashed routes, see [RouteMapRouteTheme.dashArray].
+  final RouteMapLayerManager layerManager;
   Brightness _brightness = Brightness.light;
 
   final _routeMap = <String, _DrawnRoute>{};
 
-  RouteMapLineManager({required this.controller});
+  RouteMapLineManager({required this.controller, required this.layerManager});
 
   Future<void> restore(Brightness brightness) async {
     _brightness = brightness;
@@ -51,12 +60,18 @@ class RouteMapLineManager {
         // If backline exists, ignore front line to prevent duplicate callbacks
         return drawnRoute.backLine != null
             ? drawnRoute.backLine!.id == line.id
-            : drawnRoute.line.id == line.id;
+            : drawnRoute.line?.id == line.id;
       })?.route;
 
   Future<void> removeRoutes() async {
     if (controller.lines.isNotEmpty) {
       await controller.removeLines(controller.lines);
+    }
+
+    for (final drawnRoute in _routeMap.values.toList()) {
+      if (drawnRoute.line == null) {
+        await _removeRouteLayers(drawnRoute.route.identifier);
+      }
     }
 
     _routeMap.clear();
@@ -89,10 +104,15 @@ class RouteMapLineManager {
         await _updateExistingRoute(drawnRoute!, route, theme);
         break;
       case RouteMapRouteMutationStrategy.rebuild:
-        await controller.removeLines([
-          drawnRoute!.line,
-          if (drawnRoute.backLine != null) drawnRoute.backLine!,
-        ]);
+        final line = drawnRoute!.line;
+        if (line == null) {
+          await _removeRouteLayers(route.identifier);
+        } else {
+          await controller.removeLines([
+            line,
+            if (drawnRoute.backLine != null) drawnRoute.backLine!,
+          ]);
+        }
         await _drawNewRoute(route, theme);
         break;
     }
@@ -102,6 +122,11 @@ class RouteMapLineManager {
     RouteMapRoute route,
     RouteMapRouteTheme theme,
   ) async {
+    if (theme.dashArray != null) {
+      await _drawRouteLayers(route, theme);
+      return;
+    }
+
     final routeLine = LineOptions(
       geometry: route.points,
       lineColor: theme.color.toHexStringRGB(),
@@ -139,7 +164,7 @@ class RouteMapLineManager {
     RouteMapRouteTheme theme,
   ) async {
     await controller.updateLine(
-      drawnRoute.line,
+      drawnRoute.line!,
       LineOptions(
         geometry: route.points,
         lineColor: theme.color.toHexStringRGB(),
@@ -173,12 +198,79 @@ class RouteMapLineManager {
       backLine: drawnRoute.backLine,
     );
   }
+
+  /// Draws [route] as style layers instead of line annotations, because
+  /// only style layers support `line-dasharray`. They are inserted below
+  /// all annotation layers, see [RouteMapLayerManager.addLayer].
+  Future<void> _drawRouteLayers(
+    RouteMapRoute route,
+    RouteMapRouteTheme theme,
+  ) async {
+    final sourceId = _routeSourceId(route.identifier);
+    await layerManager.addSource(
+      sourceId,
+      GeojsonSourceProperties(
+        data: buildFeatureCollection([
+          LineOptions(geometry: route.points).toGeoJson(),
+        ]),
+      ),
+    );
+
+    if (theme.backLineWidth != null && theme.backLineColor != null) {
+      if (controller.isDisposed) return;
+      await layerManager.addLayer(
+        sourceId,
+        _routeBackLayerId(route.identifier),
+        LineLayerProperties(
+          lineColor: theme.backLineColor!.toHexStringRGB(),
+          lineOpacity: theme.backLineColor!.a,
+          lineWidth: theme.backLineWidth,
+          lineJoin: theme.lineJoin,
+          lineBlur: theme.lineBlur,
+        ),
+        enableInteraction: false,
+      );
+    }
+
+    if (controller.isDisposed) return;
+    await layerManager.addLayer(
+      sourceId,
+      _routeLayerId(route.identifier),
+      LineLayerProperties(
+        lineColor: theme.color.toHexStringRGB(),
+        lineOpacity: theme.color.a,
+        lineWidth: theme.lineWidth,
+        lineJoin: theme.lineJoin,
+        lineBlur: theme.lineBlur,
+        lineDasharray: theme.dashArray,
+      ),
+      enableInteraction: false,
+    );
+    _routeMap[route.identifier] = _DrawnRoute(route: route);
+  }
+
+  Future<void> _removeRouteLayers(String identifier) async {
+    await layerManager.removeLayer(_routeLayerId(identifier));
+    await layerManager.removeLayer(_routeBackLayerId(identifier));
+    await layerManager.removeSource(_routeSourceId(identifier));
+  }
 }
 
 class _DrawnRoute {
   final RouteMapRoute route;
-  final Line line;
+
+  /// Null when the route is drawn as style layers, see
+  /// [RouteMapLineManager._drawRouteLayers].
+  final Line? line;
   final Line? backLine;
 
-  const _DrawnRoute({required this.route, required this.line, this.backLine});
+  const _DrawnRoute({required this.route, this.line, this.backLine});
 }
+
+String _routeSourceId(String identifier) =>
+    "route_map_route_source_$identifier";
+
+String _routeLayerId(String identifier) => "route_map_route_layer_$identifier";
+
+String _routeBackLayerId(String identifier) =>
+    "route_map_route_back_layer_$identifier";

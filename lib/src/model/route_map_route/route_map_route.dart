@@ -24,5 +24,17 @@ abstract class RouteMapRouteTheme with _$RouteMapRouteTheme {
     Color? backLineColor,
     String? lineJoin,
     double? lineBlur,
+
+    /// Dashes the front line with MapLibre `line-dasharray` semantics:
+    /// alternating dash and gap lengths in multiples of [lineWidth],
+    /// e.g. `[2, 2]`. The back line stays solid.
+    ///
+    /// Line annotations can't be dashed, so dashed routes are drawn as
+    /// style layers instead. As a consequence they:
+    /// * always render below solid routes, icons and circles,
+    ///   regardless of draw order (among dashed routes, the most recently
+    ///   drawn one is on top),
+    /// * don't consume taps and don't trigger `onFeatureHover`.
+    List<double>? dashArray,
   }) = _RouteMapRouteTheme;
 }

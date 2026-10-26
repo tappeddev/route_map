@@ -328,7 +328,17 @@ $RouteMapRouteThemeCopyWith<$Res>? get darkTheme {
 /// @nodoc
 mixin _$RouteMapRouteTheme {
 
- double get lineWidth; Color get color; double? get backLineWidth; Color? get backLineColor; String? get lineJoin; double? get lineBlur;
+ double get lineWidth; Color get color; double? get backLineWidth; Color? get backLineColor; String? get lineJoin; double? get lineBlur;/// Dashes the front line with MapLibre `line-dasharray` semantics:
+/// alternating dash and gap lengths in multiples of [lineWidth],
+/// e.g. `[2, 2]`. The back line stays solid.
+///
+/// Line annotations can't be dashed, so dashed routes are drawn as
+/// style layers instead. As a consequence they:
+/// * always render below solid routes, icons and circles,
+///   regardless of draw order (among dashed routes, the most recently
+///   drawn one is on top),
+/// * don't consume taps and don't trigger `onFeatureHover`.
+ List<double>? get dashArray;
 /// Create a copy of RouteMapRouteTheme
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -339,16 +349,16 @@ $RouteMapRouteThemeCopyWith<RouteMapRouteTheme> get copyWith => _$RouteMapRouteT
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor)&&(identical(other.lineJoin, lineJoin) || other.lineJoin == lineJoin)&&(identical(other.lineBlur, lineBlur) || other.lineBlur == lineBlur));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor)&&(identical(other.lineJoin, lineJoin) || other.lineJoin == lineJoin)&&(identical(other.lineBlur, lineBlur) || other.lineBlur == lineBlur)&&const DeepCollectionEquality().equals(other.dashArray, dashArray));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor,lineJoin,lineBlur);
+int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor,lineJoin,lineBlur,const DeepCollectionEquality().hash(dashArray));
 
 @override
 String toString() {
-  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor, lineJoin: $lineJoin, lineBlur: $lineBlur)';
+  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor, lineJoin: $lineJoin, lineBlur: $lineBlur, dashArray: $dashArray)';
 }
 
 
@@ -359,7 +369,7 @@ abstract mixin class $RouteMapRouteThemeCopyWith<$Res>  {
   factory $RouteMapRouteThemeCopyWith(RouteMapRouteTheme value, $Res Function(RouteMapRouteTheme) _then) = _$RouteMapRouteThemeCopyWithImpl;
 @useResult
 $Res call({
- double lineWidth, Color color, double? backLineWidth, Color? backLineColor, String? lineJoin, double? lineBlur
+ double lineWidth, Color color, double? backLineWidth, Color? backLineColor, String? lineJoin, double? lineBlur, List<double>? dashArray
 });
 
 
@@ -376,7 +386,7 @@ class _$RouteMapRouteThemeCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapRouteTheme
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,Object? lineJoin = freezed,Object? lineBlur = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,Object? lineJoin = freezed,Object? lineBlur = freezed,Object? dashArray = freezed,}) {
   return _then(_self.copyWith(
 lineWidth: null == lineWidth ? _self.lineWidth : lineWidth // ignore: cast_nullable_to_non_nullable
 as double,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
@@ -384,7 +394,8 @@ as Color,backLineWidth: freezed == backLineWidth ? _self.backLineWidth : backLin
 as double?,backLineColor: freezed == backLineColor ? _self.backLineColor : backLineColor // ignore: cast_nullable_to_non_nullable
 as Color?,lineJoin: freezed == lineJoin ? _self.lineJoin : lineJoin // ignore: cast_nullable_to_non_nullable
 as String?,lineBlur: freezed == lineBlur ? _self.lineBlur : lineBlur // ignore: cast_nullable_to_non_nullable
-as double?,
+as double?,dashArray: freezed == dashArray ? _self.dashArray : dashArray // ignore: cast_nullable_to_non_nullable
+as List<double>?,
   ));
 }
 
@@ -469,10 +480,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur,  List<double>? dashArray)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RouteMapRouteTheme() when $default != null:
-return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur);case _:
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur,_that.dashArray);case _:
   return orElse();
 
 }
@@ -490,10 +501,10 @@ return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur,  List<double>? dashArray)  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapRouteTheme():
-return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur);case _:
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur,_that.dashArray);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -510,10 +521,10 @@ return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineCo
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double lineWidth,  Color color,  double? backLineWidth,  Color? backLineColor,  String? lineJoin,  double? lineBlur,  List<double>? dashArray)?  $default,) {final _that = this;
 switch (_that) {
 case _RouteMapRouteTheme() when $default != null:
-return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur);case _:
+return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineColor,_that.lineJoin,_that.lineBlur,_that.dashArray);case _:
   return null;
 
 }
@@ -525,7 +536,7 @@ return $default(_that.lineWidth,_that.color,_that.backLineWidth,_that.backLineCo
 
 
 class _RouteMapRouteTheme implements RouteMapRouteTheme {
-  const _RouteMapRouteTheme({required this.lineWidth, required this.color, this.backLineWidth, this.backLineColor, this.lineJoin, this.lineBlur});
+  const _RouteMapRouteTheme({required this.lineWidth, required this.color, this.backLineWidth, this.backLineColor, this.lineJoin, this.lineBlur, final  List<double>? dashArray}): _dashArray = dashArray;
   
 
 @override final  double lineWidth;
@@ -534,6 +545,35 @@ class _RouteMapRouteTheme implements RouteMapRouteTheme {
 @override final  Color? backLineColor;
 @override final  String? lineJoin;
 @override final  double? lineBlur;
+/// Dashes the front line with MapLibre `line-dasharray` semantics:
+/// alternating dash and gap lengths in multiples of [lineWidth],
+/// e.g. `[2, 2]`. The back line stays solid.
+///
+/// Line annotations can't be dashed, so dashed routes are drawn as
+/// style layers instead. As a consequence they:
+/// * always render below solid routes, icons and circles,
+///   regardless of draw order (among dashed routes, the most recently
+///   drawn one is on top),
+/// * don't consume taps and don't trigger `onFeatureHover`.
+ final  List<double>? _dashArray;
+/// Dashes the front line with MapLibre `line-dasharray` semantics:
+/// alternating dash and gap lengths in multiples of [lineWidth],
+/// e.g. `[2, 2]`. The back line stays solid.
+///
+/// Line annotations can't be dashed, so dashed routes are drawn as
+/// style layers instead. As a consequence they:
+/// * always render below solid routes, icons and circles,
+///   regardless of draw order (among dashed routes, the most recently
+///   drawn one is on top),
+/// * don't consume taps and don't trigger `onFeatureHover`.
+@override List<double>? get dashArray {
+  final value = _dashArray;
+  if (value == null) return null;
+  if (_dashArray is EqualUnmodifiableListView) return _dashArray;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(value);
+}
+
 
 /// Create a copy of RouteMapRouteTheme
 /// with the given fields replaced by the non-null parameter values.
@@ -545,16 +585,16 @@ _$RouteMapRouteThemeCopyWith<_RouteMapRouteTheme> get copyWith => __$RouteMapRou
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor)&&(identical(other.lineJoin, lineJoin) || other.lineJoin == lineJoin)&&(identical(other.lineBlur, lineBlur) || other.lineBlur == lineBlur));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RouteMapRouteTheme&&(identical(other.lineWidth, lineWidth) || other.lineWidth == lineWidth)&&(identical(other.color, color) || other.color == color)&&(identical(other.backLineWidth, backLineWidth) || other.backLineWidth == backLineWidth)&&(identical(other.backLineColor, backLineColor) || other.backLineColor == backLineColor)&&(identical(other.lineJoin, lineJoin) || other.lineJoin == lineJoin)&&(identical(other.lineBlur, lineBlur) || other.lineBlur == lineBlur)&&const DeepCollectionEquality().equals(other._dashArray, _dashArray));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor,lineJoin,lineBlur);
+int get hashCode => Object.hash(runtimeType,lineWidth,color,backLineWidth,backLineColor,lineJoin,lineBlur,const DeepCollectionEquality().hash(_dashArray));
 
 @override
 String toString() {
-  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor, lineJoin: $lineJoin, lineBlur: $lineBlur)';
+  return 'RouteMapRouteTheme(lineWidth: $lineWidth, color: $color, backLineWidth: $backLineWidth, backLineColor: $backLineColor, lineJoin: $lineJoin, lineBlur: $lineBlur, dashArray: $dashArray)';
 }
 
 
@@ -565,7 +605,7 @@ abstract mixin class _$RouteMapRouteThemeCopyWith<$Res> implements $RouteMapRout
   factory _$RouteMapRouteThemeCopyWith(_RouteMapRouteTheme value, $Res Function(_RouteMapRouteTheme) _then) = __$RouteMapRouteThemeCopyWithImpl;
 @override @useResult
 $Res call({
- double lineWidth, Color color, double? backLineWidth, Color? backLineColor, String? lineJoin, double? lineBlur
+ double lineWidth, Color color, double? backLineWidth, Color? backLineColor, String? lineJoin, double? lineBlur, List<double>? dashArray
 });
 
 
@@ -582,7 +622,7 @@ class __$RouteMapRouteThemeCopyWithImpl<$Res>
 
 /// Create a copy of RouteMapRouteTheme
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,Object? lineJoin = freezed,Object? lineBlur = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? lineWidth = null,Object? color = null,Object? backLineWidth = freezed,Object? backLineColor = freezed,Object? lineJoin = freezed,Object? lineBlur = freezed,Object? dashArray = freezed,}) {
   return _then(_RouteMapRouteTheme(
 lineWidth: null == lineWidth ? _self.lineWidth : lineWidth // ignore: cast_nullable_to_non_nullable
 as double,color: null == color ? _self.color : color // ignore: cast_nullable_to_non_nullable
@@ -590,7 +630,8 @@ as Color,backLineWidth: freezed == backLineWidth ? _self.backLineWidth : backLin
 as double?,backLineColor: freezed == backLineColor ? _self.backLineColor : backLineColor // ignore: cast_nullable_to_non_nullable
 as Color?,lineJoin: freezed == lineJoin ? _self.lineJoin : lineJoin // ignore: cast_nullable_to_non_nullable
 as String?,lineBlur: freezed == lineBlur ? _self.lineBlur : lineBlur // ignore: cast_nullable_to_non_nullable
-as double?,
+as double?,dashArray: freezed == dashArray ? _self._dashArray : dashArray // ignore: cast_nullable_to_non_nullable
+as List<double>?,
   ));
 }
 
