@@ -7,21 +7,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/route_map.dart';
+import 'package:route_map/src/annotation_manager/route_map_area_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_circle_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_icon_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/annotation_manager/route_map_line_manager.dart';
-import 'package:route_map/src/annotation_manager/route_map_area_manager.dart';
 import 'package:route_map/src/route_map_camera_update.dart';
 import 'package:route_map/src/route_map_geometry_extension.dart';
 import 'package:route_map/src/utils/coalescing_runner.dart';
 import 'package:synchronized/synchronized.dart';
 
+part 'poi_layer_extension.dart';
+
 part 'route_map_controller.dart';
 
 part 'route_map_service_area_layer.dart';
-
-part 'poi_layer_extension.dart';
 
 class RouteMap extends StatefulWidget {
   final CameraPosition initialCameraPosition;
@@ -49,30 +49,28 @@ class RouteMap extends StatefulWidget {
 
   /// The latest app-provided location fix, forwarded to MapLibre after loading.
   ///
-  /// A non-null fix enables the native location indicator by default. Set this
+  /// A non-null fix enables the native location indicator. Set this
   /// to null to hide it. New fixes are applied when the widget rebuilds; fixes
   /// received before the style is ready are coalesced to the latest value.
-  final ManualLocationUpdate? location;
-
-  /// Overrides whether the native location indicator is visible.
   ///
   /// Uses [ManualLocationSource], so the map does not request location
-  /// permission or start the device's location engine. Defaults to whether
-  /// [location] is non-null. Set to true when supplying fixes imperatively
-  /// through [RouteMapController.updateManualLocation], or false to hide the
-  /// indicator while retaining [location].
-  final bool? enableManualLocationDisplay;
-
-  bool get _manualLocationEnabled =>
-      enableManualLocationDisplay ?? location != null;
+  /// permission or start the device's location engine.
+  final ManualLocationUpdate? location;
 
   /// Camera follow mode for the native location puck.
+  ///
+  /// Only applied while [location] is non-null.
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// Rendering mode for the native location puck.
+  ///
+  /// Only applied while [location] is non-null.
   final MyLocationRenderMode myLocationRenderMode;
 
   /// Called when native camera tracking changes, including user gestures.
+  ///
+  /// Also reports [MyLocationTrackingMode.none] when [location] is set to
+  /// null while tracking.
   final void Function(MyLocationTrackingMode mode)? onCameraTrackingChanged;
 
   /// Called when a user gesture dismisses native camera tracking.
@@ -134,7 +132,6 @@ class RouteMap extends StatefulWidget {
     this.ignoreIconsPlacement = false,
     this.tiltGesturesEnabled = false,
     this.location,
-    this.enableManualLocationDisplay,
     this.myLocationTrackingMode = MyLocationTrackingMode.none,
     this.myLocationRenderMode = MyLocationRenderMode.normal,
     this.onCameraTrackingChanged,
@@ -153,6 +150,10 @@ class _RouteMapState extends State<RouteMap> {
   bool _wasCameraMoving = false;
   VoidCallback? _cameraStateListener;
   ManualLocationUpdate? _lastLocation;
+
+  // Incremented when the location or style changes. An in-flight
+  // update may only mark its fix as applied if its captured revision still
+  // matches, so an older completion cannot suppress a required resend.
   int _locationRevision = 0;
 
   late final _locationUpdateRunner = CoalescingRunner(
@@ -176,41 +177,22 @@ class _RouteMapState extends State<RouteMap> {
     shouldRerun: () => mounted,
   );
 
-  late final RouteMapIconManager _iconManagerInstance;
+  // Set in onMapCreated. Use them only after [_waitForStyleReady], which also
+  // waits for an in-progress style reload to finish.
+  late final RouteMapIconManager _iconManager;
 
-  late final RouteMapLineManager _lineManagerInstance;
+  late final RouteMapLineManager _lineManager;
 
-  late final RouteMapCircleManager _circleManagerInstance;
+  late final RouteMapCircleManager _circleManager;
 
-  late final RouteMapLayerManager _layerManagerInstance;
+  late final RouteMapLayerManager _layerManager;
 
-  late final RouteMapAreaManager _areaManagerInstance;
+  late final RouteMapAreaManager _areaManager;
 
   /// Currently materialised POI layers (keyed by layer identifier).
   final Map<String, _PoiLayerEntry> _poiLayers = {};
 
   Future<MapLibreMapController> get _controller => _controllerCompleter.future;
-
-  Future<RouteMapIconManager> get _iconManager async {
-    // wait for style and restore to complete
-    await _afterStyleReady();
-    return _iconManagerInstance;
-  }
-
-  Future<RouteMapLineManager> get _lineManager async {
-    await _afterStyleReady();
-    return _lineManagerInstance;
-  }
-
-  Future<RouteMapCircleManager> get _circleManager async {
-    await _afterStyleReady();
-    return _circleManagerInstance;
-  }
-
-  Future<RouteMapAreaManager> get _areaManager async {
-    await _afterStyleReady();
-    return _areaManagerInstance;
-  }
 
   @override
   void initState() {
@@ -231,8 +213,7 @@ class _RouteMapState extends State<RouteMap> {
     if (widget.locale != oldWidget.locale) {
       _setMapLanguage();
     }
-    if (widget.location != oldWidget.location ||
-        widget._manualLocationEnabled != oldWidget._manualLocationEnabled) {
+    if (widget.location != oldWidget.location) {
       _locationRevision++;
       _lastLocation = null;
       _scheduleLocationUpdate();
@@ -267,17 +248,17 @@ class _RouteMapState extends State<RouteMap> {
   }
 
   Future<void> _applyLocation() async {
-    if (widget.location == null || !widget._manualLocationEnabled) {
+    if (widget.location == null) {
       _lastLocation = null;
       return;
     }
-    await Future.any([_afterStyleReady(), _disposedCompleter.future]);
+    await _waitForStyleReady();
     if (!mounted) return;
 
     final controller = await _controller;
     if (!mounted) return;
     final location = widget.location;
-    if (location == null || !widget._manualLocationEnabled) {
+    if (location == null) {
       _lastLocation = null;
       return;
     }
@@ -312,9 +293,10 @@ class _RouteMapState extends State<RouteMap> {
   ) async {
     /// Dragging feature was only added to icons
     if (annotation is! Symbol) return;
-    final iconManager = await _iconManager;
+    await _waitForStyleReady();
+    if (!mounted) return;
     widget.onFeatureDrag?.call(
-      iconManager.findIconBySymbol(annotation).identifier,
+      _iconManager.findIconBySymbol(annotation).identifier,
       annotation.options.geometry!,
       origin,
       eventType,
@@ -328,11 +310,11 @@ class _RouteMapState extends State<RouteMap> {
     Annotation? annotation,
     HoverEventType eventType,
   ) async {
-    final iconManager = await _iconManager;
-    final lineManager = await _lineManager;
+    await _waitForStyleReady();
+    if (!mounted) return;
     final id = switch (annotation) {
-      final Symbol symbol => iconManager.findIconBySymbol(symbol).identifier,
-      final Line line => lineManager.findRouteByHoveredLine(line)?.identifier,
+      final Symbol symbol => _iconManager.findIconBySymbol(symbol).identifier,
+      final Line line => _lineManager.findRouteByHoveredLine(line)?.identifier,
       _ => null,
     };
     if (id == null) return;
@@ -374,10 +356,19 @@ class _RouteMapState extends State<RouteMap> {
         // ⚠️ MapBox styles are not supported! -> https://github.com/maplibre/flutter-maplibre-gl/issues/149
         styleString: widget.styleUrl,
         compassEnabled: false,
-        myLocationEnabled: widget._manualLocationEnabled,
+        // Enable the current locations layer, once the location is available
+        // Also fine that the first location is null, whenever the location is available, we enable the layer
+        myLocationEnabled: widget.location != null,
         locationSource: const ManualLocationSource(),
-        myLocationTrackingMode: widget.myLocationTrackingMode,
-        myLocationRenderMode: widget.myLocationRenderMode,
+        // Fall back to the defaults while the location is hidden: MapLibreMap
+        // asserts on a non-normal render mode without a location, and iOS
+        // shows the location again for any tracking mode other than none.
+        myLocationTrackingMode: widget.location != null
+            ? widget.myLocationTrackingMode
+            : MyLocationTrackingMode.none,
+        myLocationRenderMode: widget.location != null
+            ? widget.myLocationRenderMode
+            : MyLocationRenderMode.normal,
         onCameraTrackingChanged: (mode) =>
             widget.onCameraTrackingChanged?.call(mode),
         onCameraTrackingDismissed: () =>
@@ -395,15 +386,13 @@ class _RouteMapState extends State<RouteMap> {
         onCameraMove: (position) => widget.onCameraMove?.call(position),
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
-          _iconManagerInstance = RouteMapIconManager(controller: controller);
-          _lineManagerInstance = RouteMapLineManager(controller: controller);
-          _circleManagerInstance = RouteMapCircleManager(
+          _iconManager = RouteMapIconManager(controller: controller);
+          _lineManager = RouteMapLineManager(controller: controller);
+          _circleManager = RouteMapCircleManager(controller: controller);
+          _layerManager = RouteMapLayerManager(controller: controller);
+          _areaManager = RouteMapAreaManager(
             controller: controller,
-          );
-          _layerManagerInstance = RouteMapLayerManager(controller: controller);
-          _areaManagerInstance = RouteMapAreaManager(
-            controller: controller,
-            layerManager: _layerManagerInstance,
+            layerManager: _layerManager,
           );
           _controllerCompleter.complete(controller);
           _cameraStateListener = () {
@@ -425,7 +414,7 @@ class _RouteMapState extends State<RouteMap> {
             // We might run into the issue that we have concurrent calls of onStyleLoadedCallback.
             // _installRunner makes sure that we only run one at a time and coalesce overlapping calls.
             // However, our managers are not safe and should only be used after all concurrent calls have finished.
-            // Therefore, we use a lock which is awaited in [_afterStyleReady].
+            // Therefore, we use a lock which is awaited in [_waitForStyleReady].
             _mapStyleLoadLock.synchronized(_installRunner.schedule),
         annotationOrder: const [
           AnnotationType.fill,
@@ -441,7 +430,7 @@ class _RouteMapState extends State<RouteMap> {
     if (!mounted) return;
 
     _poiLayers.clear();
-    await _layerManagerInstance.removeAll();
+    await _layerManager.removeAll();
     if (!mounted) return;
 
     await _addServiceAreaLayers();
@@ -471,25 +460,19 @@ class _RouteMapState extends State<RouteMap> {
   }
 
   Future<void> _restoreAllGeometry() async {
-    // Use [_lineManagerInstance] directly instead of [_lineManager]
-    // because _fullyLoadedCompleter is not completed yet
-    final lineManager = _lineManagerInstance;
-    final symbolManager = _iconManagerInstance;
-    final circleManager = _circleManagerInstance;
-
     final brightness = MediaQuery.platformBrightnessOf(context);
 
     // The areas are style layers, which were removed together with the
     // other style content, so they have to be added again. This isn't done in
     // parallel with the annotations, since the layers are inserted relative to
     // the annotation layers.
-    await _areaManagerInstance.restore(brightness);
+    await _areaManager.restore(brightness);
     if (!mounted) return;
 
     await Future.wait([
-      lineManager.restore(brightness),
-      symbolManager.restore(brightness),
-      circleManager.restore(brightness),
+      _lineManager.restore(brightness),
+      _iconManager.restore(brightness),
+      _circleManager.restore(brightness),
     ]);
   }
 
@@ -498,8 +481,17 @@ class _RouteMapState extends State<RouteMap> {
     await controller.setSymbolIconAllowOverlap(widget.allowIconsOverlap);
   }
 
-  Future<void> _afterStyleReady() async {
-    await _fullyLoadedCompleter.future;
+  /// Waits until the native map is created, or until the map is disposed.
+  /// Check [mounted] right after, before using the controller.
+  Future<void> _waitForMapCreated() async {
+    await Future.any([_controllerCompleter.future, _disposedCompleter.future]);
+  }
+
+  /// Waits until the style is ready, or until the map is disposed. Check
+  /// [mounted] right after, before using the managers.
+  Future<void> _waitForStyleReady() async {
+    await Future.any([_fullyLoadedCompleter.future, _disposedCompleter.future]);
+    if (!mounted) return;
     await _mapStyleLoadLock.synchronized(() async {});
   }
 }

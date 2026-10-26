@@ -26,3 +26,5 @@ jobs:
       run: flutter analyze
     - name: Run format check
       run: dart format -o none --set-exit-if-changed $(find . -name '*.dart' ! -name '*.g.dart' ! -name '*.freezed.dart' ! -path '*/generated/*' ! -path '*/gen/*')
+    - name: Run tests
+      run: flutter test

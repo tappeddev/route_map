@@ -26,10 +26,10 @@ extension _RouteMapServiceAreaLayerState on _RouteMapState {
     if (!mounted) return;
 
     final sourceId = "service_area_source_id_$index";
-    await _layerManagerInstance.addSource(sourceId, source);
+    await _layerManager.addSource(sourceId, source);
     if (!mounted) return;
 
-    await _layerManagerInstance.addLayer(
+    await _layerManager.addLayer(
       sourceId,
       "service_area_layer_id_$index",
       FillLayerProperties(
@@ -46,10 +46,10 @@ extension _RouteMapServiceAreaLayerState on _RouteMapState {
       final patternBytes = await _createHashLinesPattern(hashLines: hashLines);
       if (!mounted) return;
       final patternId = "service_area_hash_lines_$index";
-      await _layerManagerInstance.addImage(patternId, patternBytes);
+      await _layerManager.addImage(patternId, patternBytes);
       if (!mounted) return;
 
-      await _layerManagerInstance.addLayer(
+      await _layerManager.addLayer(
         sourceId,
         "service_area_hash_lines_layer_id_$index",
         FillLayerProperties(fillOpacity: 1, fillPattern: patternId),
@@ -66,10 +66,10 @@ extension _RouteMapServiceAreaLayerState on _RouteMapState {
     if (!mounted) return;
 
     final borderSourceId = "service_area_border_source_id_$index";
-    await _layerManagerInstance.addSource(borderSourceId, borderSource);
+    await _layerManager.addSource(borderSourceId, borderSource);
     if (!mounted) return;
 
-    await _layerManagerInstance.addLayer(
+    await _layerManager.addLayer(
       borderSourceId,
       "service_area_border_layer_id_$index",
       LineLayerProperties(

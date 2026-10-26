@@ -1,4 +1,4 @@
-## Unreleased
+## 0.1.0
 
 - Add bounded `RouteMapController.takeSnapshot()` PNG export and pin the
   MapLibre native snapshot fix, preserving inline styles, runtime geometry and
@@ -13,8 +13,12 @@
   MapLibre API, alongside camera tilt, move callbacks and viewport padding.
 - Breaking: remove the custom `RouteMapUserLocationIndicator` models and the
   controller's `drawUserLocationIndicator` / `removeUserLocationIndicator` APIs.
-  Use `enableManualLocationDisplay` and `updateManualLocation` for MapLibre's
-  native location indicator. Tracking and render mode enums are now re-exported.
+  Supply `RouteMap.location` for MapLibre's native location indicator; visibility
+  and the manual location source are managed internally. Tracking and render
+  mode enums are now re-exported.
+- Breaking: the screen-space `accuracyWidth` is replaced by
+  `ManualLocationUpdate.horizontalAccuracy`, in metres. Pass your provider's
+  accuracy directly.
 
 ## 0.0.2
 
