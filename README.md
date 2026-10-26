@@ -91,19 +91,22 @@ The native implementation captures the existing renderer so that inline JSON
 styles, runtime route layers and custom marker images appear in the PNG. The
 timeout bounds the native snapshot call; call this after map creation/loading.
 Native errors propagate to the caller.
+If the map is disposed before capture starts, the call fails with `StateError`.
 
 This requires snapshot fixes that are not in the published `maplibre_gl 0.27.1`.
 This branch pins `tappeddev/flutter-maplibre-gl` to
-`bd1c970f9c3765b9727bc818f1120c1e3fe42447` (snapshot repairs on top of upstream
-`v0.27.1`, including Android callback serialization across renderer generations).
+`68a281f825497c6f0906493778c3dc861564bba5` (snapshot repairs on top of upstream
+`v0.27.1`, including Android callback serialization across renderer generations
+and recovery after a native capture times out). Native captures use physical
+pixels and exclude on-screen map controls on Android/iOS.
 The platform interface and web implementation
 remain on their published `0.27.1` releases. A consuming app's dependency override
 must not replace this pin with the unpatched package. Web behavior is unchanged.
 
 The fix and native regression fixture are described in
-[flutter-maplibre-gl PR #3](https://github.com/tappeddev/flutter-maplibre-gl/pull/3),
-stacked on the upstream baseline in PR #2. The original PR #1 was closed without
-merging; PR #3 presents the snapshot repair as a narrow diff. Return to a
+[flutter-maplibre-gl PR #5](https://github.com/tappeddev/flutter-maplibre-gl/pull/5).
+The upstream `0.27.1` baseline is merged into the fork's `main` via PR #4;
+the snapshot repairs remain on `draft/native-snapshot-parity`. Return to a
 published dependency when the native fixes are released.
 The temporary Git dependency prevents publishing this branch to pub.dev until
 it is replaced with a hosted release.

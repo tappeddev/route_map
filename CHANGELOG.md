@@ -1,10 +1,15 @@
-## 0.1.0
+## Unreleased
 
 - Add bounded `RouteMapController.takeSnapshot()` PNG export and pin the
   MapLibre native snapshot fix, preserving inline styles, runtime geometry and
   custom marker images on Android/iOS.
 - Include Android callback serialization so replaced/timed-out native captures
   cannot return an old frame to a newer request or block a recreated renderer.
+- Update the native snapshot repair with Android timeout recovery and consistent
+  iOS physical-pixel sizing and map-control exclusion.
+
+## 0.1.0
+
 - Add declarative `RouteMap(location: ManualLocationUpdate(...))` updates,
   including automatic visibility, latest-fix coalescing and style restoration.
   Re-export `ManualLocationUpdate` for provider-driven consumers.

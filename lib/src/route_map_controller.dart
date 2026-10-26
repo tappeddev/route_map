@@ -147,11 +147,17 @@ class RouteMapController {
   ///
   /// Includes runtime geometry and custom marker images on Android and iOS.
   /// Throws [TimeoutException] if the native snapshot exceeds [timeout].
+  /// Throws [StateError] if the map is disposed before capture can start.
   Future<Uint8List> takeSnapshot({
     Duration timeout = const Duration(seconds: 10),
   }) async {
-    final controller = await _controller;
-    return controller.takeSnapshot().timeout(timeout);
+    final png = await _whenMapCreated(
+      (_, controller) => controller.takeSnapshot().timeout(timeout),
+    );
+    if (png == null) {
+      throw StateError('Cannot take a snapshot of a disposed map.');
+    }
+    return png;
   }
 
   /// Toggles the visibility of a previously-installed POI layer.

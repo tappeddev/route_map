@@ -18,7 +18,10 @@ void main() {
     addTearDown(() => MapLibrePlatform.createInstance = previousFactory);
   });
 
-  Future<RouteMapController> pumpMap(WidgetTester tester) async {
+  Future<RouteMapController> pumpMap(
+    WidgetTester tester, {
+    bool createNativeController = true,
+  }) async {
     final controller = RouteMapController();
     await tester.pumpWidget(
       MaterialApp(
@@ -32,6 +35,7 @@ void main() {
         ),
       ),
     );
+    if (!createNativeController) return controller;
     final map = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
     final nativeController = MapLibreMapController(
       maplibrePlatform: platform,
@@ -42,6 +46,30 @@ void main() {
     map.onMapCreated!(nativeController);
     return controller;
   }
+
+  testWidgets('snapshot fails if disposed before the native map is created', (
+    tester,
+  ) async {
+    final controller = await pumpMap(tester, createNativeController: false);
+    final expectation = expectLater(
+      controller.takeSnapshot(),
+      throwsStateError,
+    );
+    await tester.pump();
+    expect(platform.captureCount, 0);
+    await tester.pumpWidget(const SizedBox());
+    await expectation;
+    expect(platform.captureCount, 0);
+  });
+
+  testWidgets('snapshot fails without calling native code after disposal', (
+    tester,
+  ) async {
+    final controller = await pumpMap(tester);
+    await tester.pumpWidget(const SizedBox());
+    await expectLater(controller.takeSnapshot(), throwsStateError);
+    expect(platform.captureCount, 0);
+  });
 
   testWidgets('snapshot returns the bytes captured by the native renderer', (
     tester,
@@ -94,6 +122,7 @@ void main() {
 
 class _SnapshotPlatform extends MapLibrePlatform {
   late final snapshot = Completer<Uint8List>();
+  int captureCount = 0;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -106,5 +135,8 @@ class _SnapshotPlatform extends MapLibrePlatform {
   ) => const SizedBox();
 
   @override
-  Future<Uint8List> takeSnapshot({int? width, int? height}) => snapshot.future;
+  Future<Uint8List> takeSnapshot({int? width, int? height}) {
+    captureCount++;
+    return snapshot.future;
+  }
 }

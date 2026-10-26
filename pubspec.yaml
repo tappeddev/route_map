@@ -18,7 +18,7 @@ dependencies:
     # ignore: invalid_dependency
     git:
       url: https://github.com/tappeddev/flutter-maplibre-gl.git
-      ref: bd1c970f9c3765b9727bc818f1120c1e3fe42447
+      ref: 68a281f825497c6f0906493778c3dc861564bba5
       path: maplibre_gl
   synchronized: ^3.4.0
 
