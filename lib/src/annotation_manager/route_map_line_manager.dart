@@ -256,7 +256,8 @@ class RouteMapLineManager {
       );
     }
 
-    // Unset properties are reset to their defaults, like a new layer.
+    // setLayerProperties also sends unset (null) properties, which resets them
+    // to their defaults, like a new layer.
     await controller.setLayerProperties(
       _dashedRouteLayerId(route.identifier),
       _lineLayerProperties(theme),
