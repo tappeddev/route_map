@@ -75,7 +75,7 @@ class RouteMapLineManager {
 
     final dashedRoutes = _routeMap.values.whereType<_DrawnDashedRoute>();
     for (final drawnRoute in dashedRoutes.toList()) {
-      await _removeRouteLayers(drawnRoute.route.identifier);
+      await _removeDashedRoute(drawnRoute.route.identifier);
     }
 
     _routeMap.clear();
@@ -109,7 +109,7 @@ class RouteMapLineManager {
           case final _DrawnLineRoute drawnLineRoute:
             await _updateExistingRoute(drawnLineRoute, route, theme);
           case _DrawnDashedRoute():
-            await _updateRouteLayers(route, theme);
+            await _updateDashedRoute(route, theme);
         }
         break;
       case RouteMapRouteMutationStrategy.rebuild:
@@ -117,7 +117,7 @@ class RouteMapLineManager {
           case _DrawnLineRoute(:final line, :final backLine):
             await controller.removeLines([line, ?backLine]);
           case _DrawnDashedRoute():
-            await _removeRouteLayers(route.identifier);
+            await _removeDashedRoute(route.identifier);
         }
         await _drawNewRoute(route, theme);
         break;
@@ -129,7 +129,7 @@ class RouteMapLineManager {
     RouteMapRouteTheme theme,
   ) async {
     if (theme.dashArray != null) {
-      await _drawRouteLayers(route, theme);
+      await _drawDashedRoute(route, theme);
       return;
     }
 
@@ -208,11 +208,11 @@ class RouteMapLineManager {
   /// Draws [route] as style layers instead of line annotations, because
   /// only style layers support `line-dasharray`. They are inserted below
   /// all annotation layers, see [RouteMapLayerManager.addLayer].
-  Future<void> _drawRouteLayers(
+  Future<void> _drawDashedRoute(
     RouteMapRoute route,
     RouteMapRouteTheme theme,
   ) async {
-    final sourceId = _routeSourceId(route.identifier);
+    final sourceId = _dashedRouteSourceId(route.identifier);
     await layerManager.addSource(
       sourceId,
       GeojsonSourceProperties(data: _routeGeoJson(route)),
@@ -222,7 +222,7 @@ class RouteMapLineManager {
       if (controller.isDisposed) return;
       await layerManager.addLayer(
         sourceId,
-        _routeBackLayerId(route.identifier),
+        _dashedRouteBackLayerId(route.identifier),
         _backLineLayerProperties(theme),
         enableInteraction: false,
       );
@@ -231,7 +231,7 @@ class RouteMapLineManager {
     if (controller.isDisposed) return;
     await layerManager.addLayer(
       sourceId,
-      _routeLayerId(route.identifier),
+      _dashedRouteLayerId(route.identifier),
       _lineLayerProperties(theme),
       enableInteraction: false,
     );
@@ -239,35 +239,35 @@ class RouteMapLineManager {
   }
 
   /// Counterpart of [_updateExistingRoute] for routes drawn by
-  /// [_drawRouteLayers]. Keeps the layers, so their order is unchanged.
-  Future<void> _updateRouteLayers(
+  /// [_drawDashedRoute]. Keeps the layers, so their order is unchanged.
+  Future<void> _updateDashedRoute(
     RouteMapRoute route,
     RouteMapRouteTheme theme,
   ) async {
     await controller.setGeoJsonSource(
-      _routeSourceId(route.identifier),
+      _dashedRouteSourceId(route.identifier),
       _routeGeoJson(route),
     );
 
     if (theme.backLineWidth != null && theme.backLineColor != null) {
       await controller.setLayerProperties(
-        _routeBackLayerId(route.identifier),
+        _dashedRouteBackLayerId(route.identifier),
         _backLineLayerProperties(theme),
       );
     }
 
     // Unset properties are reset to their defaults, like a new layer.
     await controller.setLayerProperties(
-      _routeLayerId(route.identifier),
+      _dashedRouteLayerId(route.identifier),
       _lineLayerProperties(theme),
     );
     _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
   }
 
-  Future<void> _removeRouteLayers(String identifier) async {
-    await layerManager.removeLayer(_routeLayerId(identifier));
-    await layerManager.removeLayer(_routeBackLayerId(identifier));
-    await layerManager.removeSource(_routeSourceId(identifier));
+  Future<void> _removeDashedRoute(String identifier) async {
+    await layerManager.removeLayer(_dashedRouteLayerId(identifier));
+    await layerManager.removeLayer(_dashedRouteBackLayerId(identifier));
+    await layerManager.removeSource(_dashedRouteSourceId(identifier));
   }
 }
 
@@ -289,18 +289,19 @@ class _DrawnLineRoute extends _DrawnRoute {
   });
 }
 
-/// Drawn as style layers, see [RouteMapLineManager._drawRouteLayers].
+/// Drawn as style layers, see [RouteMapLineManager._drawDashedRoute].
 class _DrawnDashedRoute extends _DrawnRoute {
   const _DrawnDashedRoute({required super.route});
 }
 
-String _routeSourceId(String identifier) =>
-    "route_map_route_source_$identifier";
+String _dashedRouteSourceId(String identifier) =>
+    "route_map_dashed_route_source_$identifier";
 
-String _routeLayerId(String identifier) => "route_map_route_layer_$identifier";
+String _dashedRouteLayerId(String identifier) =>
+    "route_map_dashed_route_layer_$identifier";
 
-String _routeBackLayerId(String identifier) =>
-    "route_map_route_back_layer_$identifier";
+String _dashedRouteBackLayerId(String identifier) =>
+    "route_map_dashed_route_back_layer_$identifier";
 
 Map<String, dynamic> _routeGeoJson(RouteMapRoute route) =>
     buildFeatureCollection([LineOptions(geometry: route.points).toGeoJson()]);

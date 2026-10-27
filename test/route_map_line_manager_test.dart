@@ -89,9 +89,9 @@ void main() {
   });
 
   group('dashed route', () {
-    const sourceId = 'route_map_route_source_not-driven';
-    const frontLayerId = 'route_map_route_layer_not-driven';
-    const backLayerId = 'route_map_route_back_layer_not-driven';
+    const sourceId = 'route_map_dashed_route_source_not-driven';
+    const frontLayerId = 'route_map_dashed_route_layer_not-driven';
+    const backLayerId = 'route_map_dashed_route_back_layer_not-driven';
     const route = RouteMapRoute(
       identifier: 'not-driven',
       points: [LatLng(38, 23.5), LatLng(38.5, 24)],
