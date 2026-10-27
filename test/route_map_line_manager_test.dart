@@ -58,7 +58,7 @@ void main() {
     expect(theme.dashArray, isNull);
   });
 
-  test('dashed routes are always rebuilt', () {
+  test('switching between solid and dashed requires a rebuild', () {
     const solidTheme = RouteMapRouteTheme(
       lineWidth: 3,
       color: Color(0xFFE0A400),
@@ -69,10 +69,14 @@ void main() {
       dashArray: [2, 2],
     );
 
-    for (final (previousTheme, nextTheme) in [
-      (solidTheme, dashedTheme),
-      (dashedTheme, dashedTheme),
-      (dashedTheme, solidTheme),
+    for (final (previousTheme, nextTheme, expectedStrategy) in [
+      (solidTheme, dashedTheme, RouteMapRouteMutationStrategy.rebuild),
+      (dashedTheme, solidTheme, RouteMapRouteMutationStrategy.rebuild),
+      (
+        dashedTheme,
+        dashedTheme.copyWith(dashArray: [4, 1]),
+        RouteMapRouteMutationStrategy.update,
+      ),
     ]) {
       final strategy = resolveRouteMutationStrategy(
         hasExistingRoute: true,
@@ -80,7 +84,7 @@ void main() {
         nextTheme: nextTheme,
       );
 
-      expect(strategy, RouteMapRouteMutationStrategy.rebuild);
+      expect(strategy, expectedStrategy);
     }
   });
 
@@ -130,22 +134,13 @@ void main() {
           frontLayerId,
           ..._annotationLayerIds,
         ]);
-        expect(controller.sources[sourceId]!['data'], {
-          'type': 'FeatureCollection',
-          'features': [
-            {
-              'type': 'Feature',
-              'properties': <String, dynamic>{},
-              'geometry': {
-                'type': 'LineString',
-                'coordinates': [
-                  [23.5, 38],
-                  [24, 38.5],
-                ],
-              },
-            },
-          ],
-        });
+        expect(
+          controller.sources[sourceId]!['data'],
+          _lineStringData([
+            [23.5, 38],
+            [24, 38.5],
+          ]),
+        );
         expect(controller.layers[frontLayerId], {
           'line-color': const Color(0xFFE0A400).toHexStringRGB(),
           'line-opacity': 1.0,
@@ -184,8 +179,55 @@ void main() {
         const Color(0xFF5A4710).toHexStringRGB(),
       );
     });
+
+    test('is updated in place when redrawn', () async {
+      const otherRoute = RouteMapRoute(
+        identifier: 'other',
+        points: [LatLng(38, 24), LatLng(38.5, 24.5)],
+        theme: RouteMapRouteTheme(
+          lineWidth: 3,
+          color: Color(0xFF000000),
+          dashArray: [1, 1],
+        ),
+      );
+      await lineManager.drawRoute(route);
+      await lineManager.drawRoute(otherRoute);
+      final layerIdsBeforeUpdate = [...controller.styleLayerIds];
+
+      await lineManager.drawRoute(
+        route.copyWith(
+          points: const [LatLng(38, 23.5), LatLng(38.25, 23.75)],
+          theme: route.theme.copyWith(color: const Color(0xFF0000FF)),
+        ),
+      );
+
+      // A rebuild would move the route above `otherRoute`.
+      expect(controller.styleLayerIds, layerIdsBeforeUpdate);
+      expect(
+        controller.sources[sourceId]!['data'],
+        _lineStringData([
+          [23.5, 38],
+          [23.75, 38.25],
+        ]),
+      );
+      expect(
+        controller.layers[frontLayerId]!['line-color'],
+        const Color(0xFF0000FF).toHexStringRGB(),
+      );
+    });
   });
 }
+
+Map<String, dynamic> _lineStringData(List<List<double>> coordinates) => {
+  'type': 'FeatureCollection',
+  'features': [
+    {
+      'type': 'Feature',
+      'properties': <String, dynamic>{},
+      'geometry': {'type': 'LineString', 'coordinates': coordinates},
+    },
+  ],
+};
 
 const _annotationLayerIds = ['fills', 'lines', 'symbols', 'circles'];
 
@@ -247,6 +289,23 @@ class _FakeMapController extends Fake implements MapLibreMapController {
   Future<void> removeLayer(String layerId) async {
     styleLayerIds.remove(layerId);
     layers.remove(layerId);
+  }
+
+  @override
+  Future<void> setGeoJsonSource(
+    String sourceId,
+    Map<String, dynamic> geojson,
+  ) async {
+    sources[sourceId]!['data'] = geojson;
+  }
+
+  @override
+  Future<void> setLayerProperties(
+    String layerId,
+    LayerProperties properties,
+  ) async {
+    if (!layers.containsKey(layerId)) throw StateError('No layer $layerId');
+    layers[layerId] = properties.toJson();
   }
 }
 

@@ -336,7 +336,7 @@ mixin _$RouteMapRouteTheme {
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
-///   drawn one is on top),
+///   added one is on top),
 /// * don't consume taps and don't trigger `onFeatureHover`.
  List<double>? get dashArray;
 /// Create a copy of RouteMapRouteTheme
@@ -553,7 +553,7 @@ class _RouteMapRouteTheme implements RouteMapRouteTheme {
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
-///   drawn one is on top),
+///   added one is on top),
 /// * don't consume taps and don't trigger `onFeatureHover`.
  final  List<double>? _dashArray;
 /// Dashes the front line with MapLibre `line-dasharray` semantics:
@@ -564,7 +564,7 @@ class _RouteMapRouteTheme implements RouteMapRouteTheme {
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
-///   drawn one is on top),
+///   added one is on top),
 /// * don't consume taps and don't trigger `onFeatureHover`.
 @override List<double>? get dashArray {
   final value = _dashArray;

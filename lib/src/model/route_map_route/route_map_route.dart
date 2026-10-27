@@ -33,7 +33,7 @@ abstract class RouteMapRouteTheme with _$RouteMapRouteTheme {
     /// style layers instead. As a consequence they:
     /// * always render below solid routes, icons and circles,
     ///   regardless of draw order (among dashed routes, the most recently
-    ///   drawn one is on top),
+    ///   added one is on top),
     /// * don't consume taps and don't trigger `onFeatureHover`.
     List<double>? dashArray,
   }) = _RouteMapRouteTheme;

@@ -16,8 +16,11 @@ RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
     return RouteMapRouteMutationStrategy.add;
   }
 
-  // Dashed routes are drawn as style layers, which are rebuilt on every change.
-  if (previousTheme.dashArray != null || nextTheme.dashArray != null) {
+  // Dashed routes are drawn as style layers, solid routes as line annotations.
+  final wasDashed = previousTheme.dashArray != null;
+  final isDashed = nextTheme.dashArray != null;
+
+  if (wasDashed != isDashed) {
     return RouteMapRouteMutationStrategy.rebuild;
   }
 
@@ -102,12 +105,12 @@ class RouteMapLineManager {
         await _drawNewRoute(route, theme);
         break;
       case RouteMapRouteMutationStrategy.update:
-        // Dashed routes are always rebuilt, so this is a line route.
-        await _updateExistingRoute(
-          drawnRoute! as _DrawnLineRoute,
-          route,
-          theme,
-        );
+        switch (drawnRoute!) {
+          case final _DrawnLineRoute drawnLineRoute:
+            await _updateExistingRoute(drawnLineRoute, route, theme);
+          case _DrawnDashedRoute():
+            await _updateRouteLayers(route, theme);
+        }
         break;
       case RouteMapRouteMutationStrategy.rebuild:
         switch (drawnRoute!) {
@@ -212,11 +215,7 @@ class RouteMapLineManager {
     final sourceId = _routeSourceId(route.identifier);
     await layerManager.addSource(
       sourceId,
-      GeojsonSourceProperties(
-        data: buildFeatureCollection([
-          LineOptions(geometry: route.points).toGeoJson(),
-        ]),
-      ),
+      GeojsonSourceProperties(data: _routeGeoJson(route)),
     );
 
     if (theme.backLineWidth != null && theme.backLineColor != null) {
@@ -224,13 +223,7 @@ class RouteMapLineManager {
       await layerManager.addLayer(
         sourceId,
         _routeBackLayerId(route.identifier),
-        LineLayerProperties(
-          lineColor: theme.backLineColor!.toHexStringRGB(),
-          lineOpacity: theme.backLineColor!.a,
-          lineWidth: theme.backLineWidth,
-          lineJoin: theme.lineJoin,
-          lineBlur: theme.lineBlur,
-        ),
+        _backLineLayerProperties(theme),
         enableInteraction: false,
       );
     }
@@ -239,15 +232,34 @@ class RouteMapLineManager {
     await layerManager.addLayer(
       sourceId,
       _routeLayerId(route.identifier),
-      LineLayerProperties(
-        lineColor: theme.color.toHexStringRGB(),
-        lineOpacity: theme.color.a,
-        lineWidth: theme.lineWidth,
-        lineJoin: theme.lineJoin,
-        lineBlur: theme.lineBlur,
-        lineDasharray: theme.dashArray,
-      ),
+      _lineLayerProperties(theme),
       enableInteraction: false,
+    );
+    _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
+  }
+
+  /// Counterpart of [_updateExistingRoute] for routes drawn by
+  /// [_drawRouteLayers]. Keeps the layers, so their order is unchanged.
+  Future<void> _updateRouteLayers(
+    RouteMapRoute route,
+    RouteMapRouteTheme theme,
+  ) async {
+    await controller.setGeoJsonSource(
+      _routeSourceId(route.identifier),
+      _routeGeoJson(route),
+    );
+
+    if (theme.backLineWidth != null && theme.backLineColor != null) {
+      await controller.setLayerProperties(
+        _routeBackLayerId(route.identifier),
+        _backLineLayerProperties(theme),
+      );
+    }
+
+    // Unset properties are reset to their defaults, like a new layer.
+    await controller.setLayerProperties(
+      _routeLayerId(route.identifier),
+      _lineLayerProperties(theme),
     );
     _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
   }
@@ -289,3 +301,25 @@ String _routeLayerId(String identifier) => "route_map_route_layer_$identifier";
 
 String _routeBackLayerId(String identifier) =>
     "route_map_route_back_layer_$identifier";
+
+Map<String, dynamic> _routeGeoJson(RouteMapRoute route) =>
+    buildFeatureCollection([LineOptions(geometry: route.points).toGeoJson()]);
+
+LineLayerProperties _lineLayerProperties(RouteMapRouteTheme theme) =>
+    LineLayerProperties(
+      lineColor: theme.color.toHexStringRGB(),
+      lineOpacity: theme.color.a,
+      lineWidth: theme.lineWidth,
+      lineJoin: theme.lineJoin,
+      lineBlur: theme.lineBlur,
+      lineDasharray: theme.dashArray,
+    );
+
+LineLayerProperties _backLineLayerProperties(RouteMapRouteTheme theme) =>
+    LineLayerProperties(
+      lineColor: theme.backLineColor!.toHexStringRGB(),
+      lineOpacity: theme.backLineColor!.a,
+      lineWidth: theme.backLineWidth,
+      lineJoin: theme.lineJoin,
+      lineBlur: theme.lineBlur,
+    );
