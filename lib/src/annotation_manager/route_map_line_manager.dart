@@ -55,23 +55,24 @@ class RouteMapLineManager {
     }
   }
 
-  RouteMapRoute? findRouteByHoveredLine(Line line) =>
-      _routeMap.values.firstWhereOrNull((drawnRoute) {
+  RouteMapRoute? findRouteByHoveredLine(Line line) => _routeMap.values
+      .whereType<_DrawnLineRoute>()
+      .firstWhereOrNull((drawnRoute) {
         // If backline exists, ignore front line to prevent duplicate callbacks
         return drawnRoute.backLine != null
             ? drawnRoute.backLine!.id == line.id
-            : drawnRoute.line?.id == line.id;
-      })?.route;
+            : drawnRoute.line.id == line.id;
+      })
+      ?.route;
 
   Future<void> removeRoutes() async {
     if (controller.lines.isNotEmpty) {
       await controller.removeLines(controller.lines);
     }
 
-    for (final drawnRoute in _routeMap.values.toList()) {
-      if (drawnRoute.line == null) {
-        await _removeRouteLayers(drawnRoute.route.identifier);
-      }
+    final dashedRoutes = _routeMap.values.whereType<_DrawnDashedRoute>();
+    for (final drawnRoute in dashedRoutes.toList()) {
+      await _removeRouteLayers(drawnRoute.route.identifier);
     }
 
     _routeMap.clear();
@@ -101,17 +102,19 @@ class RouteMapLineManager {
         await _drawNewRoute(route, theme);
         break;
       case RouteMapRouteMutationStrategy.update:
-        await _updateExistingRoute(drawnRoute!, route, theme);
+        // Dashed routes are always rebuilt, so this is a line route.
+        await _updateExistingRoute(
+          drawnRoute! as _DrawnLineRoute,
+          route,
+          theme,
+        );
         break;
       case RouteMapRouteMutationStrategy.rebuild:
-        final line = drawnRoute!.line;
-        if (line == null) {
-          await _removeRouteLayers(route.identifier);
-        } else {
-          await controller.removeLines([
-            line,
-            if (drawnRoute.backLine != null) drawnRoute.backLine!,
-          ]);
+        switch (drawnRoute!) {
+          case _DrawnLineRoute(:final line, :final backLine):
+            await controller.removeLines([line, ?backLine]);
+          case _DrawnDashedRoute():
+            await _removeRouteLayers(route.identifier);
         }
         await _drawNewRoute(route, theme);
         break;
@@ -151,7 +154,7 @@ class RouteMapLineManager {
 
     if (controller.isDisposed) return;
     final line = await controller.addLine(routeLine);
-    _routeMap[route.identifier] = _DrawnRoute(
+    _routeMap[route.identifier] = _DrawnLineRoute(
       route: route,
       line: line,
       backLine: backLine,
@@ -159,12 +162,12 @@ class RouteMapLineManager {
   }
 
   Future<void> _updateExistingRoute(
-    _DrawnRoute drawnRoute,
+    _DrawnLineRoute drawnRoute,
     RouteMapRoute route,
     RouteMapRouteTheme theme,
   ) async {
     await controller.updateLine(
-      drawnRoute.line!,
+      drawnRoute.line,
       LineOptions(
         geometry: route.points,
         lineColor: theme.color.toHexStringRGB(),
@@ -192,7 +195,7 @@ class RouteMapLineManager {
       );
     }
 
-    _routeMap[route.identifier] = _DrawnRoute(
+    _routeMap[route.identifier] = _DrawnLineRoute(
       route: route,
       line: drawnRoute.line,
       backLine: drawnRoute.backLine,
@@ -246,7 +249,7 @@ class RouteMapLineManager {
       ),
       enableInteraction: false,
     );
-    _routeMap[route.identifier] = _DrawnRoute(route: route);
+    _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
   }
 
   Future<void> _removeRouteLayers(String identifier) async {
@@ -256,15 +259,27 @@ class RouteMapLineManager {
   }
 }
 
-class _DrawnRoute {
+sealed class _DrawnRoute {
   final RouteMapRoute route;
 
-  /// Null when the route is drawn as style layers, see
-  /// [RouteMapLineManager._drawRouteLayers].
-  final Line? line;
+  const _DrawnRoute({required this.route});
+}
+
+/// Drawn as line annotations.
+class _DrawnLineRoute extends _DrawnRoute {
+  final Line line;
   final Line? backLine;
 
-  const _DrawnRoute({required this.route, this.line, this.backLine});
+  const _DrawnLineRoute({
+    required super.route,
+    required this.line,
+    this.backLine,
+  });
+}
+
+/// Drawn as style layers, see [RouteMapLineManager._drawRouteLayers].
+class _DrawnDashedRoute extends _DrawnRoute {
+  const _DrawnDashedRoute({required super.route});
 }
 
 String _routeSourceId(String identifier) =>
