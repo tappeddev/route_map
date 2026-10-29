@@ -108,7 +108,15 @@ Every `route_map` type, plus the MapLibre types you need (`LatLng`,
 `GeojsonSourceProperties`, `ManualLocationUpdate`, …) is exported from the single
 `package:route_map/route_map.dart` import.
 
-## Drawing on the map
+## Guide
+
+The sections below are collapsed — open the ones you need.
+
+<!-- GitHub does not render `> [!NOTE]`-style alerts inside <details>, so the
+     notes below use `> **Note** — …` blockquotes instead. -->
+
+<details>
+<summary><strong>Drawing on the map</strong> — routes, markers, circles and areas</summary>
 
 Every drawable carries an `identifier`. That identifier is your handle: draw with
 the same one again to replace, pass it to a `remove*` method to delete. Controller
@@ -248,7 +256,10 @@ await _controller.removeAreas();
 
 Outlines do not need to be closed — the first point is repeated for you.
 
-## Theming and dark mode
+</details>
+
+<details>
+<summary><strong>Theming and dark mode</strong> — <code>theme</code> / <code>darkTheme</code> and platform brightness</summary>
 
 Routes, icons, circles, areas, POI categories and cluster bubbles each accept a
 `theme` and an optional `darkTheme`. `route_map` reads the **platform brightness**
@@ -275,7 +286,10 @@ styleUrl: Theme.of(context).brightness == Brightness.dark
 Changing `styleUrl` tears down and rebuilds the style; `route_map` reinstalls your
 service areas, POI layers, map language and all drawn geometry afterwards.
 
-## Camera
+</details>
+
+<details>
+<summary><strong>Camera</strong> — animating, fitting points, constraints and callbacks</summary>
 
 ```dart
 // Fit a set of points, using `zoomPadding` unless overridden.
@@ -296,11 +310,10 @@ final position = await _controller.getCameraPosition();
 `drawRoute`, `drawIcon`, `drawCircle` and `drawArea` all take `animateCamera` to
 fit what you just drew in one call.
 
-> [!NOTE]
-> Set `trackCameraPosition: true` if you use `animateCameraToTarget` without
-> passing an explicit `zoom` / `tilt`, or if you read `getCameraPosition()`.
-> Without tracking, MapLibre keeps reporting the *initial* camera position, and
-> the omitted values would snap back to it.
+> **Note** — Set `trackCameraPosition: true` if you use `animateCameraToTarget`
+> without passing an explicit `zoom` / `tilt`, or if you read
+> `getCameraPosition()`. Without tracking, MapLibre keeps reporting the *initial*
+> camera position, and the omitted values would snap back to it.
 
 Constrain and observe the camera with:
 
@@ -315,7 +328,10 @@ Constrain and observe the camera with:
 
 `onCameraMove` only fires while `trackCameraPosition` is `true`.
 
-## User location
+</details>
+
+<details>
+<summary><strong>User location</strong> — the native indicator, driven by your own fixes</summary>
 
 Pass the current fix to `RouteMap.location`. `route_map` forwards updates to
 MapLibre as the widget rebuilds:
@@ -347,10 +363,9 @@ Visibility and the manual location source are managed internally. The latest fix
 is applied once the style has loaded and restored after style changes, and
 intermediate fixes received while loading or sending are coalesced.
 
-> [!IMPORTANT]
-> Rebuilding with the *same* fix instance does not resend it. Provide a new
-> instance for every observation, including accuracy-only or timestamp-only
-> changes.
+> **Important** — Rebuilding with the *same* fix instance does not resend it.
+> Provide a new instance for every observation, including accuracy-only or
+> timestamp-only changes.
 
 MapLibre draws the indicator and its accuracy visualization natively. It does not
 request location permission or start its own device-location engine in manual
@@ -368,7 +383,8 @@ non-null. `onCameraTrackingChanged` reports every tracking change (including
 is Android-only. On iOS MapLibre logs `RenderMode.GPS currently not supported`
 and keeps the plain dot.
 
-### Styling the native indicator (Android)
+<details>
+<summary><strong>Styling the native indicator (Android)</strong> — restyling the puck, accuracy circle and shadow</summary>
 
 The indicator is drawn by the native SDK, so neither `route_map` nor `maplibre_gl`
 exposes its colours, size or shadow as Dart properties. On Android you can still
@@ -413,11 +429,10 @@ SDK's and `maplibre_gl` picks it up automatically — no plugin change needed.
 </resources>
 ```
 
-> [!IMPORTANT]
-> A same-name style **replaces** the SDK's rather than inheriting from it, and
-> `createFromAttributes` resolves every attribute you omit to its own default —
-> the drawable attributes default to `-1`, i.e. no icon. Copy the SDK's style in
-> full and change only the items you care about, and re-check it when
+> **Important** — A same-name style **replaces** the SDK's rather than inheriting
+> from it, and `createFromAttributes` resolves every attribute you omit to its own
+> default — the drawable attributes default to `-1`, i.e. no icon. Copy the SDK's
+> style in full and change only the items you care about, and re-check it when
 > `maplibre_gl` bumps the native SDK.
 
 Attributes you can set this way (full list in `attrs.xml`, see below):
@@ -467,7 +482,12 @@ toggles `showsUserLocation` / `showsUserHeadingIndicator`; restyling the iOS dot
 needs `MLNMapView.tintColor` or a custom `userLocationAnnotationViewClass`, neither
 of which is reachable from Dart.
 
-## POI layers
+</details>
+
+</details>
+
+<details>
+<summary><strong>POI layers</strong> — clustered, filtered, interactive GeoJSON overlays</summary>
 
 A `RouteMapPoiLayer` is a declarative wrapper around one GeoJSON source plus the
 symbol and circle layers rendered from it. Each **category** filters the source's
@@ -536,7 +556,10 @@ Worth knowing:
   is never drawn twice.
 - `belowLayerId` inserts the whole layer below a style layer of your choice.
 
-## Service areas
+</details>
+
+<details>
+<summary><strong>Service areas</strong> — shaded coverage overlays below all annotations</summary>
 
 `serviceAreaLayers` shades regions — typically the parts of the map you *don't*
 serve. The fill is drawn below all annotations, so routes and markers stay fully
@@ -565,7 +588,10 @@ RouteMap(
 The border takes its own source so you can outline a different geometry than the
 one you fill.
 
-## Interaction
+</details>
+
+<details>
+<summary><strong>Interaction</strong> — taps, drags, hover and maps inside scrollables</summary>
 
 ```dart
 RouteMap(
@@ -603,6 +629,8 @@ RouteMap(
 This affects iOS and Android only; on web the map receives events directly.
 `Factory` comes from `package:flutter/foundation.dart` and
 `EagerGestureRecognizer` from `package:flutter/gestures.dart`.
+
+</details>
 
 ## Example app
 
