@@ -87,31 +87,6 @@ class RouteMapLayerManager {
     }
   }
 
-  /// Removes a layer added through [addLayer]. No-op when the layer is
-  /// not tracked (anymore), e.g. because [removeAll] already removed it.
-  /// Failures are swallowed for the same reason as in [removeAll].
-  Future<void> removeLayer(String layerId) async {
-    if (!_layerIds.remove(layerId)) return;
-    if (controller.isDisposed) return;
-    try {
-      await controller.removeLayer(layerId);
-    } catch (_) {
-      /* ignore */
-    }
-  }
-
-  /// Removes a source added through [addSource]. Remove its layers first.
-  /// Behaves like [removeLayer] otherwise.
-  Future<void> removeSource(String sourceId) async {
-    if (!_sourceIds.remove(sourceId)) return;
-    if (controller.isDisposed) return;
-    try {
-      await controller.removeSource(sourceId);
-    } catch (_) {
-      /* ignore */
-    }
-  }
-
   Future<void> addImage(String id, Uint8List bytes) async {
     if (_imageIds.contains(id)) return;
     await controller.addImage(id, bytes);
