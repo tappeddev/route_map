@@ -46,7 +46,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
     if (!mounted) return;
 
     final sourceId = "route_map_poi_source_${layer.identifier}";
-    await _layerManagerInstance.addSource(sourceId, source);
+    await _layerManager.addSource(sourceId, source);
     if (!mounted) return;
 
     // Register PNGs via the shared icon manager so POI markers go
@@ -66,7 +66,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
         svgIconPath: category.svgIconPath,
         anchor: category.anchor,
       );
-      final imageKey = await _iconManagerInstance.addImageToCacheIfNeeded(
+      final imageKey = await _iconManager.addImageToCacheIfNeeded(
         controller,
         mapIcon: template,
       );
@@ -108,13 +108,13 @@ extension _RouteMapPoiLayerState on _RouteMapState {
                 ? (labelDef.darkHaloColor ?? labelDef.haloColor)
                 : labelDef.haloColor);
 
-      await _layerManagerInstance.addLayer(
+      await _layerManager.addLayer(
         sourceId,
         layerId,
         SymbolLayerProperties(
           iconImage: imageKey,
           iconAnchor: category.anchor.mglIconValue,
-          iconSize: _iconManagerInstance.iconScale,
+          iconSize: _iconManager.iconScale,
           iconAllowOverlap: widget.allowIconsOverlap,
           iconIgnorePlacement: widget.ignoreIconsPlacement,
           textField: hasLabel ? labelDef.textExpression : null,
@@ -157,7 +157,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
           ? (clusterTheme.darkTextColor ?? clusterTheme.textColor)
           : clusterTheme.textColor;
 
-      await _layerManagerInstance.addLayer(
+      await _layerManager.addLayer(
         sourceId,
         circleId,
         CircleLayerProperties(
@@ -174,7 +174,7 @@ extension _RouteMapPoiLayerState on _RouteMapState {
       );
       if (!mounted) return;
 
-      await _layerManagerInstance.addLayer(
+      await _layerManager.addLayer(
         sourceId,
         textId,
         SymbolLayerProperties(

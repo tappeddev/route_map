@@ -10,59 +10,52 @@ class RouteMapController {
 
   Future<_RouteMapState> get _state async => _stateCompleter.future;
 
-  Future<MapLibreMapController> get _controller async =>
-      (await _state)._controller;
-
-  Future<RouteMapLineManager> get _lineManager async =>
-      (await _state)._lineManager;
-
-  Future<RouteMapCircleManager> get _circleManager async =>
-      (await _state)._circleManager;
-
-  Future<RouteMapIconManager> get _iconManager async =>
-      (await _state)._iconManager;
-
-  Future<RouteMapLocationIndicatorCoordinator>
-  get _locationIndicatorManager async =>
-      (await _state)._locationIndicatorCoordinator;
-
-  Future<bool> get _mounted async => (await _state).mounted;
-
-  Future<CameraPosition?> getCameraPosition() async {
-    final controller = await _controller;
-    if (!await _mounted) return null;
-    return controller.cameraPosition;
+  /// Runs [action] once the native map is created. Skips it and returns null
+  /// if the map is disposed first.
+  Future<T?> _whenMapCreated<T>(
+    FutureOr<T> Function(_RouteMapState state, MapLibreMapController controller)
+    action,
+  ) async {
+    final state = await _state;
+    await state._waitForMapCreated();
+    if (!state.mounted) return null;
+    return action(state, await state._controller);
   }
+
+  /// Runs [action] once the style is ready, so the managers are safe to use.
+  /// Skips it and returns null if the map is disposed first.
+  Future<T?> _whenStyleReady<T>(
+    FutureOr<T> Function(_RouteMapState state) action,
+  ) async {
+    final state = await _state;
+    await state._waitForStyleReady();
+    if (!state.mounted) return null;
+    return action(state);
+  }
+
+  Future<CameraPosition?> getCameraPosition() =>
+      _whenMapCreated<CameraPosition?>(
+        (_, controller) => controller.cameraPosition,
+      );
 
   Future<void> drawRoute({
     required RouteMapRoute route,
     required bool animateCamera,
   }) async {
-    final lineManager = await _lineManager;
-    if (!await _mounted) return;
-    await lineManager.drawRoute(route);
-
-    if (!await _mounted) return;
-
+    await _whenStyleReady((state) => state._lineManager.drawRoute(route));
     if (animateCamera) {
       await animateCameraTo(points: route.points);
     }
   }
 
-  Future<void> removeRoutes() async {
-    final lineManager = await _lineManager;
-    if (!await _mounted) return;
-    await lineManager.removeRoutes();
-  }
+  Future<void> removeRoutes() =>
+      _whenStyleReady((state) => state._lineManager.removeRoutes());
 
   Future<void> drawIcon(
     RouteMapIcon mapIcon, {
     bool animateCamera = false,
   }) async {
-    final iconManager = await _iconManager;
-    if (!await _mounted) return;
-    await iconManager.drawIcon(mapIcon);
-    if (!await _mounted) return;
+    await _whenStyleReady((state) => state._iconManager.drawIcon(mapIcon));
     if (animateCamera) {
       await animateCameraTo(points: [mapIcon.latLng]);
     }
@@ -72,58 +65,44 @@ class RouteMapController {
     RouteMapCircle circle, {
     bool animateCamera = false,
   }) async {
-    final circleManager = await _circleManager;
-    if (!await _mounted) return;
-    await circleManager.drawCircle(circle);
-    if (!await _mounted) return;
+    await _whenStyleReady((state) => state._circleManager.drawCircle(circle));
     if (animateCamera) {
       await animateCameraTo(points: [circle.latLng]);
     }
   }
 
-  Future<void> removeIcons() async {
-    final iconManager = await _iconManager;
-    if (!await _mounted) return;
-    await iconManager.removeIcons();
+  Future<void> removeIcons() =>
+      _whenStyleReady((state) => state._iconManager.removeIcons());
+
+  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) =>
+      _whenStyleReady((state) => state._iconManager.removeIconsWhere(test));
+
+  Future<void> removeIcon(String identifier) => _whenStyleReady(
+    (state) => state._iconManager.removeIcon(identifier: identifier),
+  );
+
+  Future<void> removeCircles() =>
+      _whenStyleReady((state) => state._circleManager.removeCircles());
+
+  Future<void> removeCircle(String identifier) => _whenStyleReady(
+    (state) => state._circleManager.removeCircle(identifier: identifier),
+  );
+
+  Future<void> drawArea(RouteMapArea area, {bool animateCamera = false}) async {
+    await _whenStyleReady((state) => state._areaManager.drawArea(area));
+    if (animateCamera) {
+      await animateCameraTo(
+        points: [for (final polygon in area.polygons) ...polygon.outline],
+      );
+    }
   }
 
-  Future<void> removeIconsWhere(bool Function(RouteMapIcon icon) test) async {
-    final iconManager = await _iconManager;
-    if (!await _mounted) return;
-    await iconManager.removeIconsWhere(test);
-  }
+  Future<void> removeArea(String identifier) => _whenStyleReady(
+    (state) => state._areaManager.removeArea(identifier: identifier),
+  );
 
-  Future<void> removeIcon(String identifier) async {
-    final iconManager = await _iconManager;
-    if (!await _mounted) return;
-    await iconManager.removeIcon(identifier: identifier);
-  }
-
-  Future<void> removeCircles() async {
-    final circleManager = await _circleManager;
-    if (!await _mounted) return;
-    await circleManager.removeCircles();
-  }
-
-  Future<void> removeCircle(String identifier) async {
-    final circleManager = await _circleManager;
-    if (!await _mounted) return;
-    await circleManager.removeCircle(identifier: identifier);
-  }
-
-  Future<void> drawUserLocationIndicator(
-    RouteMapUserLocationIndicator indicator,
-  ) async {
-    final locationIndicatorManager = await _locationIndicatorManager;
-    if (!await _mounted) return;
-    await locationIndicatorManager.drawUserLocationIndicator(indicator);
-  }
-
-  Future<void> removeUserLocationIndicator() async {
-    final locationIndicatorManager = await _locationIndicatorManager;
-    if (!await _mounted) return;
-    await locationIndicatorManager.removeUserLocationIndicator();
-  }
+  Future<void> removeAreas() =>
+      _whenStyleReady((state) => state._areaManager.removeAreas());
 
   Future<void> animateCameraToTarget({
     required LatLng target,
@@ -131,38 +110,38 @@ class RouteMapController {
     double? bearing,
     double? tilt,
     Duration duration = const Duration(milliseconds: 1500),
-  }) async {
-    final controller = await _controller;
-    if (!await _mounted) return;
-
+  }) => _whenMapCreated((state, controller) async {
     final cameraUpdate = resolveAnimateCameraToTargetUpdate(
       target: target,
-      trackedCameraPosition: controller.cameraPosition,
+      // Without tracking, MapLibre keeps reporting the initial camera
+      // position, which would reset the zoom and tilt.
+      trackedCameraPosition: state.widget.trackCameraPosition
+          ? controller.cameraPosition
+          : null,
       zoom: zoom,
       bearing: bearing,
       tilt: tilt,
     );
 
     await controller.animateCamera(cameraUpdate, duration: duration);
-  }
+  });
 
   /// Move cameras center to the [latLng] with zoom in by [detailCameraFocusZoom]
-  Future<void> animateCameraTo({required List<LatLng> points}) async {
-    final state = await _state;
-    final controller = await _controller;
-    if (!await _mounted) return;
-
+  Future<void> animateCameraTo({
+    required List<LatLng> points,
+    EdgeInsets? padding,
+  }) => _whenMapCreated((state, controller) async {
     final cameraUpdate = await controller.cameraUpdateFrom(
       points: points,
-      padding: state.widget.zoomPadding,
+      padding: padding ?? state.widget.zoomPadding,
     );
-    if (!await _mounted) return;
+    if (!state.mounted) return;
 
     await controller.animateCamera(
       cameraUpdate,
       duration: const Duration(milliseconds: 1500),
     );
-  }
+  });
 
   /// Toggles the visibility of a previously-installed POI layer.
   ///
@@ -171,11 +150,9 @@ class RouteMapController {
   Future<void> setPoiLayerVisibility({
     required String identifier,
     required bool isVisible,
-  }) async {
-    final state = await _state;
-    final controller = await _controller;
-    if (!await _mounted) return;
-
+  }) => _whenStyleReady((state) async {
+    // The POI layers are only installed once the style is ready.
+    final controller = await state._controller;
     final entry = state._poiLayers[identifier];
     if (entry == null) return;
     if (entry.isVisible == isVisible) return;
@@ -185,5 +162,5 @@ class RouteMapController {
       entry: entry,
       isVisible: isVisible,
     );
-  }
+  });
 }

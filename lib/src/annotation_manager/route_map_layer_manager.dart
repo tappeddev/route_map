@@ -118,6 +118,32 @@ class RouteMapLayerManager {
     _imageIds.add(id);
   }
 
+  /// Removes a single layer added via [addLayer]. Does nothing when the layer
+  /// isn't attached (anymore), e.g. because a style change removed it.
+  Future<void> removeLayer(String id) async {
+    if (!_layerIds.remove(id)) return;
+    if (controller.isDisposed) return;
+
+    try {
+      await controller.removeLayer(id);
+    } catch (_) {
+      /* ignore, a style change may have already dropped it */
+    }
+  }
+
+  /// Removes a single source added via [addSource]. The layers using the
+  /// source have to be removed before.
+  Future<void> removeSource(String id) async {
+    if (!_sourceIds.remove(id)) return;
+    if (controller.isDisposed) return;
+
+    try {
+      await controller.removeSource(id);
+    } catch (_) {
+      /* ignore, a style change may have already dropped it */
+    }
+  }
+
   /// Tears down every source & layer this manager has attached to the
   /// map. Individual failures are swallowed because a style change may
   /// have already dropped some of them on the native side.

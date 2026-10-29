@@ -32,6 +32,51 @@ to `/example` folder.
 const like = 'sample';
 ```
 
+### App-provided user locations
+
+Pass the current fix to `RouteMap.location`. RouteMap forwards updates to
+MapLibre as the widget rebuilds:
+
+```dart
+RouteMap(
+  location: ref.watch(provCurrentLocation), // ManualLocationUpdate?
+  // ...other map options
+)
+```
+
+The provider should return `ManualLocationUpdate?`, exported by
+`package:route_map/route_map.dart`. If your provider returns an app-specific
+model, convert it to this value at the app boundary:
+
+```dart
+ManualLocationUpdate(
+  target: LatLng(fix.latitude, fix.longitude),
+  horizontalAccuracy: fix.accuracy, // metres
+  bearing: fix.heading, // direction of travel in degrees
+  speed: fix.speed, // metres per second
+  timestamp: fix.timestamp,
+)
+```
+
+A non-null `location` enables the native indicator automatically; `null` hides
+it. Visibility and the manual location source are managed internally.
+The latest fix is applied after loading and restored after style changes.
+Intermediate fixes received while loading or sending an update are coalesced.
+Rebuilding with the same fix instance does not resend it; provide a new instance
+for each observation, including accuracy-only or timestamp-only changes.
+
+Riverpod is optional: `location` is a regular widget property and works with any
+state-management approach. RouteMap does not subscribe to your provider.
+
+MapLibre draws the native location indicator and accuracy visualization. It does
+not request location permission or start its own device-location engine in manual
+mode; your app owns the provider, its permissions, and its subscription lifecycle.
+Updates wait until the map's style is ready.
+
+Use `myLocationTrackingMode` and `myLocationRenderMode` to configure native camera
+following and indicator rendering. Both enums are exported by
+`package:route_map/route_map.dart`.
+
 ## Additional information
 
 TODO: Tell users more about the package: where to find more information, how to
