@@ -364,6 +364,109 @@ non-null. `onCameraTrackingChanged` reports every tracking change (including
 `MyLocationTrackingMode.none` when `location` becomes `null`), while
 `onCameraTrackingDismissed` fires when a user gesture breaks the follow.
 
+`MyLocationRenderMode.gps` — the arrow that points in the direction of travel —
+is Android-only. On iOS MapLibre logs `RenderMode.GPS currently not supported`
+and keeps the plain dot.
+
+### Styling the native indicator (Android)
+
+The indicator is drawn by the native SDK, so neither `route_map` nor `maplibre_gl`
+exposes its colours, size or shadow as Dart properties. On Android you can still
+restyle it, because `maplibre_gl` builds its options from an Android **style
+resource**:
+
+```java
+// maplibre_gl: MapLibreMapController.java
+LocationComponentOptions.builder(context)
+// maplibre-native: LocationComponentOptions.java
+//   builder(context) -> createFromAttributes(context, R.style.maplibre_LocationComponent)
+```
+
+Android resource merging makes an app-level resource win over a library one of the
+same name, so declaring `maplibre_LocationComponent` in your app replaces the
+SDK's and `maplibre_gl` picks it up automatically — no plugin change needed.
+
+```xml
+<!-- android/app/src/main/res/values/maplibre_location_component.xml -->
+<resources>
+    <style name="maplibre_LocationComponent">
+        <item name="maplibre_foregroundDrawable">@drawable/maplibre_user_icon</item>
+        <item name="maplibre_backgroundDrawable">@drawable/maplibre_user_stroke_icon</item>
+        <item name="maplibre_bearingDrawable">@drawable/maplibre_user_bearing_icon</item>
+        <item name="maplibre_gpsDrawable">@drawable/maplibre_user_puck_icon</item>
+
+        <item name="maplibre_foregroundDrawableStale">@drawable/maplibre_user_icon_stale</item>
+        <item name="maplibre_backgroundDrawableStale">@drawable/maplibre_user_stroke_icon</item>
+
+        <!-- Draw the puck smaller: the scale is interpolated linearly between
+             the map's min and max zoom. The SDK defaults are 0.6 and 1. -->
+        <item name="maplibre_minZoomIconScale">0.5</item>
+        <item name="maplibre_maxZoomIconScale">0.8</item>
+
+        <item name="maplibre_accuracyColor">@color/maplibre_location_layer_blue</item>
+        <item name="maplibre_accuracyAlpha">0.15</item>
+        <item name="maplibre_elevation">12dp</item>
+
+        <item name="maplibre_enableStaleState">true</item>
+        <item name="maplibre_staleStateTimeout">30000</item>
+    </style>
+</resources>
+```
+
+> [!IMPORTANT]
+> A same-name style **replaces** the SDK's rather than inheriting from it, and
+> `createFromAttributes` resolves every attribute you omit to its own default —
+> the drawable attributes default to `-1`, i.e. no icon. Copy the SDK's style in
+> full and change only the items you care about, and re-check it when
+> `maplibre_gl` bumps the native SDK.
+
+Attributes you can set this way (full list in `attrs.xml`, see below):
+
+| Group | Attributes |
+|---|---|
+| Icons | `maplibre_foregroundDrawable`, `maplibre_backgroundDrawable`, `maplibre_bearingDrawable`, `maplibre_gpsDrawable` |
+| Tints | `maplibre_foregroundTintColor`, `maplibre_backgroundTintColor`, `maplibre_bearingTintColor` |
+| Stale state | `maplibre_enableStaleState`, `maplibre_staleStateTimeout`, `maplibre_foregroundDrawableStale`, `maplibre_backgroundDrawableStale`, `maplibre_foregroundStaleTintColor`, `maplibre_backgroundStaleTintColor` |
+| Accuracy circle | `maplibre_accuracyColor`, `maplibre_accuracyAlpha`, `maplibre_accuracyAnimationEnabled` |
+| Size & shadow | `maplibre_minZoomIconScale`, `maplibre_maxZoomIconScale`, `maplibre_elevation`, `maplibre_iconPadding{Left,Top,Right,Bottom}` |
+| Animation | `maplibre_trackingAnimationDurationMultiplier`, `maplibre_compassAnimationEnabled` |
+| Tracking thresholds | `maplibre_trackingInitialMoveThreshold`, `maplibre_trackingMultiFingerMoveThreshold` |
+| Pulsing circle | `maplibre_pulsingLocationCircleEnabled`, `…FadeEnabled`, `…Color`, `…Duration`, `…Radius`, `…Alpha` |
+| Stacking | `maplibre_bearing_on_top` |
+
+Three attributes are declared but will not do what you expect:
+
+- **`maplibre_trackingGesturesManagement`** is overwritten with `true` by
+  `maplibre_gl` after the style is read, so the XML value is ignored.
+- **`maplibre_layer_above` / `maplibre_layer_below`** are also set in code, to the
+  topmost layer of the loaded style. Setting `maplibre_layer_below` yourself makes
+  both present, and `LocationComponentOptions.build()` throws
+  `IllegalArgumentException: You cannot set both layerAbove and layerBelow`.
+- **`maplibre_pulsingLocationCircleInterpolator`** exists in `attrs.xml` but
+  `createFromAttributes` never reads it, so it is a no-op from XML.
+
+`maplibre_accuracyAlpha` must be between `0` and `1` and `maplibre_elevation` must
+be `>= 0`, or `build()` throws.
+
+To enlarge only the arrow without enlarging the disc, copy the SDK's
+`maplibre_user_puck_icon` vector drawable, wrap its arrow `<path>` in a `<group>`
+with `android:scaleX` / `scaleY` and a pivot at the centre, and point
+`maplibre_gpsDrawable` at your copy.
+
+**Reference** — `maplibre_gl` 0.27.1 pins `org.maplibre.gl:android-sdk-opengl:13.5.0`,
+so match these to that tag:
+
+- [Default `maplibre_LocationComponent` style](https://github.com/maplibre/maplibre-native/blob/main/platform/android/MapLibreAndroid/src/main/res/values/styles.xml) — the style to copy
+- [`attrs.xml`, `declare-styleable maplibre_LocationComponent`](https://github.com/maplibre/maplibre-native/blob/main/platform/android/MapLibreAndroid/src/main/res/values/attrs.xml) — every attribute and its format
+- [`LocationComponentOptions.java`](https://github.com/maplibre/maplibre-native/blob/main/platform/android/MapLibreAndroid/src/main/java/org/maplibre/android/location/LocationComponentOptions.java) — per-attribute docs, defaults and validation
+- [`LocationComponentOptions` API reference](https://maplibre.org/maplibre-native/android/api/-map-libre%20-native%20-android/org.maplibre.android.location/-location-component-options/index.html)
+- [Location component guide](https://github.com/maplibre/maplibre-native/blob/main/platform/android/docs/location-component.md)
+
+There is no iOS equivalent. `maplibre_gl` 0.27.1 uses `MapLibre` 6.28.0 and only
+toggles `showsUserLocation` / `showsUserHeadingIndicator`; restyling the iOS dot
+needs `MLNMapView.tintColor` or a custom `userLocationAnnotationViewClass`, neither
+of which is reachable from Dart.
+
 ## POI layers
 
 A `RouteMapPoiLayer` is a declarative wrapper around one GeoJSON source plus the
