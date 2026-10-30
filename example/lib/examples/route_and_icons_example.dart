@@ -3,7 +3,8 @@ import 'package:example/util/style_url.dart';
 import 'package:flutter/material.dart';
 import 'package:route_map/route_map.dart';
 
-/// Original demo: draws a route with a start and end pin.
+/// Original demo: draws a route with a start and end pin, plus a dashed
+/// alternative route via Ulm and Augsburg.
 class RouteAndIconsExample extends StatefulWidget {
   const RouteAndIconsExample({super.key});
 
@@ -71,6 +72,28 @@ class _RouteAndIconsExampleState extends State<RouteAndIconsExample> {
           color: Color.fromARGB(255, 85, 97, 117),
           backLineColor: Colors.black45,
           backLineWidth: 7,
+        ),
+      ),
+      animateCamera: false,
+    );
+
+    if (!mounted) return;
+    // Dashed routes are always drawn below solid ones.
+    await _mapController.drawRoute(
+      route: const RouteMapRoute(
+        identifier: "alternative-route-identifier",
+        points: [
+          start,
+          LatLng(48.4011, 9.9876),
+          LatLng(48.3705, 10.8978),
+          destination,
+        ],
+        theme: RouteMapRouteTheme(
+          lineWidth: 4,
+          color: Color.fromARGB(255, 85, 97, 117),
+          backLineColor: Colors.white70,
+          backLineWidth: 6,
+          dashArray: [2, 1.5],
         ),
       ),
       animateCamera: true,

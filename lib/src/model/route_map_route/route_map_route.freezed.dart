@@ -330,13 +330,17 @@ mixin _$RouteMapRouteTheme {
 
  double get lineWidth; Color get color; double? get backLineWidth; Color? get backLineColor; String? get lineJoin; double? get lineBlur;/// Dashes the front line with MapLibre `line-dasharray` semantics:
 /// alternating dash and gap lengths in multiples of [lineWidth],
-/// e.g. `[2, 2]`. The back line stays solid.
+/// e.g. `[2, 2]`. Must be non-empty and contain only positive values.
+/// The back line stays solid.
 ///
 /// Line annotations can't be dashed, so dashed routes are drawn as
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
 ///   added one is on top),
+/// * render relative to areas without a [RouteMapArea.belowLayerId] in
+///   insertion order, which can change after a style reload (areas are
+///   restored first),
 /// * don't consume taps and don't trigger `onFeatureHover`.
  List<double>? get dashArray;
 /// Create a copy of RouteMapRouteTheme
@@ -547,24 +551,32 @@ class _RouteMapRouteTheme implements RouteMapRouteTheme {
 @override final  double? lineBlur;
 /// Dashes the front line with MapLibre `line-dasharray` semantics:
 /// alternating dash and gap lengths in multiples of [lineWidth],
-/// e.g. `[2, 2]`. The back line stays solid.
+/// e.g. `[2, 2]`. Must be non-empty and contain only positive values.
+/// The back line stays solid.
 ///
 /// Line annotations can't be dashed, so dashed routes are drawn as
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
 ///   added one is on top),
+/// * render relative to areas without a [RouteMapArea.belowLayerId] in
+///   insertion order, which can change after a style reload (areas are
+///   restored first),
 /// * don't consume taps and don't trigger `onFeatureHover`.
  final  List<double>? _dashArray;
 /// Dashes the front line with MapLibre `line-dasharray` semantics:
 /// alternating dash and gap lengths in multiples of [lineWidth],
-/// e.g. `[2, 2]`. The back line stays solid.
+/// e.g. `[2, 2]`. Must be non-empty and contain only positive values.
+/// The back line stays solid.
 ///
 /// Line annotations can't be dashed, so dashed routes are drawn as
 /// style layers instead. As a consequence they:
 /// * always render below solid routes, icons and circles,
 ///   regardless of draw order (among dashed routes, the most recently
 ///   added one is on top),
+/// * render relative to areas without a [RouteMapArea.belowLayerId] in
+///   insertion order, which can change after a style reload (areas are
+///   restored first),
 /// * don't consume taps and don't trigger `onFeatureHover`.
 @override List<double>? get dashArray {
   final value = _dashArray;

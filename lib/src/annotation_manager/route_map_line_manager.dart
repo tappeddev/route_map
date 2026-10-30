@@ -4,12 +4,16 @@ import 'package:collection/collection.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:route_map/src/annotation_manager/route_map_layer_manager.dart';
 import 'package:route_map/src/model/route_map_route/route_map_route.dart';
+import 'package:synchronized/synchronized.dart';
 
 enum RouteMapRouteMutationStrategy { add, update, rebuild }
 
+/// [wasDrawnDashed] and [wasDrawnWithBackLine] tell how the existing route is
+/// actually drawn, and are ignored when there is no existing route.
 RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
   required bool hasExistingRoute,
-  required RouteMapRouteTheme previousTheme,
+  required bool wasDrawnDashed,
+  required bool wasDrawnWithBackLine,
   required RouteMapRouteTheme nextTheme,
 }) {
   if (!hasExistingRoute) {
@@ -17,20 +21,16 @@ RouteMapRouteMutationStrategy resolveRouteMutationStrategy({
   }
 
   // Dashed routes are drawn as style layers, solid routes as line annotations.
-  final wasDashed = previousTheme.dashArray != null;
   final isDashed = nextTheme.dashArray != null;
 
-  if (wasDashed != isDashed) {
+  if (wasDrawnDashed != isDashed) {
     return RouteMapRouteMutationStrategy.rebuild;
   }
 
-  final hadBackLine =
-      previousTheme.backLineWidth != null &&
-      previousTheme.backLineColor != null;
   final hasBackLine =
       nextTheme.backLineWidth != null && nextTheme.backLineColor != null;
 
-  if (hadBackLine != hasBackLine) {
+  if (wasDrawnWithBackLine != hasBackLine) {
     return RouteMapRouteMutationStrategy.rebuild;
   }
 
@@ -46,16 +46,20 @@ class RouteMapLineManager {
 
   final _routeMap = <String, _DrawnRoute>{};
 
+  final _lock = Lock();
+
   RouteMapLineManager({required this.controller, required this.layerManager});
 
-  Future<void> restore(Brightness brightness) async {
-    _brightness = brightness;
-    final routes = _routeMap.values.toList();
-    await removeRoutes();
-    for (final drawnRoute in routes) {
-      if (controller.isDisposed) return;
-      await drawRoute(drawnRoute.route);
-    }
+  Future<void> restore(Brightness brightness) {
+    return _lock.synchronized(() async {
+      _brightness = brightness;
+      final routes = _routeMap.values.toList();
+      await _removeRoutes();
+      for (final drawnRoute in routes) {
+        if (controller.isDisposed) return;
+        await _drawRoute(drawnRoute.route);
+      }
+    });
   }
 
   RouteMapRoute? findRouteByHoveredLine(Line line) => _routeMap.values
@@ -68,7 +72,13 @@ class RouteMapLineManager {
       })
       ?.route;
 
-  Future<void> removeRoutes() async {
+  Future<void> removeRoutes() => _lock.synchronized(_removeRoutes);
+
+  Future<void> drawRoute(RouteMapRoute route) =>
+      _lock.synchronized(() => _drawRoute(route));
+
+  Future<void> _removeRoutes() async {
+    if (controller.isDisposed) return;
     if (controller.lines.isNotEmpty) {
       await controller.removeLines(controller.lines);
     }
@@ -81,8 +91,14 @@ class RouteMapLineManager {
     _routeMap.clear();
   }
 
-  /// Returns a tuple (String, String?) containing the front line id and the optional back line id
-  Future<void> drawRoute(RouteMapRoute route) async {
+  Future<void> _drawRoute(RouteMapRoute route) async {
+    assert(
+      _isValidDashArray(route.theme.dashArray) &&
+          _isValidDashArray(route.darkTheme?.dashArray),
+      'dashArray must be null or a non-empty list of positive values',
+    );
+    if (controller.isDisposed) return;
+
     final drawnRoute = _routeMap[route.identifier];
     final theme = switch (_brightness) {
       Brightness.dark => route.darkTheme ?? route.theme,
@@ -90,13 +106,8 @@ class RouteMapLineManager {
     };
     final mutationStrategy = resolveRouteMutationStrategy(
       hasExistingRoute: drawnRoute != null,
-      previousTheme:
-          switch (_brightness) {
-            Brightness.dark =>
-              drawnRoute?.route.darkTheme ?? drawnRoute?.route.theme,
-            Brightness.light => drawnRoute?.route.theme,
-          } ??
-          theme,
+      wasDrawnDashed: drawnRoute is _DrawnDashedRoute,
+      wasDrawnWithBackLine: drawnRoute?.hasBackLine ?? false,
       nextTheme: theme,
     );
 
@@ -107,9 +118,9 @@ class RouteMapLineManager {
       case RouteMapRouteMutationStrategy.update:
         switch (drawnRoute!) {
           case final _DrawnLineRoute drawnLineRoute:
-            await _updateExistingRoute(drawnLineRoute, route, theme);
-          case _DrawnDashedRoute():
-            await _updateDashedRoute(route, theme);
+            await _updateRoute(drawnLineRoute, route, theme);
+          case final _DrawnDashedRoute drawnDashedRoute:
+            await _updateDashedRoute(drawnDashedRoute, route, theme);
         }
         break;
       case RouteMapRouteMutationStrategy.rebuild:
@@ -119,6 +130,9 @@ class RouteMapLineManager {
           case _DrawnDashedRoute():
             await _removeDashedRoute(route.identifier);
         }
+        // The route is drawn on top again. Move it to the end, so [restore]
+        // draws the routes in the same order.
+        _routeMap.remove(route.identifier);
         await _drawNewRoute(route, theme);
         break;
     }
@@ -164,7 +178,7 @@ class RouteMapLineManager {
     );
   }
 
-  Future<void> _updateExistingRoute(
+  Future<void> _updateRoute(
     _DrawnLineRoute drawnRoute,
     RouteMapRoute route,
     RouteMapRouteTheme theme,
@@ -218,7 +232,9 @@ class RouteMapLineManager {
       GeojsonSourceProperties(data: _routeGeoJson(route)),
     );
 
-    if (theme.backLineWidth != null && theme.backLineColor != null) {
+    final hasBackLine =
+        theme.backLineWidth != null && theme.backLineColor != null;
+    if (hasBackLine) {
       if (controller.isDisposed) return;
       await layerManager.addLayer(
         sourceId,
@@ -235,21 +251,29 @@ class RouteMapLineManager {
       _lineLayerProperties(theme),
       enableInteraction: false,
     );
-    _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
+    _routeMap[route.identifier] = _DrawnDashedRoute(
+      route: route,
+      hasBackLine: hasBackLine,
+    );
   }
 
-  /// Counterpart of [_updateExistingRoute] for routes drawn by
+  /// Counterpart of [_updateRoute] for routes drawn by
   /// [_drawDashedRoute]. Keeps the layers, so their order is unchanged.
   Future<void> _updateDashedRoute(
+    _DrawnDashedRoute drawnRoute,
     RouteMapRoute route,
     RouteMapRouteTheme theme,
   ) async {
+    if (controller.isDisposed) return;
     await controller.setGeoJsonSource(
       _dashedRouteSourceId(route.identifier),
       _routeGeoJson(route),
     );
 
-    if (theme.backLineWidth != null && theme.backLineColor != null) {
+    if (drawnRoute.hasBackLine &&
+        theme.backLineWidth != null &&
+        theme.backLineColor != null) {
+      if (controller.isDisposed) return;
       await controller.setLayerProperties(
         _dashedRouteBackLayerId(route.identifier),
         _backLineLayerProperties(theme),
@@ -258,11 +282,15 @@ class RouteMapLineManager {
 
     // setLayerProperties also sends unset (null) properties, which resets them
     // to their defaults, like a new layer.
+    if (controller.isDisposed) return;
     await controller.setLayerProperties(
       _dashedRouteLayerId(route.identifier),
       _lineLayerProperties(theme),
     );
-    _routeMap[route.identifier] = _DrawnDashedRoute(route: route);
+    _routeMap[route.identifier] = _DrawnDashedRoute(
+      route: route,
+      hasBackLine: drawnRoute.hasBackLine,
+    );
   }
 
   Future<void> _removeDashedRoute(String identifier) async {
@@ -276,6 +304,8 @@ sealed class _DrawnRoute {
   final RouteMapRoute route;
 
   const _DrawnRoute({required this.route});
+
+  bool get hasBackLine;
 }
 
 /// Drawn as line annotations.
@@ -288,12 +318,22 @@ class _DrawnLineRoute extends _DrawnRoute {
     required this.line,
     this.backLine,
   });
+
+  @override
+  bool get hasBackLine => backLine != null;
 }
 
 /// Drawn as style layers, see [RouteMapLineManager._drawDashedRoute].
 class _DrawnDashedRoute extends _DrawnRoute {
-  const _DrawnDashedRoute({required super.route});
+  @override
+  final bool hasBackLine;
+
+  const _DrawnDashedRoute({required super.route, required this.hasBackLine});
 }
+
+bool _isValidDashArray(List<double>? dashArray) =>
+    dashArray == null ||
+    (dashArray.isNotEmpty && dashArray.every((value) => value > 0));
 
 String _dashedRouteSourceId(String identifier) =>
     "route_map_dashed_route_source_$identifier";

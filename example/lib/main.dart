@@ -157,7 +157,7 @@ final _examples = <ExamplePage>[
   ),
   ExamplePage(
     title: "Route & Icons",
-    subtitle: "Draw a route with start/end pins",
+    subtitle: "Draw a route with start/end pins and a dashed alternative",
     icon: Icons.route,
     builder: (_) => const RouteAndIconsExample(),
   ),

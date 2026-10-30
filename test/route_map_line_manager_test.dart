@@ -7,12 +7,6 @@ import 'package:route_map/src/model/route_map_route/route_map_route.dart';
 
 void main() {
   test('existing route with same backline shape updates in place', () {
-    const previousTheme = RouteMapRouteTheme(
-      lineWidth: 6,
-      color: Color(0xFF0000FF),
-      backLineWidth: 8,
-      backLineColor: Color(0xFFFFFFFF),
-    );
     const nextTheme = RouteMapRouteTheme(
       lineWidth: 7,
       color: Color(0xFF00FF00),
@@ -22,7 +16,8 @@ void main() {
 
     final strategy = resolveRouteMutationStrategy(
       hasExistingRoute: true,
-      previousTheme: previousTheme,
+      wasDrawnDashed: false,
+      wasDrawnWithBackLine: true,
       nextTheme: nextTheme,
     );
 
@@ -30,24 +25,30 @@ void main() {
   });
 
   test('backline presence changes require a rebuild', () {
-    const previousTheme = RouteMapRouteTheme(
+    const themeWithoutBackLine = RouteMapRouteTheme(
       lineWidth: 6,
       color: Color(0xFF0000FF),
     );
-    const nextTheme = RouteMapRouteTheme(
+    const themeWithBackLine = RouteMapRouteTheme(
       lineWidth: 6,
       color: Color(0xFF0000FF),
       backLineWidth: 8,
       backLineColor: Color(0xFFFFFFFF),
     );
 
-    final strategy = resolveRouteMutationStrategy(
-      hasExistingRoute: true,
-      previousTheme: previousTheme,
-      nextTheme: nextTheme,
-    );
+    for (final (wasDrawnWithBackLine, nextTheme) in [
+      (false, themeWithBackLine),
+      (true, themeWithoutBackLine),
+    ]) {
+      final strategy = resolveRouteMutationStrategy(
+        hasExistingRoute: true,
+        wasDrawnDashed: false,
+        wasDrawnWithBackLine: wasDrawnWithBackLine,
+        nextTheme: nextTheme,
+      );
 
-    expect(strategy, RouteMapRouteMutationStrategy.rebuild);
+      expect(strategy, RouteMapRouteMutationStrategy.rebuild);
+    }
   });
 
   test('route theme keeps new smoothing fields optional by default', () {
@@ -69,23 +70,41 @@ void main() {
       dashArray: [2, 2],
     );
 
-    for (final (previousTheme, nextTheme, expectedStrategy) in [
-      (solidTheme, dashedTheme, RouteMapRouteMutationStrategy.rebuild),
-      (dashedTheme, solidTheme, RouteMapRouteMutationStrategy.rebuild),
+    for (final (wasDrawnDashed, nextTheme, expectedStrategy) in [
+      (false, dashedTheme, RouteMapRouteMutationStrategy.rebuild),
+      (true, solidTheme, RouteMapRouteMutationStrategy.rebuild),
       (
-        dashedTheme,
+        true,
         dashedTheme.copyWith(dashArray: [4, 1]),
         RouteMapRouteMutationStrategy.update,
       ),
     ]) {
       final strategy = resolveRouteMutationStrategy(
         hasExistingRoute: true,
-        previousTheme: previousTheme,
+        wasDrawnDashed: wasDrawnDashed,
+        wasDrawnWithBackLine: false,
         nextTheme: nextTheme,
       );
 
       expect(strategy, expectedStrategy);
     }
+  });
+
+  test('route without an existing one is added', () {
+    const dashedTheme = RouteMapRouteTheme(
+      lineWidth: 3,
+      color: Color(0xFFE0A400),
+      dashArray: [2, 2],
+    );
+
+    final strategy = resolveRouteMutationStrategy(
+      hasExistingRoute: false,
+      wasDrawnDashed: false,
+      wasDrawnWithBackLine: true,
+      nextTheme: dashedTheme,
+    );
+
+    expect(strategy, RouteMapRouteMutationStrategy.add);
   });
 
   group('dashed route', () {
@@ -108,6 +127,15 @@ void main() {
         backLineWidth: 9,
         backLineColor: Color(0xFF5A4710),
         dashArray: [2, 2],
+      ),
+    );
+    const otherRoute = RouteMapRoute(
+      identifier: 'other',
+      points: [LatLng(38, 24), LatLng(38.5, 24.5)],
+      theme: RouteMapRouteTheme(
+        lineWidth: 3,
+        color: Color(0xFF000000),
+        dashArray: [1, 1],
       ),
     );
 
@@ -181,15 +209,6 @@ void main() {
     });
 
     test('is updated in place when redrawn', () async {
-      const otherRoute = RouteMapRoute(
-        identifier: 'other',
-        points: [LatLng(38, 24), LatLng(38.5, 24.5)],
-        theme: RouteMapRouteTheme(
-          lineWidth: 3,
-          color: Color(0xFF000000),
-          dashArray: [1, 1],
-        ),
-      );
       await lineManager.drawRoute(route);
       await lineManager.drawRoute(otherRoute);
       final layerIdsBeforeUpdate = [...controller.styleLayerIds];
@@ -215,6 +234,162 @@ void main() {
         const Color(0xFF0000FF).toHexStringRGB(),
       );
     });
+
+    test('resets unset properties when redrawn', () async {
+      await lineManager.drawRoute(
+        route.copyWith(theme: route.theme.copyWith(lineBlur: 2)),
+      );
+      await lineManager.drawRoute(route);
+
+      expect(controller.layers[frontLayerId], containsPair('line-blur', null));
+      expect(controller.layers[backLayerId], containsPair('line-blur', null));
+    });
+
+    test('is drawn once when drawn concurrently', () async {
+      await Future.wait([
+        lineManager.drawRoute(route),
+        lineManager.drawRoute(route),
+      ]);
+
+      expect(controller.styleLayerIds, [
+        backLayerId,
+        frontLayerId,
+        ..._annotationLayerIds,
+      ]);
+      expect(controller.sources.keys, [sourceId]);
+    });
+
+    test('is replaced by line annotations when it becomes solid', () async {
+      await lineManager.drawRoute(route);
+      await lineManager.drawRoute(
+        route.copyWith(theme: route.theme.copyWith(dashArray: null)),
+      );
+
+      expect(controller.styleLayerIds, _annotationLayerIds);
+      expect(controller.sources, isEmpty);
+      expect(
+        controller.lines.map((line) => line.options.lineColor),
+        unorderedEquals([
+          const Color(0xFFE0A400).toHexStringRGB(),
+          const Color(0xFFFFF1C2).toHexStringRGB(),
+        ]),
+      );
+    });
+
+    test('removes and re-adds the back layer when it is toggled', () async {
+      final routeWithoutBackLine = route.copyWith(
+        theme: route.theme.copyWith(backLineWidth: null, backLineColor: null),
+      );
+
+      await lineManager.drawRoute(route);
+      await lineManager.drawRoute(routeWithoutBackLine);
+
+      expect(controller.styleLayerIds, [frontLayerId, ..._annotationLayerIds]);
+      expect(controller.sources.keys, [sourceId]);
+
+      await lineManager.drawRoute(route);
+
+      expect(controller.styleLayerIds, [
+        backLayerId,
+        frontLayerId,
+        ..._annotationLayerIds,
+      ]);
+      expect(controller.sources.keys, [sourceId]);
+    });
+
+    test(
+      'keeps the stacking order after a style reload when rebuilt',
+      () async {
+        await lineManager.drawRoute(route);
+        await lineManager.drawRoute(otherRoute);
+        // Removing the back line rebuilds the route above `otherRoute`.
+        await lineManager.drawRoute(
+          route.copyWith(
+            theme: route.theme.copyWith(
+              backLineWidth: null,
+              backLineColor: null,
+            ),
+          ),
+        );
+        final layerIdsBeforeReload = [...controller.styleLayerIds];
+
+        await layerManager.removeAll();
+        await lineManager.restore(Brightness.light);
+
+        expect(controller.styleLayerIds, layerIdsBeforeReload);
+      },
+    );
+
+    test('makes no native calls once the map is disposed', () async {
+      await lineManager.drawRoute(route);
+      await lineManager.drawRoute(
+        route.copyWith(
+          identifier: 'solid',
+          theme: route.theme.copyWith(dashArray: null),
+        ),
+      );
+      controller
+        ..isDisposed = true
+        ..calls.clear();
+
+      await lineManager.drawRoute(
+        route.copyWith(points: const [LatLng(38, 23.5), LatLng(38.25, 23.75)]),
+      );
+      await lineManager.drawRoute(otherRoute);
+      await lineManager.restore(Brightness.dark);
+      await lineManager.removeRoutes();
+
+      expect(controller.calls, isEmpty);
+    });
+
+    test('stops adding once the map is disposed in between', () async {
+      controller.disposeAfterCall = 'addSource';
+
+      await lineManager.drawRoute(route);
+
+      expect(controller.calls, ['addSource']);
+    });
+
+    test('stops updating once the map is disposed in between', () async {
+      await lineManager.drawRoute(route);
+      for (final (disposeAfterCall, expectedCalls) in [
+        ('setGeoJsonSource', ['setGeoJsonSource']),
+        ('setLayerProperties', ['setGeoJsonSource', 'setLayerProperties']),
+      ]) {
+        controller
+          ..isDisposed = false
+          ..disposeAfterCall = disposeAfterCall
+          ..calls.clear();
+
+        await lineManager.drawRoute(
+          route.copyWith(
+            theme: route.theme.copyWith(color: const Color(0xFF0000FF)),
+          ),
+        );
+
+        expect(controller.calls, expectedCalls);
+      }
+    });
+
+    test('asserts that dashArray is non-empty and positive', () async {
+      for (final dashArray in [
+        <double>[],
+        <double>[2, 0],
+        <double>[2, -1],
+      ]) {
+        await expectLater(
+          lineManager.drawRoute(
+            route.copyWith(
+              darkTheme: route.darkTheme!.copyWith(dashArray: dashArray),
+            ),
+          ),
+          throwsAssertionError,
+        );
+      }
+
+      expect(controller.styleLayerIds, _annotationLayerIds);
+      expect(controller.sources, isEmpty);
+    });
   });
 }
 
@@ -237,9 +412,22 @@ class _FakeMapController extends Fake implements MapLibreMapController {
   final styleLayerIds = [..._annotationLayerIds];
   final layers = <String, Map<String, dynamic>>{};
   final sources = <String, Map<String, dynamic>>{};
+  final _lines = <Line>{};
+  var _nextLineId = 0;
+
+  /// The names of the native calls, in the order they were made.
+  final calls = <String>[];
+
+  /// Disposes the map right after the first call with this name.
+  String? disposeAfterCall;
 
   @override
-  bool get isDisposed => false;
+  bool isDisposed = false;
+
+  void _record(String call) {
+    calls.add(call);
+    if (call == disposeAfterCall) isDisposed = true;
+  }
 
   @override
   FillManager? get fillManager => _FakeFillManager();
@@ -254,18 +442,43 @@ class _FakeMapController extends Fake implements MapLibreMapController {
   CircleManager? get circleManager => _FakeCircleManager();
 
   @override
-  Set<Line> get lines => {};
+  Set<Line> get lines => {..._lines};
 
   @override
-  Future<List<dynamic>> getLayerIds() async => [...styleLayerIds];
+  Future<Line> addLine(
+    LineOptions options, [
+    Map<String, dynamic>? data,
+  ]) async {
+    _record('addLine');
+    final line = Line('line_${_nextLineId++}', options, data);
+    _lines.add(line);
+    return line;
+  }
+
+  @override
+  Future<void> removeLines(Iterable<Line> lines) async {
+    _record('removeLines');
+    _lines.removeAll(lines);
+  }
+
+  @override
+  Future<List<dynamic>> getLayerIds() async {
+    _record('getLayerIds');
+    return [...styleLayerIds];
+  }
 
   @override
   Future<void> addSource(String sourceid, SourceProperties properties) async {
+    _record('addSource');
+    if (sources.containsKey(sourceid)) {
+      throw StateError('Source $sourceid already exists');
+    }
     sources[sourceid] = properties.toJson();
   }
 
   @override
   Future<void> removeSource(String sourceId) async {
+    _record('removeSource');
     sources.remove(sourceId);
   }
 
@@ -281,12 +494,14 @@ class _FakeMapController extends Fake implements MapLibreMapController {
     double? maxzoom,
     dynamic filter,
   }) async {
+    _record('addLayer');
     styleLayerIds.insert(styleLayerIds.indexOf(belowLayerId!), layerId);
     layers[layerId] = properties.toJson();
   }
 
   @override
   Future<void> removeLayer(String layerId) async {
+    _record('removeLayer');
     styleLayerIds.remove(layerId);
     layers.remove(layerId);
   }
@@ -296,6 +511,7 @@ class _FakeMapController extends Fake implements MapLibreMapController {
     String sourceId,
     Map<String, dynamic> geojson,
   ) async {
+    _record('setGeoJsonSource');
     sources[sourceId]!['data'] = geojson;
   }
 
@@ -304,8 +520,10 @@ class _FakeMapController extends Fake implements MapLibreMapController {
     String layerId,
     LayerProperties properties,
   ) async {
+    _record('setLayerProperties');
     if (!layers.containsKey(layerId)) throw StateError('No layer $layerId');
-    layers[layerId] = properties.toJson();
+    // Like MapLibreMapController, which resets unset properties.
+    layers[layerId] = properties.toJson(skipNulls: false);
   }
 }
 
