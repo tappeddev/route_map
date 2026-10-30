@@ -1,3 +1,14 @@
+## 0.2.0
+
+- Add dashed routes via `RouteMapRouteTheme.dashArray`, using MapLibre
+  `line-dasharray` semantics. The back line stays solid. Dashed routes are drawn
+  as style layers, so they render below solid routes, icons and circles and do
+  not consume taps or hover events. Redrawing a dashed route updates it in place.
+- Document the package in the README: features, requirements, quick start and
+  guides for drawing, theming, camera, user location (including restyling the
+  native Android indicator), POI layers, service areas and interaction.
+- Add a package description, `repository` and `issue_tracker` to `pubspec.yaml`.
+
 ## 0.1.0
 
 - Add declarative `RouteMap(location: ManualLocationUpdate(...))` updates,

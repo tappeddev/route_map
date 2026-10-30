@@ -386,10 +386,13 @@ class _RouteMapState extends State<RouteMap> {
         onCameraMove: (position) => widget.onCameraMove?.call(position),
         onCameraIdle: widget.onCameraIdle,
         onMapCreated: (controller) {
-          _iconManager = RouteMapIconManager(controller: controller);
-          _lineManager = RouteMapLineManager(controller: controller);
-          _circleManager = RouteMapCircleManager(controller: controller);
           _layerManager = RouteMapLayerManager(controller: controller);
+          _iconManager = RouteMapIconManager(controller: controller);
+          _lineManager = RouteMapLineManager(
+            controller: controller,
+            layerManager: _layerManager,
+          );
+          _circleManager = RouteMapCircleManager(controller: controller);
           _areaManager = RouteMapAreaManager(
             controller: controller,
             layerManager: _layerManager,
