@@ -13,7 +13,8 @@ across style reloads and light/dark theme switches.
 
 ## Features
 
-- **Routes** — polylines with an optional casing (back line), blur and join style.
+- **Routes** — solid or dashed polylines with an optional casing (back line),
+  blur and join style.
 - **Markers** — pin-shaped icons rendered from an SVG asset or a short text, with
   optional labels, rotation, anchors and drag support.
 - **Circles** — screen-space circles that keep their pixel radius while zooming.
@@ -151,6 +152,35 @@ await _controller.drawRoute(
 
 await _controller.removeRoutes();
 ```
+
+#### Dashed routes
+
+Set `dashArray` to dash the main line, e.g. for walking legs or planned
+sections. It uses MapLibre `line-dasharray` semantics: alternating dash and gap
+lengths in multiples of `lineWidth`. The casing stays solid.
+
+```dart
+await _controller.drawRoute(
+  route: const RouteMapRoute(
+    identifier: 'walk',
+    points: [LatLng(48.1371, 11.5754), LatLng(48.1405, 11.5820)],
+    theme: RouteMapRouteTheme(
+      lineWidth: 4,
+      color: Color(0xFF2B6CF6),
+      dashArray: [2, 2],
+    ),
+  ),
+);
+```
+
+`theme` and `darkTheme` can differ here as well — a route can be dashed in one
+mode and solid in the other.
+
+> **Note** — MapLibre line annotations cannot be dashed, so dashed routes are
+> drawn as style layers instead. As a result they always render **below** solid
+> routes, markers and circles regardless of draw order (among dashed routes, the
+> most recently drawn one is on top), and they do not consume taps or trigger
+> `onFeatureHover`.
 
 ### Markers
 

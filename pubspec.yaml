@@ -1,6 +1,6 @@
 name: route_map
 description: "A Flutter map widget built on MapLibre for drawing routes, themed markers, geographic areas, clustered POIs and coverage overlays."
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/tappeddev/route_map
 issue_tracker: https://github.com/tappeddev/route_map/issues
 
