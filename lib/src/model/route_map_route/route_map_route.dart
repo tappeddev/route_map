@@ -31,12 +31,10 @@ abstract class RouteMapRouteTheme with _$RouteMapRouteTheme {
     ///
     /// Line annotations can't be dashed, so dashed routes are drawn as
     /// style layers instead. As a consequence they:
-    /// * always render below solid routes, icons and circles,
-    ///   regardless of draw order (among dashed routes, the most recently
-    ///   added one is on top),
-    /// * render relative to areas without a [RouteMapArea.belowLayerId] in
-    ///   insertion order, which can change after a style reload (areas are
-    ///   restored first),
+    /// * always render directly below solid routes, even when added after
+    ///   them (among dashed routes, the most recently added one is on top).
+    ///   Like solid routes, they render above areas and below icons and
+    ///   circles,
     /// * don't consume taps and don't trigger `onFeatureHover`.
     List<double>? dashArray,
   }) = _RouteMapRouteTheme;

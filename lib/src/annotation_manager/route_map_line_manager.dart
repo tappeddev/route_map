@@ -219,9 +219,14 @@ class RouteMapLineManager {
     );
   }
 
+  /// The style layer holding the solid routes. maplibre's line manager has a
+  /// second one above it for lines with a pattern, which route_map doesn't
+  /// use.
+  String get _solidRoutesLayerId => controller.lineManager!.layerIds.first;
+
   /// Draws [route] as style layers instead of line annotations, because
-  /// only style layers support `line-dasharray`. They are inserted below
-  /// all annotation layers, see [RouteMapLayerManager.addLayer].
+  /// only style layers support `line-dasharray`. They are inserted directly
+  /// below the solid routes, see [RouteMapLayerManager.addLayer].
   Future<void> _drawDashedRoute(
     RouteMapRoute route,
     RouteMapRouteTheme theme,
@@ -240,6 +245,7 @@ class RouteMapLineManager {
         sourceId,
         _dashedRouteBackLayerId(route.identifier),
         _backLineLayerProperties(theme),
+        belowLayerId: _solidRoutesLayerId,
         enableInteraction: false,
       );
     }
@@ -249,6 +255,7 @@ class RouteMapLineManager {
       sourceId,
       _dashedRouteLayerId(route.identifier),
       _lineLayerProperties(theme),
+      belowLayerId: _solidRoutesLayerId,
       enableInteraction: false,
     );
     _routeMap[route.identifier] = _DrawnDashedRoute(

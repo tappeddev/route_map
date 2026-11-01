@@ -179,12 +179,10 @@ mode and solid in the other.
 > **Note** — MapLibre line annotations cannot be dashed, so dashed routes are
 > drawn as style layers instead. As a result they:
 >
-> - always render **below** solid routes, markers and circles, regardless of
->   draw order,
+> - always render directly **below** solid routes, regardless of draw order.
+>   Like solid routes, they render above areas and below markers and circles,
 > - stack in the order they were added among each other — redrawing a dashed
 >   route keeps its position, unless its back line is added or removed,
-> - stack in insertion order relative to areas without a `belowLayerId`, which
->   can change after a style reload, because areas are restored first,
 > - do not consume taps or trigger `onFeatureHover`.
 
 ### Markers
