@@ -29,9 +29,9 @@ class RouteMapLayerManager {
 
   /// Cache of resolved insert-below anchors keyed by the [belowLayerId]
   /// hint the caller passed to [addLayer]. Cleared in [removeAll]. Safe
-  /// to cache within one install run because the resolved anchor is
-  /// always one of the annotation-manager layers, which the manager
-  /// itself never touches.
+  /// to cache within one install run because the anchors are layers of
+  /// the base style or of the annotation managers, which stay until the
+  /// next style load.
   final Map<String?, String> _insertBelowCache = {};
 
   RouteMapLayerManager({required this.controller});
@@ -42,16 +42,11 @@ class RouteMapLayerManager {
     _sourceIds.add(id);
   }
 
-  /// Adds a style layer. When [belowLayerId] is provided it is
-  /// preferred as insertion anchor; otherwise the first annotation-
-  /// manager layer (lines / symbols / circles / fills) becomes the
-  /// anchor so custom layers stay below drawn routes and icons.
-  ///
-  /// Note: [belowLayerId] here means "prefer this as anchor if it
-  /// exists" — it is *not* forwarded verbatim to
-  /// [MapLibreMapController.addLayer]. The manager always resolves an
-  /// annotation-manager-aware anchor so custom layers never render on
-  /// top of drawn geometry.
+  /// Adds a style layer directly below [belowLayerId], e.g. a label layer
+  /// of the map or the layer of the solid routes. When [belowLayerId] is
+  /// null or isn't in the current style, the lowest annotation-manager
+  /// layer (lines / symbols / circles / fills) becomes the anchor instead,
+  /// so the layer stays below drawn routes and icons.
   Future<void> addLayer(
     String sourceId,
     String layerId,
@@ -165,17 +160,18 @@ class RouteMapLayerManager {
     final cached = _insertBelowCache[belowLayerId];
     if (cached != null) return cached;
 
-    final topLayers = [
+    final annotationLayerIds = [
       ...controller.lineManager!.layerIds,
       ...controller.symbolManager!.layerIds,
       ...controller.circleManager!.layerIds,
       ...controller.fillManager!.layerIds,
-      ?belowLayerId,
     ];
-    final allLayerIds = await controller.getLayerIds();
-    final resolved = allLayerIds
-        .map((layerId) => layerId.toString())
-        .firstWhere((layerId) => topLayers.contains(layerId));
+    final allLayerIds = [
+      for (final layerId in await controller.getLayerIds()) layerId.toString(),
+    ];
+    final resolved = allLayerIds.contains(belowLayerId)
+        ? belowLayerId!
+        : allLayerIds.firstWhere(annotationLayerIds.contains);
     _insertBelowCache[belowLayerId] = resolved;
     return resolved;
   }

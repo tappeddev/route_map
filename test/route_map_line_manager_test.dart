@@ -153,15 +153,14 @@ void main() {
     });
 
     test(
-      'is drawn as solid back and dashed front layer below annotations',
+      'is drawn as solid back and dashed front layer below solid routes',
       () async {
         await lineManager.drawRoute(route);
 
-        expect(controller.styleLayerIds, [
-          backLayerId,
-          frontLayerId,
-          ..._annotationLayerIds,
-        ]);
+        expect(
+          controller.styleLayerIds,
+          _withDashedLayers([backLayerId, frontLayerId]),
+        );
         expect(
           controller.sources[sourceId]!['data'],
           _lineStringData([
@@ -183,6 +182,17 @@ void main() {
       },
     );
 
+    test('stays above areas added after it', () async {
+      await lineManager.drawRoute(route);
+      // Like the fill layer of an area without a belowLayerId.
+      await layerManager.addLayer('area', 'area', const FillLayerProperties());
+
+      expect(controller.styleLayerIds, [
+        'area',
+        ..._withDashedLayers([backLayerId, frontLayerId]),
+      ]);
+    });
+
     test('is removed by removeRoutes', () async {
       await lineManager.drawRoute(route);
       await lineManager.removeRoutes();
@@ -197,11 +207,10 @@ void main() {
       await layerManager.removeAll();
       await lineManager.restore(Brightness.dark);
 
-      expect(controller.styleLayerIds, [
-        backLayerId,
-        frontLayerId,
-        ..._annotationLayerIds,
-      ]);
+      expect(
+        controller.styleLayerIds,
+        _withDashedLayers([backLayerId, frontLayerId]),
+      );
       expect(
         controller.layers[backLayerId]!['line-color'],
         const Color(0xFF5A4710).toHexStringRGB(),
@@ -251,11 +260,10 @@ void main() {
         lineManager.drawRoute(route),
       ]);
 
-      expect(controller.styleLayerIds, [
-        backLayerId,
-        frontLayerId,
-        ..._annotationLayerIds,
-      ]);
+      expect(
+        controller.styleLayerIds,
+        _withDashedLayers([backLayerId, frontLayerId]),
+      );
       expect(controller.sources.keys, [sourceId]);
     });
 
@@ -284,16 +292,15 @@ void main() {
       await lineManager.drawRoute(route);
       await lineManager.drawRoute(routeWithoutBackLine);
 
-      expect(controller.styleLayerIds, [frontLayerId, ..._annotationLayerIds]);
+      expect(controller.styleLayerIds, _withDashedLayers([frontLayerId]));
       expect(controller.sources.keys, [sourceId]);
 
       await lineManager.drawRoute(route);
 
-      expect(controller.styleLayerIds, [
-        backLayerId,
-        frontLayerId,
-        ..._annotationLayerIds,
-      ]);
+      expect(
+        controller.styleLayerIds,
+        _withDashedLayers([backLayerId, frontLayerId]),
+      );
       expect(controller.sources.keys, [sourceId]);
     });
 
@@ -405,6 +412,16 @@ Map<String, dynamic> _lineStringData(List<List<double>> coordinates) => {
 };
 
 const _annotationLayerIds = ['fills', 'lines', 'symbols', 'circles'];
+
+/// [_annotationLayerIds] with [dashedLayerIds] directly below the line
+/// annotations, which hold the solid routes.
+List<String> _withDashedLayers(List<String> dashedLayerIds) => [
+  'fills',
+  ...dashedLayerIds,
+  'lines',
+  'symbols',
+  'circles',
+];
 
 /// Records sources and layers like a MapLibre style. [styleLayerIds] is
 /// ordered bottom to top.

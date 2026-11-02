@@ -1,3 +1,10 @@
+## 0.2.1
+
+- Draw dashed routes directly below solid routes, so like solid routes they
+  render above areas, POI layers and service areas. Before, their order relative
+  to areas depended on insertion order and could change after a style reload.
+  The `belowLayerId` of areas, POI layers and service areas works as before.
+
 ## 0.2.0
 
 - Add dashed routes via `RouteMapRouteTheme.dashArray`, using MapLibre
