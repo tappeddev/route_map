@@ -1,3 +1,8 @@
+## 0.2.2
+
+- Add `RouteMapController.takeSnapshot` to capture the visible map as PNG bytes,
+  with a timeout (default 10 seconds).
+
 ## 0.2.1
 
 - Draw dashed routes directly below solid routes, so like solid routes they
