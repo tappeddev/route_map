@@ -1,3 +1,10 @@
+## Unreleased
+
+- Fix a crash on iOS (`std::domain_error: latitude must not be NaN`) when a map is
+  shown with a `myLocationTrackingMode` other than `none` and the first location
+  arrives later. The tracking and render modes are now applied only after the
+  first fix has reached the native map, and again after the location was hidden.
+
 ## 0.2.1
 
 - Draw dashed routes directly below solid routes, so like solid routes they

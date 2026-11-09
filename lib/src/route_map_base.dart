@@ -59,12 +59,14 @@ class RouteMap extends StatefulWidget {
 
   /// Camera follow mode for the native location puck.
   ///
-  /// Only applied while [location] is non-null.
+  /// Only applied while [location] is non-null, and only after the first fix
+  /// has reached the native map. Following before the native map has a fix
+  /// makes MapLibre on iOS throw `latitude must not be NaN`.
   final MyLocationTrackingMode myLocationTrackingMode;
 
   /// Rendering mode for the native location puck.
   ///
-  /// Only applied while [location] is non-null.
+  /// Applied together with [myLocationTrackingMode].
   final MyLocationRenderMode myLocationRenderMode;
 
   /// Called when native camera tracking changes, including user gestures.
@@ -151,6 +153,10 @@ class _RouteMapState extends State<RouteMap> {
   VoidCallback? _cameraStateListener;
   ManualLocationUpdate? _lastLocation;
 
+  // True once the native map has received a fix since the location was last
+  // shown. Tracking and render modes wait for it, see [RouteMap.myLocationTrackingMode].
+  bool _hasNativeLocation = false;
+
   // Incremented when the location or style changes. An in-flight
   // update may only mark its fix as applied if its captured revision still
   // matches, so an older completion cannot suppress a required resend.
@@ -216,6 +222,7 @@ class _RouteMapState extends State<RouteMap> {
     if (widget.location != oldWidget.location) {
       _locationRevision++;
       _lastLocation = null;
+      if (widget.location == null) _hasNativeLocation = false;
       _scheduleLocationUpdate();
     }
     super.didUpdateWidget(oldWidget);
@@ -266,6 +273,9 @@ class _RouteMapState extends State<RouteMap> {
     final revision = _locationRevision;
     await controller.updateManualLocation(location);
     if (_locationRevision == revision) _lastLocation = location;
+    if (mounted && widget.location != null && !_hasNativeLocation) {
+      setState(() => _hasNativeLocation = true);
+    }
   }
 
   Future<void> _removeListeners() async {
@@ -360,13 +370,15 @@ class _RouteMapState extends State<RouteMap> {
         // Also fine that the first location is null, whenever the location is available, we enable the layer
         myLocationEnabled: widget.location != null,
         locationSource: const ManualLocationSource(),
-        // Fall back to the defaults while the location is hidden: MapLibreMap
-        // asserts on a non-normal render mode without a location, and iOS
-        // shows the location again for any tracking mode other than none.
-        myLocationTrackingMode: widget.location != null
+        // Fall back to the defaults while the location is hidden or has not
+        // reached the native map yet: MapLibreMap asserts on a non-normal
+        // render mode without a location, iOS shows the location again for any
+        // tracking mode other than none, and following without a fix makes
+        // MapLibre throw `latitude must not be NaN`.
+        myLocationTrackingMode: _hasNativeLocation && widget.location != null
             ? widget.myLocationTrackingMode
             : MyLocationTrackingMode.none,
-        myLocationRenderMode: widget.location != null
+        myLocationRenderMode: _hasNativeLocation && widget.location != null
             ? widget.myLocationRenderMode
             : MyLocationRenderMode.normal,
         onCameraTrackingChanged: (mode) =>

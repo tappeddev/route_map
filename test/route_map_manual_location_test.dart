@@ -291,28 +291,95 @@ void main() {
     expect(disabledMap.locationSource, isA<ManualLocationSource>());
   });
 
-  testWidgets('location modes apply only while a location is shown', (
+  testWidgets(
+    'location modes apply only once the first fix reached the native map',
+    (tester) async {
+      final controller = await pumpMap(
+        tester,
+        myLocationTrackingMode: MyLocationTrackingMode.tracking,
+        myLocationRenderMode: MyLocationRenderMode.compass,
+      );
+      final hiddenMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+      expect(hiddenMap.myLocationTrackingMode, MyLocationTrackingMode.none);
+      expect(hiddenMap.myLocationRenderMode, MyLocationRenderMode.normal);
+
+      // Showing the location alone must not start following: MapLibre has no
+      // fix yet and would throw on iOS.
+      const fix = ManualLocationUpdate(target: LatLng(52, 13));
+      await pumpMap(
+        tester,
+        controller: controller,
+        location: fix,
+        myLocationTrackingMode: MyLocationTrackingMode.tracking,
+        myLocationRenderMode: MyLocationRenderMode.compass,
+      );
+      final waitingMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+      expect(waitingMap.myLocationEnabled, isTrue);
+      expect(waitingMap.myLocationTrackingMode, MyLocationTrackingMode.none);
+      expect(waitingMap.myLocationRenderMode, MyLocationRenderMode.normal);
+
+      createNativeController(tester).onStyleLoadedCallback!();
+      await tester.pumpAndSettle();
+      expect(platform.locations, [fix]);
+      final shownMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
+      expect(shownMap.myLocationTrackingMode, MyLocationTrackingMode.tracking);
+      expect(shownMap.myLocationRenderMode, MyLocationRenderMode.compass);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets('location modes wait for a fix again after hiding the location', (
     tester,
   ) async {
+    const fix = ManualLocationUpdate(target: LatLng(52, 13));
     final controller = await pumpMap(
       tester,
+      location: fix,
       myLocationTrackingMode: MyLocationTrackingMode.tracking,
-      myLocationRenderMode: MyLocationRenderMode.compass,
     );
-    final hiddenMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
-    expect(hiddenMap.myLocationTrackingMode, MyLocationTrackingMode.none);
-    expect(hiddenMap.myLocationRenderMode, MyLocationRenderMode.normal);
+    createNativeController(tester).onStyleLoadedCallback!();
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<MapLibreMap>(find.byType(MapLibreMap))
+          .myLocationTrackingMode,
+      MyLocationTrackingMode.tracking,
+    );
 
     await pumpMap(
       tester,
       controller: controller,
-      location: const ManualLocationUpdate(target: LatLng(52, 13)),
       myLocationTrackingMode: MyLocationTrackingMode.tracking,
-      myLocationRenderMode: MyLocationRenderMode.compass,
     );
-    final shownMap = tester.widget<MapLibreMap>(find.byType(MapLibreMap));
-    expect(shownMap.myLocationTrackingMode, MyLocationTrackingMode.tracking);
-    expect(shownMap.myLocationRenderMode, MyLocationRenderMode.compass);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<MapLibreMap>(find.byType(MapLibreMap))
+          .myLocationTrackingMode,
+      MyLocationTrackingMode.none,
+    );
+
+    final nextFix = const ManualLocationUpdate(target: LatLng(53, 14));
+    await pumpMap(
+      tester,
+      controller: controller,
+      location: nextFix,
+      myLocationTrackingMode: MyLocationTrackingMode.tracking,
+    );
+    expect(
+      tester
+          .widget<MapLibreMap>(find.byType(MapLibreMap))
+          .myLocationTrackingMode,
+      MyLocationTrackingMode.none,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<MapLibreMap>(find.byType(MapLibreMap))
+          .myLocationTrackingMode,
+      MyLocationTrackingMode.tracking,
+    );
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('native events use the current callbacks after a rebuild', (
